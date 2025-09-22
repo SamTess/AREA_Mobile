@@ -44,8 +44,6 @@ app-example
 
 # VSCode
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+
+# Package files
 package-lock.json
