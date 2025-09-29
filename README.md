@@ -35,6 +35,11 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
+## Documentation (FR)
+
+- [Installation](docs/installation.md)
+- [Utiliser l’outil use-gluestack-components](docs/use-gluestack-components.md)
+
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:

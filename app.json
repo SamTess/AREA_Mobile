@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "AREA_MOBILE",
-    "slug": "AREA_MOBILE",
+    "name": "Mobile",
+    "slug": "Mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "areamobile",
+    "icon": "./assets/images/area1.png",
+    "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
