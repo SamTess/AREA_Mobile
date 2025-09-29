@@ -12,7 +12,7 @@ export const script = (mode: string) => {
     const theme = isSystem ? getSystemColorMode() : mode;
     documentElement.classList.remove(theme === 'light' ? 'dark' : 'light');
     documentElement.classList.add(theme);
-    documentElement.style.colorScheme = theme;
+    documentElement.style.setProperty('color-scheme', theme);
   } catch (e) {
     console.error(e);
   }
