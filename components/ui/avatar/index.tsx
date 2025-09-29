@@ -16,7 +16,7 @@ interface AvatarFallbackTextProps extends TextProps {
   children: string;
 }
 
-interface AvatarBadgeProps extends ViewProps {}
+type AvatarBadgeProps = ViewProps;
 
 interface AvatarGroupProps extends ViewProps {
   children: React.ReactNode;
