@@ -1,0 +1,46 @@
+{
+  "home": {
+    "greeting": "Bonjour !",
+    "discover": "Découvrez nos dernières recommandations",
+    "searchPlaceholder": "Rechercher...",
+    "recommended": "Recommandé",
+    "seeAll": "Voir tout",
+    "popularThisWeek": "Populaires cette semaine",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "ctaTitle": "Découvrez encore plus",
+    "ctaSubtitle": "Explorez toutes nos recommandations personnalisées"
+  },
+  "details": {
+    "address": "123 Rue de la Paix, Paris",
+    "reviews": "4.8 (245 avis)",
+    "description": "Découvrez une expérience culinaire exceptionnelle dans ce restaurant gastronomique renommé. Notre chef exécutif propose une cuisine raffinée alliant tradition et innovation, avec des ingrédients de saison soigneusement sélectionnés.",
+    "features": "Caractéristiques",
+    "featureCuisine": "Cuisine gastronomique",
+    "featureReservation": "Réservation recommandée",
+    "featureTerrace": "Terrasse disponible",
+    "featureParking": "Parking gratuit",
+    "bookTable": "Réserver une table",
+    "call": "Appeler",
+    "directions": "Itinéraire"
+  },
+  "common": {
+    "popularBadge": "Populaire"
+  },
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Gérez votre compte et vos préférences",
+    "verified": "Vérifié",
+    "premium": "Membre Premium",
+    "settingsTitle": "Paramètres",
+    "settingsSubtitle": "Configurez votre application",
+    "notificationsTitle": "Notifications",
+    "notificationsSubtitle": "Gérez vos notifications",
+    "helpTitle": "Aide et support",
+    "helpSubtitle": "Obtenez de l'aide",
+    "logoutTitle": "Se déconnecter",
+    "logoutSubtitle": "Quitter votre compte",
+    "toggleToFrench": "Passer en français",
+    "toggleToEnglish": "Basculer en anglais"
+  }
+}

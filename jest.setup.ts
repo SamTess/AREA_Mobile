@@ -34,3 +34,6 @@ jest.mock('react-native-safe-area-context', () => {
 
 // Mock Image from expo-image to RN Image for simplicity in tests
 jest.mock('expo-image', () => require('react-native'));
+
+// Initialize i18n for tests with default language 'en'
+import '@/i18n';
