@@ -13,7 +13,6 @@ import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 
-// Profile Option Item
 const ProfileOption: React.FC<{
   icon: any;
   title: string;
