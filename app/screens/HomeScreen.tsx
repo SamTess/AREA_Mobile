@@ -25,7 +25,7 @@ const RecommendationCard: React.FC<{
   onPress?: () => void;
 }> = ({ title, subtitle, imageUrl, onPress }) => {
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} testID={`rec-card-${title.replace(/\s+/g, '-')}` }>
       <Box className="bg-white rounded-lg p-4 shadow-soft-1 mr-4" style={{ width: 280, minWidth: 280 }}>
         <Image
           source={{ uri: imageUrl }}
@@ -113,7 +113,7 @@ const PopularItem: React.FC<{
   onPress?: () => void;
 }> = ({ title, subtitle, imageUrl, onPress }) => {
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} testID={`popular-item-${title.replace(/\s+/g, '-')}` }>
       <Box className="bg-white rounded-lg p-4 shadow-soft-1 w-full">
         <HStack space="md" align="center" className="w-full">
           <Box className="flex-shrink-0">
