@@ -21,7 +21,7 @@ export default function DetailsScreen() {
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
         {/* Header with back button */}
         <HStack justify="between" align="center" className="px-6 py-4">
-          <Button variant="ghost" size="sm" onPress={handleGoBack}>
+          <Button variant="ghost" size="sm" onPress={handleGoBack} testID="back-button">
             <ButtonIcon as={ArrowLeft} className="text-typography-600" size="sm" />
           </Button>
           <HStack space="sm">
