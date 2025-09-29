@@ -1,20 +1,20 @@
-## Utiliser l’outil « use-gluestack-components » (FR)
+## Using the "use-gluestack-components" tool
 
-Ce projet est équipé d’un outil local pour accélérer l’ajout de composants Gluestack UI. Il s’appuie sur un serveur MCP (Model Context Protocol) déclaré dans `.vscode/mcp.json` sous la clé `use-gluestack-components`.
+This project includes a local helper tool to speed up adding Gluestack UI components. It relies on an MCP (Model Context Protocol) server declared in `.vscode/mcp.json` under the key `use-gluestack-components`.
 
-### Ce que fait l’outil
+### What the tool does
 
-- Génère des composants UI prédéfinis (basés sur Gluestack UI + NativeWind)
-- Respecte la structure `components/ui/*` existante
-- Peut insérer les imports/boilerplate nécessaires
+- Generates prebuilt UI snippets (Gluestack UI + NativeWind)
+- Respects the existing `components/ui/*` structure
+- Can insert required imports/boilerplate
 
-### Prérequis
+### Requirements
 
 - VS Code
-- Extension « GitHub Copilot » (ou cliente MCP compatible) activée
-- Node.js installé (l’outil est lancé via `node`)
+- GitHub Copilot (or another MCP-capable client) enabled
+- Node.js installed (the tool is run via `node`)
 
-Le mapping MCP est configuré ici:
+MCP mapping is configured here:
 
 - `.vscode/mcp.json`
   ```jsonc
@@ -23,28 +23,28 @@ Le mapping MCP est configuré ici:
       "use-gluestack-components": {
         "type": "stdio",
         "command": "node",
-        "args": ["/home/carlossobuaro/mcp/index.js"]
+        "args": ["/absolute/path/to/your/mcp/index.js"]
       }
     }
   }
   ```
 
-Assurez-vous que le chemin vers `index.js` existe et pointe vers votre script MCP local. Si vous utilisez un autre emplacement, mettez à jour `args` en conséquence.
+Make sure the path to `index.js` exists and points to your local MCP script. If you use a different location, update `args` accordingly.
 
-### Comment l’utiliser dans VS Code
+### How to use it in VS Code
 
-1) Ouvrez ce repository dans VS Code.
-2) Vérifiez que Copilot/Client MCP a bien détecté le serveur « use-gluestack-components » (il peut apparaître dans la liste des outils Copilot).
-3) Dans un fichier TS/TSX, demandez à Copilot d’insérer un composant. Exemple de prompt:
+1) Open this repository in VS Code.
+2) Ensure Copilot/your MCP client detects the `use-gluestack-components` server (it may appear in the Copilot tools list).
+3) In a TS/TSX file, ask Copilot to insert a component. Example prompts:
 
-   - « Ajoute un bouton Gluestack primaire dans ce screen en utilisant l’outil use-gluestack-components »
-   - « Génère un Input + Button empilés (VStack) avec styles par défaut Gluestack »
+   - "Add a primary Gluestack button to this screen using the use-gluestack-components tool"
+   - "Generate a stacked Input + Button (VStack) with default Gluestack styles"
 
-4) L’outil va proposer le code (imports depuis `@/components/ui/*`, props types, etc.). Relisez puis acceptez.
+4) The tool will propose code (imports from `@/components/ui/*`, prop types, etc.). Review and accept.
 
-### Exemple d’intégration manuelle
+### Manual integration example
 
-Même sans l’outil, vous pouvez utiliser les composants déjà présents:
+Even without the tool, you can use existing components directly:
 
 ```tsx
 import { Button } from '@/components/ui/button';
@@ -54,7 +54,7 @@ import { VStack } from '@/components/ui/vstack';
 export function MySection() {
   return (
     <VStack space="md">
-      <Text size="lg" className="font-semibold">Titre</Text>
+      <Text size="lg" className="font-semibold">Title</Text>
       <Button onPress={() => console.log('clicked')}>
         <Button.Text>Action</Button.Text>
       </Button>
@@ -63,13 +63,13 @@ export function MySection() {
 }
 ```
 
-### Bonnes pratiques
+### Best practices
 
-- Utilisez `GluestackUIProvider` (déjà câblé dans `app/_layout.tsx`).
-- Préférez les composants depuis `@/components/ui/*` pour rester cohérent.
-- Si l’outil génère de nouveaux fichiers, validez les imports alias `@/` (configuré via `babel-plugin-module-resolver`).
+- Use `GluestackUIProvider` (already wired in `app/_layout.tsx`).
+- Prefer components from `@/components/ui/*` for consistency.
+- If the tool generates new files, validate the `@/` alias imports (configured via `babel-plugin-module-resolver`).
 
-### Dépannage
+### Troubleshooting
 
-- Si l’outil n’apparaît pas: ouvrez `.vscode/mcp.json` et confirmez le chemin `args`. Redémarrez VS Code.
-- Si le code généré référence des chemins inexistants, adaptez-les à la structure réelle du dossier `components/ui/`.
+- If the tool doesn’t show up: open `.vscode/mcp.json` and confirm the `args` path. Restart VS Code.
+- If generated code references paths that don’t exist, adapt them to your actual `components/ui/` folder structure.

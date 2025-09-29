@@ -1,66 +1,90 @@
-## Installation (FR)
+## Installation
 
-Suivez ces étapes pour installer et lancer ce projet Expo + React Native avec Gluestack UI.
+Follow these steps to install and run this Expo + React Native project with Gluestack UI.
 
-### Prérequis
+### Prerequisites
 
-- Node.js 18+ et npm (ou pnpm/yarn)
-- Expo CLI (facultatif, `npx expo` suffit)
-- Android Studio (pour Android) / Xcode (pour iOS, macOS requis)
+- Node.js 18+
+- Yarn (recommended). You can use classic Yarn 1.x or Yarn via Corepack
+- Android Studio (for Android) / Xcode (for iOS on macOS)
+- Expo CLI is optional — `npx expo` works fine
 
-Vérifiez votre version de Node:
+Check your Node version:
 
 ```bash
 node -v
 ```
 
-### 1) Installer les dépendances
-
-Depuis la racine du projet:
+If you’re using Yarn via Corepack, enable it once on your machine:
 
 ```bash
-npm install
+corepack enable
 ```
 
-### 2) Démarrer l’application
+If you opt for Yarn 2+ (Berry), React Native works best with the node-modules linker. Create `.yarnrc.yml` in the repo root with:
 
-```bash
-npm run start
+```
+nodeLinker: node-modules
 ```
 
-Dans le terminal Expo, choisissez une cible:
+### 1) Install dependencies
 
-- Android: appuyez sur « a » (émulateur requis) ou scannez le QR code avec un appareil réel.
-- iOS: appuyez sur « i » (macOS + Xcode requis).
-- Web: appuyez sur « w ».
-
-### 3) Structure et thème
-
-- Le routeur se trouve dans `app/` (Expo Router).
-- Le thème Gluestack est fourni par `GluestackUIProvider` dans `app/_layout.tsx`.
-- Tailwind/Nativwind est configuré via `global.css` et `tailwind.config.js`.
-
-### 4) Commandes utiles
+From the project root:
 
 ```bash
-# Lancer en mode web directement
-npm run web
+yarn install
+```
 
-# Lancer et ouvrir Android
-npm run android
+This will generate/update `yarn.lock` and install dependencies.
 
-# Lancer et ouvrir iOS (macOS)
-npm run ios
+### 2) Start the app
 
+```bash
+yarn start
+```
+
+In the Expo terminal, choose a target:
+
+- Android: press `a` (emulator required) or scan the QR code on a real device
+- iOS: press `i` (macOS with Xcode required)
+- Web: press `w`
+
+Or run platform-specific scripts directly:
+
+```bash
+yarn android
+yarn ios
+yarn web
+```
+
+### 3) Project structure and theming
+
+- Routing lives under `app/` (Expo Router)
+- Gluestack theme/provider is wired in `app/_layout.tsx` via `GluestackUIProvider`
+- NativeWind/Tailwind is configured via `global.css` and `tailwind.config.js`
+
+### 4) Useful scripts
+
+```bash
 # Lint
-npm run lint
+yarn lint
 
-# Réinitialiser le squelette (déplace l’exemple vers app-example/)
-npm run reset-project
+# Run tests
+yarn test
+
+# Watch tests
+yarn test:watch
+
+# Collect coverage
+yarn coverage
+
+# Reset the scaffold (moves the example into app-example/)
+yarn reset-project
 ```
 
-### 5) Dépannage rapide
+### 5) Troubleshooting
 
-- Si Metro ne détecte pas des changements, arrêtez puis relancez `npm run start`.
-- Pour des problèmes Android, ouvrez l’émulateur dans Android Studio avant d’appuyer sur « a ».
-- Si vous voyez une erreur de compatibilité Node, mettez à jour Node vers 18+.
+- If Metro doesn’t pick up changes, stop and restart `yarn start`
+- For Android, start an emulator from Android Studio before pressing `a`
+- If you see Node compatibility errors, upgrade Node to 18+
+- When using Yarn 2+, keep `nodeLinker: node-modules` for React Native and Expo
