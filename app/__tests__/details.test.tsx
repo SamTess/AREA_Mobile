@@ -17,9 +17,11 @@ describe('DetailsScreen', () => {
   it('renders content and handles back button', () => {
     render(<DetailsScreen />, { wrapper: Providers });
 
-    expect(screen.getByText('Restaurant Gastronomique')).toBeTruthy();
-    expect(screen.getByText('Caractéristiques')).toBeTruthy();
-    expect(screen.getByText('Réserver une table')).toBeTruthy();
+  // Title remains a proper noun; keep as-is
+  expect(screen.getByText('Restaurant Gastronomique')).toBeTruthy();
+  // i18n default is English in tests
+  expect(screen.getByText('Features')).toBeTruthy();
+  expect(screen.getByText('Book a table')).toBeTruthy();
 
     // Back button press triggers router.back
     const back = screen.getByTestId('back-button');
@@ -31,7 +33,7 @@ describe('DetailsScreen', () => {
     // and pressing them to execute any no-op handlers
     // Not strictly necessary to check side effects since none are defined.
     // Also cover outline buttons in CTA section by pressing them
-    fireEvent.press(screen.getByText('Appeler'));
-    fireEvent.press(screen.getByText('Itinéraire'));
+  fireEvent.press(screen.getByText('Call'));
+  fireEvent.press(screen.getByText('Directions'));
   });
 });

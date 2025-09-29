@@ -10,8 +10,10 @@ import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
+import { useTranslation } from 'react-i18next';
 
 export default function DetailsScreen() {
+  const { t } = useTranslation();
   const handleGoBack = () => {
     router.back();
   };
@@ -52,44 +54,42 @@ export default function DetailsScreen() {
             <HStack space="sm" align="center">
               <MapPin size={16} color="#6B7280" />
               <Text className="text-typography-600">
-                123 Rue de la Paix, Paris
+                {t('details.address')}
               </Text>
             </HStack>
             <HStack space="sm" align="center">
               <Star size={16} color="#FCD34D" />
               <Text className="text-typography-600">
-                4.8 (245 avis)
+                {t('details.reviews')}
               </Text>
             </HStack>
           </VStack>
 
           <Text className="text-typography-700 leading-6">
-            Découvrez une expérience culinaire exceptionnelle dans ce restaurant gastronomique 
-            renommé. Notre chef exécutif propose une cuisine raffinée alliant tradition et 
-            innovation, avec des ingrédients de saison soigneusement sélectionnés.
+            {t('details.description')}
           </Text>
 
           {/* Features */}
           <VStack className="gap-3">
             <Heading size="lg" className="text-typography-900">
-              Caractéristiques
+              {t('details.features')}
             </Heading>
             <VStack className="gap-2">
               <HStack space="sm" align="center">
                 <Box className="w-2 h-2 bg-primary-600 rounded-full" />
-                <Text className="text-typography-700">Cuisine gastronomique</Text>
+                <Text className="text-typography-700">{t('details.featureCuisine')}</Text>
               </HStack>
               <HStack space="sm" align="center">
                 <Box className="w-2 h-2 bg-primary-600 rounded-full" />
-                <Text className="text-typography-700">Réservation recommandée</Text>
+                <Text className="text-typography-700">{t('details.featureReservation')}</Text>
               </HStack>
               <HStack space="sm" align="center">
                 <Box className="w-2 h-2 bg-primary-600 rounded-full" />
-                <Text className="text-typography-700">Terrasse disponible</Text>
+                <Text className="text-typography-700">{t('details.featureTerrace')}</Text>
               </HStack>
               <HStack space="sm" align="center">
                 <Box className="w-2 h-2 bg-primary-600 rounded-full" />
-                <Text className="text-typography-700">Parking gratuit</Text>
+                <Text className="text-typography-700">{t('details.featureParking')}</Text>
               </HStack>
             </VStack>
           </VStack>
@@ -97,14 +97,14 @@ export default function DetailsScreen() {
           {/* Action Buttons */}
           <VStack className="gap-3 mt-4">
             <Button variant="solid" size="lg">
-              <ButtonText>Réserver une table</ButtonText>
+              <ButtonText>{t('details.bookTable')}</ButtonText>
             </Button>
             <HStack space="sm">
               <Button variant="outline" className="flex-1">
-                <ButtonText>Appeler</ButtonText>
+                <ButtonText>{t('details.call')}</ButtonText>
               </Button>
               <Button variant="outline" className="flex-1">
-                <ButtonText>Itinéraire</ButtonText>
+                <ButtonText>{t('details.directions')}</ButtonText>
               </Button>
             </HStack>
           </VStack>

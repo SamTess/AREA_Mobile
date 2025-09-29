@@ -11,11 +11,11 @@ describe('ProfileScreen', () => {
   it('renders header and options', () => {
     render(<ProfileScreen />, { wrapper: Providers });
 
-    expect(screen.getByText('Profil')).toBeTruthy();
-    expect(screen.getByText('Gérez votre compte et vos préférences')).toBeTruthy();
-    expect(screen.getByText('Paramètres')).toBeTruthy();
-    expect(screen.getByText('Notifications')).toBeTruthy();
-    expect(screen.getByText('Aide et support')).toBeTruthy();
-    expect(screen.getByText('Se déconnecter')).toBeTruthy();
+  expect(screen.getByText('Profile')).toBeTruthy();
+  expect(screen.getByText('Manage your account and preferences')).toBeTruthy();
+  expect(screen.getByText('Settings')).toBeTruthy();
+  expect(screen.getByText('Notifications')).toBeTruthy();
+  expect(screen.getByText('Help & support')).toBeTruthy();
+  expect(screen.getByText('Log out')).toBeTruthy();
   });
 });

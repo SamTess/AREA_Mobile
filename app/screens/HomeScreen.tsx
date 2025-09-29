@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react-native';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Import Gluestack UI components
@@ -24,6 +25,7 @@ const RecommendationCard: React.FC<{
   imageUrl: string;
   onPress?: () => void;
 }> = ({ title, subtitle, imageUrl, onPress }) => {
+  const { t } = useTranslation();
   return (
     <Pressable onPress={onPress} testID={`rec-card-${title.replace(/\s+/g, '-')}` }>
       <Box className="bg-white rounded-lg p-4 shadow-soft-1 mr-4" style={{ width: 280, minWidth: 280 }}>
@@ -39,7 +41,7 @@ const RecommendationCard: React.FC<{
               {title}
             </Heading>
             <Badge size="sm" variant="solid" action="success">
-              <BadgeText>Populaire</BadgeText>
+              <BadgeText>{t('common.popularBadge')}</BadgeText>
             </Badge>
           </HStack>
           <Text size="sm" className="text-typography-600">
@@ -112,6 +114,7 @@ const PopularItem: React.FC<{
   imageUrl: string;
   onPress?: () => void;
 }> = ({ title, subtitle, imageUrl, onPress }) => {
+  const { t } = useTranslation();
   return (
     <Pressable onPress={onPress} testID={`popular-item-${title.replace(/\s+/g, '-')}` }>
       <Box className="bg-white rounded-lg p-4 shadow-soft-1 w-full">
@@ -130,7 +133,7 @@ const PopularItem: React.FC<{
                 {title}
               </Heading>
               <Badge size="sm" variant="solid" action="success">
-                <BadgeText>Populaire</BadgeText>
+                <BadgeText>{t('common.popularBadge')}</BadgeText>
               </Badge>
             </HStack>
             <Text size="sm" className="text-typography-600 flex-wrap">
@@ -147,6 +150,7 @@ const PopularItem: React.FC<{
 };
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(0);
   const totalPages = Math.ceil(POPULAR_ITEMS.length / ITEMS_PER_PAGE);
   
@@ -186,10 +190,10 @@ export default function HomeScreen() {
         {/* Header */}
         <Box className="px-6 py-4">
           <Heading size="2xl" className="text-typography-900 mb-2">
-            Bonjour !
+            {t('home.greeting')}
           </Heading>
           <Text size="md" className="text-typography-600">
-            Découvrez nos dernières recommandations
+            {t('home.discover')}
           </Text>
         </Box>
 
@@ -201,10 +205,10 @@ export default function HomeScreen() {
           <InputIcon as={Search} className="text-typography-400" size="sm" />
               </InputSlot>
               <InputField
-          placeholder="Rechercher..."
-          className="text-typography-900"
-          placeholderTextColor="#9CA3AF"
-          editable={false}
+                placeholder={t('home.searchPlaceholder')}
+                className="text-typography-900"
+                placeholderTextColor="#9CA3AF"
+                editable={false}
               />
             </Input>
           </Button>
@@ -213,11 +217,11 @@ export default function HomeScreen() {
         {/* Recommended Section Header */}
         <HStack justify="between" align="center" className="px-6 mb-4">
           <Heading size="lg" className="text-typography-900">
-            Recommandé
+            {t('home.recommended')}
           </Heading>
           <Button variant="link" size="sm">
             <ButtonText className="text-primary-600">
-              Voir tout
+              {t('home.seeAll')}
             </ButtonText>
             <ButtonIcon as={ChevronRight} className="text-primary-600" size="sm" />
           </Button>
@@ -263,7 +267,7 @@ export default function HomeScreen() {
         <VStack className="gap-4 px-6">
           <HStack justify="between" align="center">
             <Heading size="lg" className="text-typography-900">
-              Populaires cette semaine
+              {t('home.popularThisWeek')}
             </Heading>
             <Text size="sm" className="text-typography-500">
               {currentPage + 1} / {totalPages}
@@ -297,7 +301,7 @@ export default function HomeScreen() {
             >
               <ButtonIcon as={ChevronLeft} className="text-typography-600" size="sm" />
               <ButtonText className="text-typography-600">
-                Précédent
+                {t('home.previous')}
               </ButtonText>
             </Button>
 
@@ -329,7 +333,7 @@ export default function HomeScreen() {
               className={`${currentPage === totalPages - 1 ? 'opacity-50' : ''}`}
             >
               <ButtonText className="text-typography-600">
-                Suivant
+                {t('home.next')}
               </ButtonText>
               <ButtonIcon as={ChevronRight} className="text-typography-600" size="sm" />
             </Button>
@@ -342,10 +346,10 @@ export default function HomeScreen() {
             <VStack className="gap-4">
               <VStack className="gap-2">
                 <Heading size="lg" className="text-white">
-                  Découvrez encore plus
+                  {t('home.ctaTitle')}
                 </Heading>
                 <Text size="md" className="text-primary-100">
-                  Explorez toutes nos recommandations personnalisées
+                  {t('home.ctaSubtitle')}
                 </Text>
               </VStack>
               <Button 
@@ -354,7 +358,7 @@ export default function HomeScreen() {
                 className="bg-white self-start"
               >
                 <ButtonText className="text-primary-600 font-semibold">
-                  Voir tout
+                  {t('home.seeAll')}
                 </ButtonText>
               </Button>
             </VStack>

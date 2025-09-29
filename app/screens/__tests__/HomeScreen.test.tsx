@@ -12,9 +12,9 @@ describe('HomeScreen', () => {
   it('renders header and sections', () => {
     render(<HomeScreen />, { wrapper: Providers });
 
-    expect(screen.getByText('Bonjour !')).toBeTruthy();
-    expect(screen.getByText('Recommandé')).toBeTruthy();
-    expect(screen.getByText('Populaires cette semaine')).toBeTruthy();
+  expect(screen.getByText('Hello!')).toBeTruthy();
+  expect(screen.getByText('Recommended')).toBeTruthy();
+  expect(screen.getByText('Popular this week')).toBeTruthy();
   });
 
   it('paginates popular items', () => {
@@ -23,14 +23,14 @@ describe('HomeScreen', () => {
     // Initially should show page 1 / n
     expect(screen.getByText(/1 \/ \d+/)).toBeTruthy();
 
-    const next = screen.getByText('Suivant');
+  const next = screen.getByText('Next');
     fireEvent.press(next);
 
     // After pressing next, page indicator should update to 2
     expect(screen.getByText('2')).toBeTruthy();
 
     // Go back to previous page and verify
-    const prev = screen.getByText('Précédent');
+  const prev = screen.getByText('Previous');
     fireEvent.press(prev);
     expect(screen.getByText(/1 \/ \d+/)).toBeTruthy();
 
@@ -67,8 +67,8 @@ describe('HomeScreen', () => {
     render(<HomeScreen />, { wrapper: Providers });
 
     // On first page, pressing prev shouldn’t change the indicator
-    const prev = screen.getByText('Précédent');
-    const next = screen.getByText('Suivant');
+  const prev = screen.getByText('Previous');
+  const next = screen.getByText('Next');
     const indicator1 = screen.getByText(/1 \/ \d+/);
     fireEvent.press(prev);
     expect(indicator1).toBeTruthy();

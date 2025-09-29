@@ -1,5 +1,6 @@
 import { BadgeCheck, Bell, HelpCircle, LogOut, Settings } from 'lucide-react-native';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -39,17 +40,29 @@ const ProfileOption: React.FC<{
 };
 
 export default function ProfileScreen() {
+  const { t, i18n } = useTranslation();
+  const isFrench = i18n.language?.startsWith('fr');
+  const toggleLanguage = () => {
+    i18n.changeLanguage(isFrench ? 'en' : 'fr');
+  };
   return (
     <SafeAreaView className="flex-1 bg-background-light">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
         {/* Header */}
         <Box className="px-6 py-4">
           <Heading size="2xl" className="text-typography-900 mb-2">
-            Profil
+            {t('profile.title')}
           </Heading>
           <Text size="md" className="text-typography-600">
-            Gérez votre compte et vos préférences
+            {t('profile.subtitle')}
           </Text>
+          <Box className="mt-3">
+            <Button variant="outline" onPress={toggleLanguage}>
+              <Text>
+                {isFrench ? t('profile.toggleToEnglish') : t('profile.toggleToFrench')}
+              </Text>
+            </Button>
+          </Box>
         </Box>
 
         {/* Profile Card */}
@@ -70,7 +83,7 @@ export default function ProfileScreen() {
                   John Doe
                 </Heading>
                 <Badge size="sm" variant="solid" action="success">
-                  <BadgeText>Vérifié</BadgeText>
+                  <BadgeText>{t('profile.verified')}</BadgeText>
                   <BadgeIcon as={BadgeCheck} />
                 </Badge>
               </HStack>
@@ -78,7 +91,7 @@ export default function ProfileScreen() {
                 john.doe@example.com
               </Text>
               <Badge size="sm" variant="outline" action="info">
-                <BadgeText>Membre Premium</BadgeText>
+                <BadgeText>{t('profile.premium')}</BadgeText>
               </Badge>
             </VStack>
           </HStack>
@@ -88,25 +101,25 @@ export default function ProfileScreen() {
         <VStack className="mx-6 gap-2">
           <ProfileOption
             icon={Settings}
-            title="Paramètres"
-            subtitle="Configurez votre application"
+            title={t('profile.settingsTitle')}
+            subtitle={t('profile.settingsSubtitle')}
           />
           <Divider className="my-2" />
           <ProfileOption
             icon={Bell}
-            title="Notifications"
-            subtitle="Gérez vos notifications"
+            title={t('profile.notificationsTitle')}
+            subtitle={t('profile.notificationsSubtitle')}
           />
           <ProfileOption
             icon={HelpCircle}
-            title="Aide et support"
-            subtitle="Obtenez de l'aide"
+            title={t('profile.helpTitle')}
+            subtitle={t('profile.helpSubtitle')}
           />
           <Divider className="my-2" />
           <ProfileOption
             icon={LogOut}
-            title="Se déconnecter"
-            subtitle="Quitter votre compte"
+            title={t('profile.logoutTitle')}
+            subtitle={t('profile.logoutSubtitle')}
           />
         </VStack>
       </ScrollView>
