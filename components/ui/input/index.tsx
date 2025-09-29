@@ -1,14 +1,16 @@
 'use client';
-import React from 'react';
+import { useIconRenderProps } from '@/components/ui/utils/useIconRenderProps';
+import { PrimitiveIcon, UIIcon } from '@gluestack-ui/core/icon/creator';
 import { createInput } from '@gluestack-ui/core/input/creator';
-import { View, Pressable, TextInput } from 'react-native';
-import { tva ,
-  withStyleContext,
-  useStyleContext,
+import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
+import {
+    tva,
+    useStyleContext,
+    withStyleContext,
 } from '@gluestack-ui/utils/nativewind-utils';
 import { cssInterop } from 'nativewind';
-import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
-import { PrimitiveIcon, UIIcon } from '@gluestack-ui/core/icon/creator';
+import React from 'react';
+import { Pressable, TextInput, View } from 'react-native';
 
 const SCOPE = 'INPUT';
 
@@ -131,39 +133,20 @@ const InputIcon = React.forwardRef<
 >(function InputIcon({ className, size, ...props }, ref) {
   const { size: parentSize } = useStyleContext(SCOPE);
 
-  if (typeof size === 'number') {
-    return (
-      <UIInput.Icon
-        ref={ref}
-        {...props}
-        className={inputIconStyle({ class: className })}
-        size={size}
-      />
-    );
-  } else if (
-    (props.height !== undefined || props.width !== undefined) &&
-    size === undefined
-  ) {
-    return (
-      <UIInput.Icon
-        ref={ref}
-        {...props}
-        className={inputIconStyle({ class: className })}
-      />
-    );
-  }
-  return (
-    <UIInput.Icon
-      ref={ref}
-      {...props}
-      className={inputIconStyle({
-        parentVariants: {
-          size: parentSize,
-        },
-        class: className,
-      })}
-    />
-  );
+  const { iconProps } = useIconRenderProps({
+    className,
+    size,
+    height: props.height,
+    width: props.width,
+    baseClassName: (cn) => inputIconStyle({ class: cn }),
+    buildClassName: (cn) =>
+      inputIconStyle({
+        parentVariants: { size: parentSize },
+        class: cn,
+      }),
+  });
+
+  return <UIInput.Icon ref={ref} {...props} {...iconProps} />;
 });
 
 type IInputSlotProps = React.ComponentProps<typeof UIInput.Slot> &

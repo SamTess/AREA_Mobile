@@ -1,14 +1,16 @@
 'use client';
-import React from 'react';
+import { useIconRenderProps } from '@/components/ui/utils/useIconRenderProps';
 import { createButton } from '@gluestack-ui/core/button/creator';
-import { tva ,
-  withStyleContext,
+import { PrimitiveIcon, UIIcon } from '@gluestack-ui/core/icon/creator';
+import {
+  tva,
   useStyleContext,
+  withStyleContext,
 } from '@gluestack-ui/utils/nativewind-utils';
 import { cssInterop } from 'nativewind';
+import React from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import type { VariantProps } from 'tailwind-variants';
-import { PrimitiveIcon, UIIcon } from '@gluestack-ui/core/icon/creator';
 
 const SCOPE = 'BUTTON';
 
@@ -359,42 +361,25 @@ const ButtonIcon = React.forwardRef<
     action: parentAction,
   } = useStyleContext(SCOPE);
 
-  if (typeof size === 'number') {
-    return (
-      <UIButton.Icon
-        ref={ref}
-        {...props}
-        className={buttonIconStyle({ class: className })}
-        size={size}
-      />
-    );
-  } else if (
-    (props.height !== undefined || props.width !== undefined) &&
-    size === undefined
-  ) {
-    return (
-      <UIButton.Icon
-        ref={ref}
-        {...props}
-        className={buttonIconStyle({ class: className })}
-      />
-    );
-  }
-  return (
-    <UIButton.Icon
-      {...props}
-      className={buttonIconStyle({
+  const { iconProps } = useIconRenderProps({
+    className,
+    size,
+    height: props.height,
+    width: props.width,
+    baseClassName: (cn) => buttonIconStyle({ class: cn }),
+    buildClassName: (cn) =>
+      buttonIconStyle({
         parentVariants: {
           size: parentSize,
           variant: parentVariant,
           action: parentAction,
         },
         size,
-        class: className,
-      })}
-      ref={ref}
-    />
-  );
+        class: cn,
+      }),
+  });
+
+  return <UIButton.Icon ref={ref} {...props} {...iconProps} />;
 });
 
 type IButtonGroupProps = React.ComponentPropsWithoutRef<typeof UIButton.Group> &
@@ -422,9 +407,10 @@ const ButtonGroup = React.forwardRef<
           isAttached: isAttached as boolean,
           flexDirection: flexDirection as any,
         })}
-        {...props}
         ref={ref}
-      />
+      >
+        {props.children}
+      </UIButton.Group>
     );
   }
 );
@@ -435,4 +421,5 @@ ButtonSpinner.displayName = 'ButtonSpinner';
 ButtonIcon.displayName = 'ButtonIcon';
 ButtonGroup.displayName = 'ButtonGroup';
 
-export { Button, ButtonText, ButtonSpinner, ButtonIcon, ButtonGroup };
+export { Button, ButtonGroup, ButtonIcon, ButtonSpinner, ButtonText };
+
