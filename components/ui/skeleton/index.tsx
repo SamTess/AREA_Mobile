@@ -18,22 +18,36 @@ interface SkeletonTextProps extends ViewProps {
   startColor?: string;
 }
 
+const getDuration = (speed = 2) => {
+  switch (speed) {
+    case 1:
+      return 750;
+    case 2:
+      return 1000;
+    case 3:
+      return 1500;
+    default:
+      return 2000;
+  }
+};
+
 const Skeleton = React.forwardRef<View, SkeletonProps>(
   ({ variant = 'rounded', isLoaded = false, speed = 2, startColor, className = '', children, style, ...props }, ref) => {
     const animatedValue = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
       if (!isLoaded) {
+        const duration = getDuration(speed);
         const animation = Animated.loop(
           Animated.sequence([
             Animated.timing(animatedValue, {
               toValue: 1,
-              duration: speed === 1 ? 750 : speed === 2 ? 1000 : speed === 3 ? 1500 : 2000,
+              duration,
               useNativeDriver: false,
             }),
             Animated.timing(animatedValue, {
               toValue: 0,
-              duration: speed === 1 ? 750 : speed === 2 ? 1000 : speed === 3 ? 1500 : 2000,
+              duration,
               useNativeDriver: false,
             }),
           ])
@@ -81,16 +95,17 @@ const SkeletonText = React.forwardRef<View, SkeletonTextProps>(
 
     useEffect(() => {
       if (!isLoaded) {
+        const duration = getDuration(speed);
         const animation = Animated.loop(
           Animated.sequence([
             Animated.timing(animatedValue, {
               toValue: 1,
-              duration: speed === 1 ? 750 : speed === 2 ? 1000 : speed === 3 ? 1500 : 2000,
+              duration,
               useNativeDriver: false,
             }),
             Animated.timing(animatedValue, {
               toValue: 0,
-              duration: speed === 1 ? 750 : speed === 2 ? 1000 : speed === 3 ? 1500 : 2000,
+              duration,
               useNativeDriver: false,
             }),
           ])
@@ -137,11 +152,11 @@ Skeleton.displayName = 'Skeleton';
 SkeletonText.displayName = 'SkeletonText';
 
 export {
-    Skeleton,
-    SkeletonText
+  Skeleton,
+  SkeletonText
 };
 
-    export type {
-        SkeletonProps,
-        SkeletonTextProps
-    };
+export type {
+  SkeletonProps,
+  SkeletonTextProps
+};
