@@ -35,10 +35,10 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Documentation (FR)
+## Documentation (EN)
 
 - [Installation](docs/installation.md)
-- [Utiliser l’outil use-gluestack-components](docs/use-gluestack-components.md)
+- [Using the use-gluestack-components tool](docs/use-gluestack-components.md)
 
 ## Learn more
 
