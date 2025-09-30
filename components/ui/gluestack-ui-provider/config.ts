@@ -149,6 +149,14 @@ export const config = {
     '--color-background-muted': '247 248 247',
     '--color-background-info': '235 248 254',
 
+    /* Interface Colors */
+    '--color-indigo-600': '99 102 241',  // #6366f1
+    '--color-indigo-500': '129 140 248', // #818cf8
+    '--color-gray-500': '107 114 128',   // #6B7280
+    '--color-gray-400': '156 163 175',   // #9CA3AF
+    '--color-gray-200': '229 231 235',   // #E5E7EB
+    '--color-yellow-400': '252 211 77',  // #FCD34D
+
     /* Focus Ring Indicator  */
     '--color-indicator-primary': '55 55 55',
     '--color-indicator-info': '83 153 236',
@@ -300,6 +308,14 @@ export const config = {
     '--color-background-success': '28 43 33',
     '--color-background-muted': '51 51 51',
     '--color-background-info': '26 40 46',
+
+    /* Interface Colors */
+    '--color-indigo-600': '129 140 248', // lighter in dark mode
+    '--color-indigo-500': '165 180 252', // lighter in dark mode
+    '--color-gray-500': '156 163 175',   // lighter in dark mode
+    '--color-gray-400': '156 163 175',   // same as gray-500 in dark
+    '--color-gray-200': '75 85 99',      // darker in dark mode
+    '--color-yellow-400': '252 211 77',  // same bright yellow
 
     /* Focus Ring Indicator  */
     '--color-indicator-primary': '247 247 247',

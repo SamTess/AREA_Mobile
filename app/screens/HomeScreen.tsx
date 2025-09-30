@@ -10,6 +10,7 @@ import { Box } from '@/components/ui/box';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { Heading } from '@/components/ui/heading';
+import { useDesignTokens } from '@/components/ui/hooks/useDesignTokens';
 import { HStack } from '@/components/ui/hstack';
 import { Image } from '@/components/ui/image';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
@@ -115,6 +116,8 @@ const PopularItem: React.FC<{
   onPress?: () => void;
 }> = ({ title, subtitle, imageUrl, onPress }) => {
   const { t } = useTranslation();
+  const { getToken } = useDesignTokens();
+  
   return (
     <Pressable onPress={onPress} testID={`popular-item-${title.replace(/\s+/g, '-')}` }>
       <Box className="bg-white rounded-lg p-4 shadow-soft-1 w-full">
@@ -141,7 +144,7 @@ const PopularItem: React.FC<{
             </Text>
           </VStack>
           <Box className="flex-shrink-0">
-            <ChevronRight size={20} color="#6B7280" />
+            <ChevronRight size={20} color={getToken('gray-500')} />
           </Box>
         </HStack>
       </Box>
@@ -151,6 +154,7 @@ const PopularItem: React.FC<{
 
 export default function HomeScreen() {
   const { t } = useTranslation();
+  const { getToken } = useDesignTokens();
   const [currentPage, setCurrentPage] = useState(0);
   const totalPages = Math.ceil(POPULAR_ITEMS.length / ITEMS_PER_PAGE);
   
@@ -207,7 +211,7 @@ export default function HomeScreen() {
               <InputField
                 placeholder={t('home.searchPlaceholder')}
                 className="text-typography-900"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={getToken('gray-400')}
                 editable={false}
               />
             </Input>

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, View, type ViewProps } from 'react-native';
+import { useDesignTokens } from '../hooks/useDesignTokens';
 
 type SkeletonVariant = 'rounded' | 'sharp' | 'circular';
 
@@ -11,6 +12,7 @@ interface SkeletonProps extends ViewProps {
 }
 
 interface SkeletonTextProps extends ViewProps {
+  lines?: number;
   _lines?: number;
   gap?: number;
   isLoaded?: boolean;
@@ -31,130 +33,144 @@ const getDuration = (speed = 2) => {
   }
 };
 
-const Skeleton = React.forwardRef<View, SkeletonProps>(
-  ({ variant = 'rounded', isLoaded = false, speed = 2, startColor, className = '', children, style, ...props }, ref) => {
-    const animatedValue = useRef(new Animated.Value(0)).current;
+export const Skeleton: React.FC<SkeletonProps> = ({
+  variant = 'rounded',
+  isLoaded = false,
+  speed = 800,
+  children,
+  className = '',
+  style,
+  ...props
+}) => {
+  const animatedValue = useRef(new Animated.Value(0)).current;
+  const { getToken } = useDesignTokens();
 
-    useEffect(() => {
-      if (!isLoaded) {
-        const duration = getDuration(speed);
-        const animation = Animated.loop(
-          Animated.sequence([
-            Animated.timing(animatedValue, {
-              toValue: 1,
-              duration,
-              useNativeDriver: false,
-            }),
-            Animated.timing(animatedValue, {
-              toValue: 0,
-              duration,
-              useNativeDriver: false,
-            }),
-          ])
-        );
-        animation.start();
+  useEffect(() => {
+    if (!isLoaded) {
+      const animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(animatedValue, {
+            toValue: 1,
+            duration: speed,
+            useNativeDriver: false,
+          }),
+          Animated.timing(animatedValue, {
+            toValue: 0,
+            duration: speed,
+            useNativeDriver: false,
+          }),
+        ]),
+        { iterations: -1 }
+      );
 
-        return () => animation.stop();
-      }
-    }, [isLoaded, speed, animatedValue]);
+      animation.start();
 
-    const backgroundColor = animatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['#E5E7EB', '#F3F4F6'], // gray-200 to gray-100
-    });
-
-    const variantClasses = {
-      rounded: 'rounded-md',
-      sharp: '',
-      circular: 'rounded-full',
-    };
-
-    if (isLoaded && children) {
-      return <View ref={ref}>{children}</View>;
+      return () => animation.stop();
     }
+  }, [isLoaded, speed, animatedValue]);
 
-    return (
-      <Animated.View
-        ref={ref}
-        className={`bg-background-200 ${variantClasses[variant]} ${className}`}
-        style={[
-          {
-            backgroundColor,
-          },
-          style,
-        ]}
-        {...props}
-      />
-    );
+  const backgroundColor = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [getToken('gray-200'), getToken('background-100')],
+  });
+
+  const variantClasses = {
+    rounded: 'rounded-md',
+    sharp: '',
+    circular: 'rounded-full',
+  };
+
+  if (isLoaded && children) {
+    return <View>{children}</View>;
   }
-);
 
-const SkeletonText = React.forwardRef<View, SkeletonTextProps>(
-  ({ _lines = 3, gap = 2, isLoaded = false, speed = 2, className = '', children, style, ...props }, ref) => {
-    const animatedValue = useRef(new Animated.Value(0)).current;
+  return (
+    <Animated.View
+      className={`bg-background-200 ${variantClasses[variant]} ${className}`}
+      style={[
+        {
+          backgroundColor,
+        },
+        style,
+      ]}
+      {...props}
+    />
+  );
+};
 
-    useEffect(() => {
-      if (!isLoaded) {
-        const duration = getDuration(speed);
-        const animation = Animated.loop(
-          Animated.sequence([
-            Animated.timing(animatedValue, {
-              toValue: 1,
-              duration,
-              useNativeDriver: false,
-            }),
-            Animated.timing(animatedValue, {
-              toValue: 0,
-              duration,
-              useNativeDriver: false,
-            }),
-          ])
-        );
-        animation.start();
+export const SkeletonText: React.FC<SkeletonTextProps> = ({
+  lines = 3,
+  gap = 2,
+  isLoaded = false,
+  speed = 800,
+  children,
+  className = '',
+  style,
+  ...props
+}) => {
+  const animatedValue = useRef(new Animated.Value(0)).current;
+  const { getToken } = useDesignTokens();
+  const _lines = lines || 3;
 
-        return () => animation.stop();
-      }
-    }, [isLoaded, speed, animatedValue]);
+  useEffect(() => {
+    if (!isLoaded) {
+      const animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(animatedValue, {
+            toValue: 1,
+            duration: speed,
+            useNativeDriver: false,
+          }),
+          Animated.timing(animatedValue, {
+            toValue: 0,
+            duration: speed,
+            useNativeDriver: false,
+          }),
+        ]),
+        { iterations: -1 }
+      );
 
-    const backgroundColor = animatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['#E5E7EB', '#F3F4F6'], // gray-200 to gray-100
-    });
+      animation.start();
 
-    const gapClasses = {
-      1: 'gap-1',
-      2: 'gap-2',
-      3: 'gap-3',
-      4: 'gap-4',
-    };
-
-    if (isLoaded && children) {
-      return <View ref={ref}>{children}</View>;
+      return () => animation.stop();
     }
+  }, [isLoaded, speed, animatedValue]);
 
-    return (
-      <View ref={ref} className={`${gapClasses[gap as keyof typeof gapClasses]} ${className}`} style={style} {...props}>
-        {Array.from({ length: _lines }, (_, i) => (
-          <Animated.View
-            key={i}
-            className={`bg-background-200 rounded-md h-3 ${i === _lines - 1 ? 'w-3/4' : 'w-full'}`}
-            style={{
+  const backgroundColor = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [getToken('gray-200'), getToken('background-100')],
+  });
+
+  const gapClasses = {
+    1: 'gap-1',
+    2: 'gap-2',
+    3: 'gap-3',
+    4: 'gap-4',
+  };
+
+  if (isLoaded && children) {
+    return <View>{children}</View>;
+  }
+
+  return (
+    <View className={`${gapClasses[gap as keyof typeof gapClasses]} ${className}`} style={style} {...props}>
+      {Array.from({ length: _lines }, (_, i) => (
+        <Animated.View
+          key={i}
+          className={`bg-background-200 rounded-md h-3 ${i === _lines - 1 ? 'w-3/4' : 'w-full'}`}
+          style={[
+            {
               backgroundColor,
-            }}
-          />
-        ))}
-      </View>
-    );
-  }
-);
+            },
+          ]}
+        />
+      ))}
+    </View>
+  );
+};
 
 Skeleton.displayName = 'Skeleton';
 SkeletonText.displayName = 'SkeletonText';
-
-export {
-  Skeleton,
-  SkeletonText
-};
 
 export type {
   SkeletonProps,

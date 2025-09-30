@@ -1,17 +1,32 @@
 import { Tabs } from 'expo-router';
 import { Home, User } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
 
 export default function TabLayout() {
+  const { colorScheme } = useColorScheme();
+  
+  // Utilisation des design tokens via les CSS variables
+  const getColorValue = (token: string) => {
+    // En mode runtime, on utilise les variables CSS définies dans le thème
+    const tokenMap = {
+      'indigo-600': colorScheme === 'dark' ? 'rgb(129 140 248)' : 'rgb(99 102 241)',
+      'gray-500': colorScheme === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',
+      'gray-200': colorScheme === 'dark' ? 'rgb(75 85 99)' : 'rgb(229 231 235)',
+      'background-0': colorScheme === 'dark' ? 'rgb(18 18 18)' : 'rgb(255 255 255)',
+    };
+    return tokenMap[token as keyof typeof tokenMap];
+  };
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#6366f1', // primary-600
-        tabBarInactiveTintColor: '#6B7280', // gray-500
+        tabBarActiveTintColor: getColorValue('indigo-600'),
+        tabBarInactiveTintColor: getColorValue('gray-500'),
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: 'white',
+          backgroundColor: getColorValue('background-0'),
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB', // gray-200
+          borderTopColor: getColorValue('gray-200'),
           paddingTop: 8,
           paddingBottom: 8,
           height: 60,

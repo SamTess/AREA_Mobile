@@ -10,21 +10,24 @@ import { Box } from '@/components/ui/box';
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { Heading } from '@/components/ui/heading';
+import { useDesignTokens } from '@/components/ui/hooks/useDesignTokens';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 
-const ProfileOption: React.FC<{
-  icon: any;
+const MenuItem: React.FC<{
+  icon: React.ComponentType<any>;
   title: string;
   subtitle: string;
   onPress?: () => void;
 }> = ({ icon: Icon, title, subtitle, onPress }) => {
+  const { getToken } = useDesignTokens();
+  
   return (
     <Button variant="ghost" onPress={onPress} className="p-4">
       <HStack space="md" align="center" className="w-full">
         <Box className="w-10 h-10 bg-primary-50 rounded-full items-center justify-center">
-          <Icon size={20} color="#6366f1" />
+          <Icon size={20} color={getToken('indigo-600')} />
         </Box>
         <VStack className="flex-1 gap-1">
           <Text className="text-typography-900 font-medium">
@@ -99,24 +102,24 @@ export default function ProfileScreen() {
 
         {/* Options */}
         <VStack className="mx-6 gap-2">
-          <ProfileOption
+          <MenuItem
             icon={Settings}
             title={t('profile.settingsTitle')}
             subtitle={t('profile.settingsSubtitle')}
           />
           <Divider className="my-2" />
-          <ProfileOption
+          <MenuItem
             icon={Bell}
             title={t('profile.notificationsTitle')}
             subtitle={t('profile.notificationsSubtitle')}
           />
-          <ProfileOption
+          <MenuItem
             icon={HelpCircle}
             title={t('profile.helpTitle')}
             subtitle={t('profile.helpSubtitle')}
           />
           <Divider className="my-2" />
-          <ProfileOption
+          <MenuItem
             icon={LogOut}
             title={t('profile.logoutTitle')}
             subtitle={t('profile.logoutSubtitle')}

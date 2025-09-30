@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
+import { useDesignTokens } from '@/components/ui/hooks/useDesignTokens';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
@@ -14,6 +15,8 @@ import { useTranslation } from 'react-i18next';
 
 export default function DetailsScreen() {
   const { t } = useTranslation();
+  const { getToken } = useDesignTokens();
+  
   const handleGoBack = () => {
     router.back();
   };
@@ -52,13 +55,13 @@ export default function DetailsScreen() {
               Restaurant Gastronomique
             </Heading>
             <HStack space="sm" align="center">
-              <MapPin size={16} color="#6B7280" />
+              <MapPin size={16} color={getToken('gray-500')} />
               <Text className="text-typography-600">
                 {t('details.address')}
               </Text>
             </HStack>
             <HStack space="sm" align="center">
-              <Star size={16} color="#FCD34D" />
+              <Star size={16} color={getToken('yellow-400')} />
               <Text className="text-typography-600">
                 {t('details.reviews')}
               </Text>
