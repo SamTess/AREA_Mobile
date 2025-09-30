@@ -69,7 +69,7 @@ export default function ProfileScreen() {
         </Box>
 
         {/* Profile Card */}
-        <Box className="mx-6 mb-6 bg-white rounded-lg p-6 shadow-soft-1">
+        <Box className="mx-6 mb-6 bg-surface rounded-lg p-6 shadow-soft-1">
           <HStack space="md" align="center">
             <Avatar size="xl">
               <AvatarFallbackText>John Doe</AvatarFallbackText>

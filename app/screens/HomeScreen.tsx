@@ -27,7 +27,7 @@ const RecommendationCard: React.FC<{
   const { t } = useTranslation();
   return (
     <Pressable onPress={onPress} testID={`rec-card-${title.replace(/\s+/g, '-')}` }>
-      <Box className="bg-white rounded-lg p-4 shadow-soft-1 mr-4" style={{ width: 280, minWidth: 280 }}>
+      <Box className="bg-surface rounded-lg p-4 shadow-soft-1 mr-4" style={{ width: 280, minWidth: 280 }}>
         <Image
           source={{ uri: imageUrl }}
           style={{ width: '100%', height: 160, borderRadius: 8, marginBottom: 12 }}
@@ -116,7 +116,7 @@ const PopularItem: React.FC<{
   
   return (
     <Pressable onPress={onPress} testID={`popular-item-${title.replace(/\s+/g, '-')}` }>
-      <Box className="bg-white rounded-lg p-4 shadow-soft-1 w-full">
+      <Box className="bg-surface rounded-lg p-4 shadow-soft-1 w-full">
         <HStack space="md" align="center" className="w-full">
           <Box className="flex-shrink-0">
             <Image
@@ -200,7 +200,7 @@ export default function HomeScreen() {
         {/* Search Bar */}
         <Box className="mx-6 mb-6">
           <Button variant="ghost" className="p-0 w-full">
-            <Input className="bg-white border-outline-200 pointer-events-none w-full">
+            <Input className="bg-surface border-outline-200 pointer-events-none w-full">
               <InputSlot className="pl-3">
           <InputIcon as={Search} className="text-typography-400" size="sm" />
               </InputSlot>
@@ -316,7 +316,7 @@ export default function HomeScreen() {
                   className={index === currentPage ? "bg-primary-600" : ""}
                 >
                   <ButtonText 
-                    className={index === currentPage ? "text-white" : "text-typography-600"}
+                    className={index === currentPage ? "text-typography-0" : "text-typography-600"}
                     size="sm"
                   >
                     {index + 1}
@@ -345,7 +345,7 @@ export default function HomeScreen() {
           <Box className="bg-primary-600 rounded-xl p-6 shadow-soft-2">
             <VStack className="gap-4">
               <VStack className="gap-2">
-                <Heading size="lg" className="text-white">
+                <Heading size="lg" className="text-typography-0">
                   {t('home.ctaTitle')}
                 </Heading>
                 <Text size="md" className="text-primary-100">
@@ -355,7 +355,7 @@ export default function HomeScreen() {
               <Button 
                 variant="solid" 
                 size="md" 
-                className="bg-white self-start"
+                className="bg-surface self-start"
               >
                 <ButtonText className="text-primary-600 font-semibold">
                   {t('home.seeAll')}

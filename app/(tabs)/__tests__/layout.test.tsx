@@ -1,3 +1,4 @@
+import { testColors } from '@/test-utils/testColors';
 import { render } from '@testing-library/react-native';
 import React from 'react';
 import TabLayout from '../_layout';
@@ -34,8 +35,8 @@ describe('TabLayout', () => {
     expect(tabsProps.screenOptions.headerShown).toBe(false);
     expect(tabsProps.screenOptions.tabBarLabelStyle.fontSize).toBe(12);
     expect(screens.length).toBe(2);
-    const icon1 = screens[0].options.tabBarIcon({ color: '#333', size: 20, focused: true });
-    const icon2 = screens[1].options.tabBarIcon({ color: '#999', size: 22, focused: false });
+    const icon1 = screens[0].options.tabBarIcon({ color: testColors.focused, size: 20, focused: true });
+    const icon2 = screens[1].options.tabBarIcon({ color: testColors.unfocused, size: 22, focused: false });
     expect(icon1).toBeTruthy();
     expect(icon2).toBeTruthy();
   });

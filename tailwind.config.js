@@ -13,7 +13,7 @@ module.exports = {
   safelist: [
     {
       pattern:
-        /(bg|border|text|stroke|fill)-(primary|secondary|tertiary|error|success|warning|info|typography|outline|background|indicator)-(0|50|100|200|300|400|500|600|700|800|900|950|white|gray|black|error|warning|muted|success|info|light|dark|primary)/,
+        /(bg|border|text|stroke|fill)-(primary|secondary|tertiary|error|success|warning|info|typography|outline|background|indicator|main|surface|accent|text-primary|text-secondary|highlight|border-light)-(0|50|100|200|300|400|500|600|700|800|900|950|white|gray|black|error|warning|muted|success|info|light|dark|primary|DEFAULT)/,
     },
   ],
   theme: {
@@ -168,6 +168,21 @@ module.exports = {
           light: '#FBFBFB',
           dark: '#181719',
         },
+        /* App Theme Colors - Simple theme variables */
+        main: {
+          DEFAULT: 'rgb(var(--color-main)/<alpha-value>)',
+          dark: 'rgb(var(--color-main-dark)/<alpha-value>)',
+        },
+        surface: {
+          DEFAULT: 'rgb(var(--color-surface)/<alpha-value>)',
+          muted: 'rgb(var(--color-surface-muted)/<alpha-value>)',
+        },
+        accent: 'rgb(var(--color-accent)/<alpha-value>)',
+        'text-primary': 'rgb(var(--color-text-primary)/<alpha-value>)',
+        'text-secondary': 'rgb(var(--color-text-secondary)/<alpha-value>)',
+        highlight: 'rgb(var(--color-highlight)/<alpha-value>)',
+        'border-light': 'rgb(var(--color-border-light)/<alpha-value>)',
+        
         indicator: {
           primary: 'rgb(var(--color-indicator-primary)/<alpha-value>)',
           info: 'rgb(var(--color-indicator-info)/<alpha-value>)',

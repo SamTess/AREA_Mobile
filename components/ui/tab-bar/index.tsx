@@ -4,7 +4,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 
 const tabBarStyle = tva({
-  base: 'flex-row bg-background-0 border-t border-gray-200',
+  base: 'flex-row bg-background-0 border-t border-border-light',
   variants: {
     size: {
       sm: 'h-12 px-2',
@@ -28,8 +28,8 @@ const tabBarIconStyle = tva({
   base: 'mb-1',
   variants: {
     isActive: {
-      true: 'text-indigo-600',
-      false: 'text-gray-500',
+      true: 'text-main',
+      false: 'text-text-secondary',
     },
   },
 });
@@ -38,8 +38,8 @@ const tabBarLabelStyle = tva({
   base: 'text-xs font-medium',
   variants: {
     isActive: {
-      true: 'text-indigo-600',
-      false: 'text-gray-500',
+      true: 'text-main',
+      false: 'text-text-secondary',
     },
   },
 });

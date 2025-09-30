@@ -157,6 +157,17 @@ export const config = {
     '--color-gray-200': '229 231 235',   // #E5E7EB
     '--color-yellow-400': '252 211 77',  // #FCD34D
 
+    /* App Theme Colors - Simple Theme Variables */
+    '--color-main': '99 102 241',        // Primary brand color (indigo-600)
+    '--color-main-dark': '67 56 202',    // Darker variant for hover states
+    '--color-surface': '255 255 255',    // White surface/cards
+    '--color-surface-muted': '249 250 251', // Light gray surface
+    '--color-accent': '34 197 94',       // Green accent for success/actions
+    '--color-text-primary': '17 24 39',  // Dark text
+    '--color-text-secondary': '107 114 128', // Medium gray text
+    '--color-highlight': '252 211 77',   // Yellow highlight (warning-400)
+    '--color-border-light': '229 231 235', // Light border (gray-200)
+
     /* Focus Ring Indicator  */
     '--color-indicator-primary': '55 55 55',
     '--color-indicator-info': '83 153 236',
@@ -316,6 +327,17 @@ export const config = {
     '--color-gray-400': '156 163 175',   // same as gray-500 in dark
     '--color-gray-200': '75 85 99',      // darker in dark mode
     '--color-yellow-400': '252 211 77',  // same bright yellow
+
+    /* App Theme Colors - Simple Theme Variables (Dark Mode) */
+    '--color-main': '129 140 248',       // Lighter indigo for dark mode
+    '--color-main-dark': '99 102 241',   // Still darker variant
+    '--color-surface': '31 41 55',       // Dark surface/cards
+    '--color-surface-muted': '17 24 39', // Darker surface
+    '--color-accent': '34 197 94',       // Same green accent
+    '--color-text-primary': '243 244 246', // Light text
+    '--color-text-secondary': '156 163 175', // Medium gray text
+    '--color-highlight': '252 211 77',   // Same yellow highlight
+    '--color-border-light': '75 85 99',  // Darker border for dark mode
 
     /* Focus Ring Indicator  */
     '--color-indicator-primary': '247 247 247',
