@@ -2,7 +2,6 @@ import { renderHook } from '@testing-library/react-native';
 import { useColorScheme } from 'nativewind';
 import { useDesignTokens } from '../useDesignTokens';
 
-// Mock du hook useColorScheme
 jest.mock('nativewind', () => ({
   useColorScheme: jest.fn(),
 }));

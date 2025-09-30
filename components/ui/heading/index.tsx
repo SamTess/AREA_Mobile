@@ -4,10 +4,13 @@ import { headingStyle } from './styles';
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 import { cssInterop } from 'nativewind';
 
-type IHeadingProps = VariantProps<typeof headingStyle> &
-  React.ComponentPropsWithoutRef<typeof H1> & {
-    as?: React.ElementType;
-  };
+type HeadingSize = '5xl' | '4xl' | '3xl' | '2xl' | 'xl' | 'lg' | 'md' | 'sm' | 'xs';
+
+type IHeadingProps = Omit<VariantProps<typeof headingStyle>, 'size'> & {
+  size?: HeadingSize;
+} & Omit<React.ComponentPropsWithoutRef<typeof H1>, 'size'> & {
+  as?: React.ElementType;
+};
 
 cssInterop(H1, { className: 'style' });
 cssInterop(H2, { className: 'style' });
@@ -51,8 +54,7 @@ const MappedHeading = memo(
                 class: className,
               })}
               {...props}
-              // @ts-expect-error : type issue
-              ref={ref}
+              ref={ref as any}
             />
           );
         case '2xl':
@@ -70,8 +72,7 @@ const MappedHeading = memo(
                 class: className,
               })}
               {...props}
-              // @ts-expect-error : type issue
-              ref={ref}
+              ref={ref as any}
             />
           );
         case 'xl':
@@ -89,8 +90,7 @@ const MappedHeading = memo(
                 class: className,
               })}
               {...props}
-              // @ts-expect-error : type issue
-              ref={ref}
+              ref={ref as any}
             />
           );
         case 'lg':
@@ -108,8 +108,7 @@ const MappedHeading = memo(
                 class: className,
               })}
               {...props}
-              // @ts-expect-error : type issue
-              ref={ref}
+              ref={ref as any}
             />
           );
         case 'md':
@@ -127,8 +126,7 @@ const MappedHeading = memo(
                 class: className,
               })}
               {...props}
-              // @ts-expect-error : type issue
-              ref={ref}
+              ref={ref as any}
             />
           );
         case 'sm':
@@ -147,8 +145,7 @@ const MappedHeading = memo(
                 class: className,
               })}
               {...props}
-              // @ts-expect-error : type issue
-              ref={ref}
+              ref={ref as any}
             />
           );
         default:
@@ -166,8 +163,7 @@ const MappedHeading = memo(
                 class: className,
               })}
               {...props}
-              // @ts-expect-error : type issue
-              ref={ref}
+              ref={ref as any}
             />
           );
       }

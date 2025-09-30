@@ -5,9 +5,7 @@ import { useColorScheme } from 'nativewind';
 export default function TabLayout() {
   const { colorScheme } = useColorScheme();
   
-  // Utilisation des design tokens via les CSS variables
   const getColorValue = (token: string) => {
-    // En mode runtime, on utilise les variables CSS définies dans le thème
     const tokenMap = {
       'indigo-600': colorScheme === 'dark' ? 'rgb(129 140 248)' : 'rgb(99 102 241)',
       'gray-500': colorScheme === 'dark' ? 'rgb(156 163 175)' : 'rgb(107 114 128)',

@@ -3,7 +3,6 @@ import { tva, VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 
-// Design tokens via Tailwind CSS classes (referencing our CSS variables)
 const tabBarStyle = tva({
   base: 'flex-row bg-background-0 border-t border-gray-200',
   variants: {
@@ -46,12 +45,12 @@ const tabBarLabelStyle = tva({
 });
 
 export interface TabBarProps extends VariantProps<typeof tabBarStyle> {
-  tabs: Array<{
+  tabs: {
     key: string;
     label: string;
     icon: React.ComponentType<{ className?: string; size?: number }>;
     onPress: () => void;
-  }>;
+  }[];
   activeTab: string;
   className?: string;
 }

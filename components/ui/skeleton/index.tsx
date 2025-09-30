@@ -20,19 +20,6 @@ interface SkeletonTextProps extends ViewProps {
   startColor?: string;
 }
 
-const getDuration = (speed = 2) => {
-  switch (speed) {
-    case 1:
-      return 750;
-    case 2:
-      return 1000;
-    case 3:
-      return 1500;
-    default:
-      return 2000;
-  }
-};
-
 export const Skeleton: React.FC<SkeletonProps> = ({
   variant = 'rounded',
   isLoaded = false,

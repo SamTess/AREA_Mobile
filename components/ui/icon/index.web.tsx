@@ -39,8 +39,7 @@ export const Icon = React.forwardRef<
   });
   return (
     <UIIcon
-      // @ts-expect-error : TODO: fix this
-      ref={ref}
+      ref={ref as any}
       {...props}
       {...iconProps}
     />
@@ -72,7 +71,7 @@ const createIconUI = ({ ...props }: ParameterTypes) => {
     }, [className, inComingprops?.style]);
     return (
       <NewUIIcon
-        ref={ref}
+        ref={ref as any}
         {...inComingprops}
         className={calculateClassName}
       />
@@ -82,7 +81,6 @@ const createIconUI = ({ ...props }: ParameterTypes) => {
 
 export { createIconUI as createIcon };
 
-// All Icons
 const AddIcon = createIcon({
   Root: Svg,
   viewBox: '0 0 24 24',

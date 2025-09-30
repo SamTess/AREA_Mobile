@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Import Gluestack UI components
 import { Badge, BadgeText } from '@/components/ui/badge';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
@@ -19,7 +18,6 @@ import { ScrollView } from '@/components/ui/scroll-view';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 
-// Card component for recommendations
 const RecommendationCard: React.FC<{
   title: string;
   subtitle: string;
@@ -54,7 +52,6 @@ const RecommendationCard: React.FC<{
   );
 };
 
-// Popular item data
 const POPULAR_ITEMS = [
   {
     id: 1,
@@ -108,7 +105,6 @@ const POPULAR_ITEMS = [
 
 const ITEMS_PER_PAGE = 3;
 
-// Popular Item component
 const PopularItem: React.FC<{
   title: string;
   subtitle: string;

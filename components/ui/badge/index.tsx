@@ -66,7 +66,7 @@ const BadgeText = React.forwardRef<Text, BadgeTextProps>(
     if (italic) textClasses += ' italic';
     if (highlight) textClasses += ' bg-yellow-500';
     if (sub) textClasses += ' text-xs';
-    else textClasses += ' text-xs'; // default size
+    else textClasses += ' text-xs';
 
     return (
       <Text
