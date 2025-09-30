@@ -1,0 +1,46 @@
+{
+  "home": {
+    "greeting": "Hello!",
+    "discover": "Discover our latest recommendations",
+    "searchPlaceholder": "Search...",
+    "recommended": "Recommended",
+    "seeAll": "See all",
+    "popularThisWeek": "Popular this week",
+    "previous": "Previous",
+    "next": "Next",
+    "ctaTitle": "Discover even more",
+    "ctaSubtitle": "Explore all our personalized recommendations"
+  },
+  "details": {
+    "address": "123 Peace Street, Paris",
+    "reviews": "4.8 (245 reviews)",
+    "description": "Enjoy an exceptional culinary experience in this renowned gourmet restaurant. Our executive chef offers refined cuisine combining tradition and innovation, with carefully selected seasonal ingredients.",
+    "features": "Features",
+    "featureCuisine": "Gourmet cuisine",
+    "featureReservation": "Reservation recommended",
+    "featureTerrace": "Terrace available",
+    "featureParking": "Free parking",
+    "bookTable": "Book a table",
+    "call": "Call",
+    "directions": "Directions"
+  },
+  "common": {
+    "popularBadge": "Popular"
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your account and preferences",
+    "verified": "Verified",
+    "premium": "Premium Member",
+    "settingsTitle": "Settings",
+    "settingsSubtitle": "Configure your app",
+    "notificationsTitle": "Notifications",
+    "notificationsSubtitle": "Manage your notifications",
+    "helpTitle": "Help & support",
+    "helpSubtitle": "Get help",
+    "logoutTitle": "Log out",
+    "logoutSubtitle": "Sign out of your account",
+    "toggleToFrench": "Switch to French",
+    "toggleToEnglish": "Switch to English"
+  }
+}

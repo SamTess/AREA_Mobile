@@ -7,4 +7,17 @@ module.exports = defineConfig([
   {
     ignores: ['dist/*'],
   },
+  // Test-specific overrides
+  {
+    files: [
+      '**/__tests__/**/*.{js,jsx,ts,tsx}',
+      '**/*.{spec,test}.{js,jsx,ts,tsx}',
+    ],
+    rules: {
+      // Allow require() style imports in tests for easier mocking
+      '@typescript-eslint/no-require-imports': 'off',
+      // Don't require display names for anonymous test components
+      'react/display-name': 'off',
+    },
+  },
 ]);
