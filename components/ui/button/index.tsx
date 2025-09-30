@@ -2,6 +2,7 @@
 import { useIconRenderProps } from '@/components/ui/utils/useIconRenderProps';
 import { createButton } from '@gluestack-ui/core/button/creator';
 import { PrimitiveIcon, UIIcon } from '@gluestack-ui/core/icon/creator';
+import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 import {
   tva,
   useStyleContext,
@@ -10,7 +11,6 @@ import {
 import { cssInterop } from 'nativewind';
 import React from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 
 const SCOPE = 'BUTTON';
 
