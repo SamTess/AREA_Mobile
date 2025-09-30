@@ -24,10 +24,20 @@ const Text = React.forwardRef<React.ComponentRef<'span'>, ITextProps>(
       <span
         className={textStyle({
           isTruncated: isTruncated as boolean,
-          bold: bold as boolean,
+            size: size as
+              | '2xs'
+              | 'xs'
+              | 'sm'
+              | 'md'
+              | 'lg'
+              | 'xl'
+              | '2xl'
+              | '3xl'
+              | '4xl'
+              | '5xl'
+              | '6xl',
           underline: underline as boolean,
           strikeThrough: strikeThrough as boolean,
-          size,
           sub: sub as boolean,
           italic: italic as boolean,
           highlight: highlight as boolean,

@@ -10,7 +10,7 @@ import {
 import { cssInterop } from 'nativewind';
 import React from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import type { VariantProps } from 'tailwind-variants';
+import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 
 const SCOPE = 'BUTTON';
 
@@ -328,7 +328,7 @@ const ButtonText = React.forwardRef<
           action: parentAction,
         },
         variant: variant as 'link' | 'outline' | 'solid' | undefined,
-        size,
+        size: size as 'xs' | 'sm' | 'md' | 'lg' | 'xl' | undefined,
         action: action as
           | 'primary'
           | 'secondary'
@@ -374,7 +374,7 @@ const ButtonIcon = React.forwardRef<
           variant: parentVariant,
           action: parentAction,
         },
-        size,
+        size: size as 'xs' | 'sm' | 'md' | 'lg' | 'xl' | undefined,
         class: cn,
       }),
   });
@@ -403,9 +403,21 @@ const ButtonGroup = React.forwardRef<
       <UIButton.Group
         className={buttonGroupStyle({
           class: className,
-          space,
+          space: space as
+            | 'xs'
+            | 'sm'
+            | 'md'
+            | 'lg'
+            | 'xl'
+            | '2xl'
+            | '3xl'
+            | '4xl',
           isAttached: isAttached as boolean,
-          flexDirection: flexDirection as any,
+          flexDirection: flexDirection as
+            | 'row'
+            | 'column'
+            | 'row-reverse'
+            | 'column-reverse',
         })}
         ref={ref}
       >

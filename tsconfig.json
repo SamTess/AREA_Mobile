@@ -18,5 +18,8 @@
     "expo-env.d.ts",
     "nativewind-env.d.ts",
     "test-utils/**/*.d.ts"
+  ],
+  "exclude": [
+    "app-example/**"
   ]
 }
