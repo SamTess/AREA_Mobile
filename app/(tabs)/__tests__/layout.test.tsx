@@ -34,12 +34,14 @@ describe('TabLayout', () => {
     expect(tabsProps.screenOptions).toBeTruthy();
     expect(tabsProps.screenOptions.headerShown).toBe(false);
     expect(tabsProps.screenOptions.tabBarLabelStyle.fontSize).toBe(12);
-    expect(screens.length).toBe(3);
+    expect(screens.length).toBe(4);
     const icon1 = screens[0].options.tabBarIcon({ color: testColors.focused, size: 20, focused: true });
     const icon2 = screens[1].options.tabBarIcon({ color: testColors.unfocused, size: 22, focused: false });
     const icon3 = screens[2].options.tabBarIcon({ color: testColors.focused, size: 20, focused: true });
+    const icon4 = screens[3].options.tabBarIcon({ color: testColors.unfocused, size: 22, focused: false });
     expect(icon1).toBeTruthy();
     expect(icon2).toBeTruthy();
     expect(icon3).toBeTruthy();
+    expect(icon4).toBeTruthy();
   });
 });

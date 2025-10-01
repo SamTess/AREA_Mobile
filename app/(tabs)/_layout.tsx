@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Home, LogIn, User } from 'lucide-react-native';
+import { Home, LogIn, User, UserPlus } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { useTranslation } from 'react-i18next';
 
@@ -49,6 +49,13 @@ export default function TabLayout() {
         options={{
           title: t('tabs.login'),
           tabBarIcon: ({ color, size }) => <LogIn size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="register"
+        options={{
+          title: t('tabs.register'),
+          tabBarIcon: ({ color, size }) => <UserPlus size={size} color={color} />,
         }}
       />
       <Tabs.Screen

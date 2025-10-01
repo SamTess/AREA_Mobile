@@ -30,6 +30,7 @@
   "tabs": {
     "home": "Accueil",
     "login": "Connexion",
+    "register": "Inscription",
     "profile": "Profil"
   },
   "profile": {
@@ -71,5 +72,36 @@
     "successMessage": "Vous êtes maintenant connecté",
     "errorTitle": "Erreur",
     "errorMessage": "La connexion a échoué"
+  },
+  "register": {
+    "title": "Inscription",
+    "subtitle": "Créez votre compte pour commencer",
+    "nameLabel": "Nom complet",
+    "namePlaceholder": "Jean Dupont",
+    "nameHelper": "Entrez votre nom complet",
+    "nameRequired": "Le nom est requis",
+    "nameTooShort": "Le nom doit contenir au moins 2 caractères",
+    "emailLabel": "Email",
+    "emailPlaceholder": "exemple@email.com",
+    "emailHelper": "Entrez votre adresse email",
+    "emailRequired": "L'email est requis",
+    "emailInvalid": "Veuillez entrer un email valide",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "••••••••",
+    "passwordHelper": "Au moins 6 caractères",
+    "passwordRequired": "Le mot de passe est requis",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
+    "confirmPasswordLabel": "Confirmer le mot de passe",
+    "confirmPasswordPlaceholder": "••••••••",
+    "confirmPasswordHelper": "Confirmez votre mot de passe",
+    "confirmPasswordRequired": "La confirmation du mot de passe est requise",
+    "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "registerButton": "S'inscrire",
+    "hasAccount": "Vous avez déjà un compte ?",
+    "signIn": "Se connecter",
+    "successTitle": "Inscription réussie",
+    "successMessage": "Votre compte a été créé avec succès",
+    "errorTitle": "Erreur",
+    "errorMessage": "L'inscription a échoué"
   }
 }

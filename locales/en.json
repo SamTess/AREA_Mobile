@@ -30,6 +30,7 @@
   "tabs": {
     "home": "Home",
     "login": "Login",
+    "register": "Register",
     "profile": "Profile"
   },
   "profile": {
@@ -71,5 +72,36 @@
     "successMessage": "You are now logged in",
     "errorTitle": "Error",
     "errorMessage": "Login failed"
+  },
+  "register": {
+    "title": "Sign Up",
+    "subtitle": "Create your account to get started",
+    "nameLabel": "Full Name",
+    "namePlaceholder": "John Doe",
+    "nameHelper": "Enter your full name",
+    "nameRequired": "Name is required",
+    "nameTooShort": "Name must be at least 2 characters",
+    "emailLabel": "Email",
+    "emailPlaceholder": "example@email.com",
+    "emailHelper": "Enter your email address",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Please enter a valid email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "passwordHelper": "At least 6 characters",
+    "passwordRequired": "Password is required",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "confirmPasswordLabel": "Confirm Password",
+    "confirmPasswordPlaceholder": "••••••••",
+    "confirmPasswordHelper": "Confirm your password",
+    "confirmPasswordRequired": "Password confirmation is required",
+    "passwordMismatch": "Passwords do not match",
+    "registerButton": "Sign Up",
+    "hasAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "successTitle": "Registration successful",
+    "successMessage": "Your account has been created successfully",
+    "errorTitle": "Error",
+    "errorMessage": "Registration failed"
   }
 }

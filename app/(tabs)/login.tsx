@@ -214,7 +214,12 @@ export default function LoginScreen() {
         <Box className="items-center mt-4">
           <Text size="sm" className="text-typography-600">
             {t('login.noAccount')}{' '}
-            <Text size="sm" bold className="text-primary-500">
+            <Text 
+              size="sm" 
+              bold 
+              className="text-primary-500"
+              onPress={() => router.push('/(tabs)/register')}
+            >
               {t('login.signUp')}
             </Text>
           </Text>
