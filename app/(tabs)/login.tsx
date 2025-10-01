@@ -70,7 +70,7 @@ export default function LoginScreen() {
           },
         ]
       );
-    } catch (err) {
+    } catch {
       Alert.alert(
         t('login.errorTitle') || 'Erreur',
         error || t('login.errorMessage') || 'La connexion a échoué'

@@ -99,7 +99,7 @@ export default function RegisterScreen() {
                     },
                 ]
             );
-        } catch (err) {
+        } catch {
             Alert.alert(
                 t('register.errorTitle') || 'Erreur',
                 error || t('register.errorMessage') || 'L\'inscription a échoué'
