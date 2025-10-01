@@ -47,7 +47,14 @@
     "logoutTitle": "Se déconnecter",
     "logoutSubtitle": "Quitter votre compte",
     "toggleToFrench": "Passer en français",
-    "toggleToEnglish": "Basculer en anglais"
+    "toggleToEnglish": "Basculer en anglais",
+    "logoutConfirmation": "Êtes-vous sûr de vouloir vous déconnecter ?",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "error": "Erreur",
+    "logoutError": "Erreur lors de la déconnexion. Veuillez réessayer.",
+    "unknownUser": "Utilisateur inconnu",
+    "noEmail": "Aucun email"
   },
   "login": {
     "title": "Connexion",

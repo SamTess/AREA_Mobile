@@ -1,11 +1,14 @@
-import { Tabs } from 'expo-router';
-import { Home, LogIn, User, UserPlus } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
+import { Tabs, useRouter } from 'expo-router';
+import { Home, User } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { useTranslation } from 'react-i18next';
 
 export default function TabLayout() {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
   
   const getColorValue = (token: string) => {
     const tokenMap = {
@@ -44,18 +47,17 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
         }}
       />
+      {/* Login and Register are hidden from the navigation bar */}
       <Tabs.Screen
         name="login"
         options={{
-          title: t('tabs.login'),
-          tabBarIcon: ({ color, size }) => <LogIn size={size} color={color} />,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="register"
         options={{
-          title: t('tabs.register'),
-          tabBarIcon: ({ color, size }) => <UserPlus size={size} color={color} />,
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -63,6 +65,14 @@ export default function TabLayout() {
         options={{
           title: t('tabs.profile'),
           tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+        }}
+        listeners={{
+          tabPress: (e) => {
+            if (!isAuthenticated) {
+              e.preventDefault();
+              router.push('/(tabs)/login');
+            }
+          },
         }}
       />
     </Tabs>

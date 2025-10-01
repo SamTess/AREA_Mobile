@@ -47,7 +47,14 @@
     "logoutTitle": "Log out",
     "logoutSubtitle": "Sign out of your account",
     "toggleToFrench": "Switch to French",
-    "toggleToEnglish": "Switch to English"
+    "toggleToEnglish": "Switch to English",
+    "logoutConfirmation": "Are you sure you want to log out?",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "error": "Error",
+    "logoutError": "Error during logout. Please try again.",
+    "unknownUser": "Unknown user",
+    "noEmail": "No email"
   },
   "login": {
     "title": "Login",

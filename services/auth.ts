@@ -1,131 +1,35 @@
 import { AuthResponse, LoginCredentials, RegisterData, User } from '@/types/auth';
+import {
+    MOCK_USERS_DB,
+    mockGetCurrentUser,
+    mockLogin,
+    mockLogout,
+    mockRefreshToken,
+    mockRegister,
+} from './__mocks__/auth.mock';
+import { API_CONFIG, ENV } from './api.config';
 import { clearAuthData, saveAccessToken, saveRefreshToken, saveUserData } from './storage';
 
 /**
- * API configuration
- * TODO: Replace with your backend's real URL
+ * Mock mode configuration
+ * Set EXPO_PUBLIC_USE_MOCK=false in .env to use real backend
  */
-const API_CONFIG = {
-    BASE_URL: process.env.EXPO_PUBLIC_API_URL || 'https://api.example.com',
-    ENDPOINTS: {
-        LOGIN: '/auth/login',
-        REGISTER: '/auth/register',
-        LOGOUT: '/auth/logout',
-        REFRESH: '/auth/refresh',
-        ME: '/auth/me',
-    },
-    TIMEOUT: 10000,
-} as const;
-
-/**
- * Mock mode enabled/disabled
- * TODO: Set to false when the backend is ready
- */
-const USE_MOCK = true;
-
-/**
- * Mock simulation delay (ms)
- */
-const MOCK_DELAY = 1000;
-
-/**
- * Mock users for testing
- */
-const MOCK_USERS = [
-    {
-        email: 'user@example.com',
-        password: 'password123',
-        user: {
-            id: '1',
-            email: 'user@example.com',
-            name: 'John Doe',
-            avatar: 'https://i.pravatar.cc/150?img=1',
-            createdAt: new Date().toISOString(),
-        },
-    },
-    {
-        email: 'test@test.com',
-        password: 'test123',
-        user: {
-            id: '2',
-            email: 'test@test.com',
-            name: 'Jane Smith',
-            avatar: 'https://i.pravatar.cc/150?img=2',
-            createdAt: new Date().toISOString(),
-        },
-    },
-];
-
-/**
- * Simulate a network delay
- */
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-/**
- * Generate a mocked JWT token
- */
-function generateMockToken(): string {
-    return `mock_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-}
-
-/**
- * Mock login
- */
-async function mockLogin(credentials: LoginCredentials): Promise<AuthResponse> {
-    await delay(MOCK_DELAY);
-
-    const mockUser = MOCK_USERS.find(
-        u => u.email === credentials.email && u.password === credentials.password
-    );
-
-    if (!mockUser) {
-        throw new Error('Invalid credentials');
-    }
-
-    return {
-        user: mockUser.user,
-        tokens: {
-            accessToken: generateMockToken(),
-            refreshToken: generateMockToken(),
-            expiresIn: 3600,
-        },
-    };
-}
-
-/**
- * Mock registration
- */
-async function mockRegister(data: RegisterData): Promise<AuthResponse> {
-    await delay(MOCK_DELAY);
-
-    if (MOCK_USERS.some(u => u.email === data.email)) {
-        throw new Error('Email already exists');
-    }
-
-    const newUser: User = {
-        id: String(MOCK_USERS.length + 1),
-        email: data.email,
-        name: data.name || 'New User',
-        avatar: `https://i.pravatar.cc/150?img=${MOCK_USERS.length + 1}`,
-        createdAt: new Date().toISOString(),
-    };
-
-    return {
-        user: newUser,
-        tokens: {
-            accessToken: generateMockToken(),
-            refreshToken: generateMockToken(),
-            expiresIn: 3600,
-        },
-    };
-}
+const USE_MOCK = ENV.USE_MOCK;
+const MOCK_DELAY = ENV.MOCK_DELAY;
 
 /**
  * Login
  */
 export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
     if (USE_MOCK) {
-        return mockLogin(credentials);
+        const response = await mockLogin(credentials, { delay: MOCK_DELAY });
+        
+        // Save to storage
+        await saveAccessToken(response.tokens.accessToken);
+        await saveRefreshToken(response.tokens.refreshToken);
+        await saveUserData(JSON.stringify(response.user));
+        
+        return response;
     }
 
     try {
@@ -160,7 +64,14 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
  */
 export async function register(data: RegisterData): Promise<AuthResponse> {
     if (USE_MOCK) {
-        return mockRegister(data);
+        const response = await mockRegister(data, { delay: MOCK_DELAY });
+        
+        // Save to storage
+        await saveAccessToken(response.tokens.accessToken);
+        await saveRefreshToken(response.tokens.refreshToken);
+        await saveUserData(JSON.stringify(response.user));
+        
+        return response;
     }
 
     try {
@@ -195,7 +106,7 @@ export async function register(data: RegisterData): Promise<AuthResponse> {
  */
 export async function logout(): Promise<void> {
     if (USE_MOCK) {
-        await delay(MOCK_DELAY / 2);
+        await mockLogout({ delay: MOCK_DELAY / 2 });
         await clearAuthData();
         return;
     }
@@ -219,8 +130,15 @@ export async function logout(): Promise<void> {
  */
 export async function getCurrentUser(): Promise<User | null> {
     if (USE_MOCK) {
-        await delay(MOCK_DELAY / 2);
-        return MOCK_USERS[0].user;
+        // For mock, we need to check if there's a valid token stored
+        const { getAccessToken } = await import('./storage');
+        const token = await getAccessToken();
+        
+        if (!token) {
+            return null; // No token = not authenticated
+        }
+        
+        return mockGetCurrentUser(token, { delay: MOCK_DELAY / 2 });
     }
 
     try {
@@ -250,10 +168,9 @@ export async function getCurrentUser(): Promise<User | null> {
  */
 export async function refreshAccessToken(refreshToken: string): Promise<string | null> {
     if (USE_MOCK) {
-        await delay(MOCK_DELAY / 2);
-        const newToken = generateMockToken();
-        await saveAccessToken(newToken);
-        return newToken;
+        const response = await mockRefreshToken(refreshToken, { delay: MOCK_DELAY / 2 });
+        await saveAccessToken(response.accessToken);
+        return response.accessToken;
     }
 
     try {
@@ -280,10 +197,11 @@ export async function refreshAccessToken(refreshToken: string): Promise<string |
 }
 
 /**
- * Configuration to toggle mock mode
+ * Configuration to toggle mock mode and access mock users
  */
 export const authConfig = {
     useMock: USE_MOCK,
     mockDelay: MOCK_DELAY,
-    mockUsers: MOCK_USERS,
+    mockUsers: MOCK_USERS_DB,
+    apiBaseUrl: API_CONFIG.BASE_URL,
 };
