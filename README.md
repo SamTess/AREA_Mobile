@@ -39,6 +39,7 @@ This command will move the starter code to the **app-example** directory and cre
 
 - [Installation](docs/installation.md)
 - [Using the use-gluestack-components tool](docs/use-gluestack-components.md)
+- [Manual Release Guide](docs/manual-release-guide.md) - How to create staging/production releases
 
 ## Learn more
 
