@@ -24,7 +24,6 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
     if (USE_MOCK) {
         const response = await mockLogin(credentials, { delay: MOCK_DELAY });
         
-        // Save to storage
         await saveAccessToken(response.tokens.accessToken);
         await saveRefreshToken(response.tokens.refreshToken);
         await saveUserData(JSON.stringify(response.user));
@@ -65,8 +64,7 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
 export async function register(data: RegisterData): Promise<AuthResponse> {
     if (USE_MOCK) {
         const response = await mockRegister(data, { delay: MOCK_DELAY });
-        
-        // Save to storage
+
         await saveAccessToken(response.tokens.accessToken);
         await saveRefreshToken(response.tokens.refreshToken);
         await saveUserData(JSON.stringify(response.user));
@@ -130,12 +128,11 @@ export async function logout(): Promise<void> {
  */
 export async function getCurrentUser(): Promise<User | null> {
     if (USE_MOCK) {
-        // For mock, we need to check if there's a valid token stored
         const { getAccessToken } = await import('./storage');
         const token = await getAccessToken();
         
         if (!token) {
-            return null; // No token = not authenticated
+            return null;
         }
         
         return mockGetCurrentUser(token, { delay: MOCK_DELAY / 2 });
@@ -193,6 +190,41 @@ export async function refreshAccessToken(refreshToken: string): Promise<string |
     } catch (error) {
         console.error('Refresh token error:', error);
         return null;
+    }
+}
+
+/**
+ * Forgot Password - Send reset link to email
+ */
+export async function forgotPassword(email: string): Promise<void> {
+    if (USE_MOCK) {
+        await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY));
+
+        const userExists = MOCK_USERS_DB.some(user => user.email === email);
+        
+        if (!userExists) {
+            throw new Error('Email not found');
+        }
+        
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.FORGOT_PASSWORD}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to send reset link');
+        }
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        throw error;
     }
 }
 

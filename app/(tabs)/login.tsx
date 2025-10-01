@@ -197,16 +197,15 @@ export default function LoginScreen() {
             </Button>
 
             {/* Lien mot de passe oublié */}
-            <Button
-              variant="link"
-              action="primary"
-              size="sm"
-              className="self-center mt-2"
-            >
-              <ButtonText className="text-primary-500 hover:text-primary-600">
+            <Box className="items-center mt-2">
+              <Text 
+                size="sm" 
+                className="text-primary-500"
+                onPress={() => router.push('/(tabs)/forgot-password')}
+              >
                 {t('login.forgotPassword')}
-              </ButtonText>
-            </Button>
+              </Text>
+            </Box>
           </VStack>
         </Box>
 

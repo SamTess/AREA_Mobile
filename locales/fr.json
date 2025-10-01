@@ -110,5 +110,20 @@
     "successMessage": "Votre compte a été créé avec succès",
     "errorTitle": "Erreur",
     "errorMessage": "L'inscription a échoué"
+  },
+  "forgotPassword": {
+    "title": "Mot de passe oublié",
+    "subtitle": "Entrez votre email pour recevoir un lien de réinitialisation",
+    "emailLabel": "Email",
+    "emailPlaceholder": "exemple@email.com",
+    "emailHelper": "Nous vous enverrons un lien de réinitialisation",
+    "emailRequired": "L'email est requis",
+    "emailInvalid": "Veuillez entrer un email valide",
+    "sendButton": "Envoyer le lien",
+    "backToLogin": "Retour à la connexion",
+    "successTitle": "Email envoyé",
+    "successMessage": "Un lien de réinitialisation a été envoyé à votre adresse email",
+    "errorTitle": "Erreur",
+    "errorMessage": "Impossible d'envoyer l'email. Veuillez réessayer"
   }
 }

@@ -110,5 +110,20 @@
     "successMessage": "Your account has been created successfully",
     "errorTitle": "Error",
     "errorMessage": "Registration failed"
+  },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "subtitle": "Enter your email to receive a reset link",
+    "emailLabel": "Email",
+    "emailPlaceholder": "example@email.com",
+    "emailHelper": "We'll send you a reset link",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Please enter a valid email",
+    "sendButton": "Send Reset Link",
+    "backToLogin": "Back to login",
+    "successTitle": "Email sent",
+    "successMessage": "A reset link has been sent to your email address",
+    "errorTitle": "Error",
+    "errorMessage": "Unable to send email. Please try again"
   }
 }

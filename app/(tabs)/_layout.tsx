@@ -47,7 +47,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
         }}
       />
-      {/* Login and Register are hidden from the navigation bar */}
+      {/* Login, Register and Forgot Password are hidden from the navigation bar */}
       <Tabs.Screen
         name="login"
         options={{
@@ -73,6 +73,12 @@ export default function TabLayout() {
               router.push('/(tabs)/login');
             }
           },
+        }}
+      />
+      <Tabs.Screen
+        name="forgot-password"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

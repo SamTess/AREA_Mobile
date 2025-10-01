@@ -295,7 +295,7 @@ export default function RegisterScreen() {
                                 className="mt-6 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 rounded-lg shadow-md"
                             >
                                 {isLoading ? (
-                                    <ActivityIndicator color="white" />
+                                    <ActivityIndicator testID="activity-indicator" color="white" />
                                 ) : (
                                     <ButtonText className="font-semibold text-base">
                                         {t('register.registerButton')}
