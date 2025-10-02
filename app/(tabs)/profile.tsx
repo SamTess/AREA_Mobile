@@ -1,7 +1,8 @@
+import { useRouter } from 'expo-router';
 import { BadgeCheck, Bell, HelpCircle, LogOut, Settings } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar, AvatarBadge, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
@@ -12,8 +13,10 @@ import { Divider } from '@/components/ui/divider';
 import { Heading } from '@/components/ui/heading';
 import { useDesignTokens } from '@/components/ui/hooks/useDesignTokens';
 import { HStack } from '@/components/ui/hstack';
+import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MenuItem: React.FC<{
   icon: React.ComponentType<any>;
@@ -24,10 +27,10 @@ const MenuItem: React.FC<{
   const { getToken } = useDesignTokens();
   
   return (
-    <Button variant="ghost" onPress={onPress} className="p-4">
+    <Pressable onPress={onPress} className="p-4 rounded-lg active:bg-background-100">
       <HStack space="md" align="center" className="w-full">
-        <Box className="w-10 h-10 bg-primary-50 rounded-full items-center justify-center">
-          <Icon size={20} color={getToken('indigo-600')} />
+        <Box className="w-10 h-10 bg-background-100 rounded-full items-center justify-center">
+          <Icon size={20} color={getToken('typography-900')} />
         </Box>
         <VStack className="flex-1 gap-1">
           <Text className="text-typography-900 font-medium">
@@ -38,18 +41,60 @@ const MenuItem: React.FC<{
           </Text>
         </VStack>
       </HStack>
-    </Button>
+    </Pressable>
   );
 };
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+  
   const isFrench = i18n.language?.startsWith('fr');
   const toggleLanguage = () => {
     i18n.changeLanguage(isFrench ? 'en' : 'fr');
   };
+
+  const handleLogout = () => {
+    Alert.alert(
+      t('profile.logoutTitle'),
+      t('profile.logoutConfirmation'),
+      [
+        {
+          text: t('profile.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('profile.confirm'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+              router.replace('/(tabs)/login');
+            } catch (error) {
+              console.error('Logout error:', error);
+              Alert.alert(
+                t('profile.error'),
+                t('profile.logoutError')
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const getUserInitials = () => {
+    if (!user?.name) return 'U';
+    const names = user.name.split(' ');
+    if (names.length >= 2) {
+      return `${names[0][0]}${names[1][0]}`.toUpperCase();
+    }
+    return user.name.substring(0, 2).toUpperCase();
+  };
+
   return (
-    <SafeAreaView className="flex-1 bg-background-light">
+    <SafeAreaView className="flex-1 bg-background-0">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
         {/* Header */}
         <Box className="px-6 py-4">
@@ -69,21 +114,23 @@ export default function ProfileScreen() {
         </Box>
 
         {/* Profile Card */}
-        <Box className="mx-6 mb-6 bg-surface rounded-lg p-6 shadow-soft-1">
+        <Box className="mx-6 mb-6 bg-background-50 rounded-lg p-6 shadow-soft-1">
           <HStack space="md" align="center">
             <Avatar size="xl">
-              <AvatarFallbackText>John Doe</AvatarFallbackText>
-              <AvatarImage
-                source={{
-                  uri: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60",
-                }}
-              />
+              <AvatarFallbackText>{getUserInitials()}</AvatarFallbackText>
+              {user?.avatar && (
+                <AvatarImage
+                  source={{
+                    uri: user.avatar,
+                  }}
+                />
+              )}
               <AvatarBadge />
             </Avatar>
             <VStack className="flex-1 gap-2">
               <HStack space="sm" align="center">
                 <Heading size="lg" className="text-typography-900">
-                  John Doe
+                  {user?.name || t('profile.unknownUser')}
                 </Heading>
                 <Badge size="sm" variant="solid" action="success">
                   <BadgeText>{t('profile.verified')}</BadgeText>
@@ -91,7 +138,7 @@ export default function ProfileScreen() {
                 </Badge>
               </HStack>
               <Text className="text-typography-600">
-                john.doe@example.com
+                {user?.email || t('profile.noEmail')}
               </Text>
               <Badge size="sm" variant="outline" action="info">
                 <BadgeText>{t('profile.premium')}</BadgeText>
@@ -123,6 +170,7 @@ export default function ProfileScreen() {
             icon={LogOut}
             title={t('profile.logoutTitle')}
             subtitle={t('profile.logoutSubtitle')}
+            onPress={handleLogout}
           />
         </VStack>
       </ScrollView>
