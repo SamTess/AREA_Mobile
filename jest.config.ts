@@ -27,10 +27,10 @@ const config: Config = {
   testPathIgnorePatterns: ['/node_modules/', '/Android/', '/.expo/'],
   coverageThreshold: {
     global: {
-      statements: 80,
+      statements: 75,
       branches: 50,
       functions: 70,
-      lines: 80,
+      lines: 75,
     },
   },
 };

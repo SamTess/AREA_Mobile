@@ -111,7 +111,11 @@
     "successTitle": "Login successful",
     "successMessage": "You are now logged in",
     "errorTitle": "Error",
-    "errorMessage": "Login failed"
+    "errorMessage": "Login failed",
+    "orContinueWith": "Or continue with",
+    "githubButton": "Continue with GitHub",
+    "googleButton": "Continue with Google",
+    "microsoftButton": "Continue with Microsoft"
   },
   "register": {
     "title": "Sign Up",

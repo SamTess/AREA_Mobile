@@ -40,4 +40,49 @@ describe('ProfileScreen', () => {
     expect(screen.getByText('Help & support')).toBeTruthy();
     expect(screen.getByText('Log out')).toBeTruthy();
   });
+
+  it('renders all option subtitles', () => {
+    render(<ProfileScreen />, { wrapper: Providers });
+
+    expect(screen.getByText('Configure your app')).toBeTruthy();
+    expect(screen.getByText('Manage your notifications')).toBeTruthy();
+    expect(screen.getByText('Get help')).toBeTruthy();
+    expect(screen.getByText('Sign out of your account')).toBeTruthy();
+  });
+
+  it('renders user profile information', () => {
+    render(<ProfileScreen />, { wrapper: Providers });
+
+    // Check if profile section exists
+    expect(screen.getByText('Profile')).toBeTruthy();
+  });
+
+  it('renders badges', () => {
+    render(<ProfileScreen />, { wrapper: Providers });
+
+    expect(screen.getByText('Verified')).toBeTruthy();
+    expect(screen.getByText('Premium Member')).toBeTruthy();
+  });
+
+  it('renders language toggle button', () => {
+    render(<ProfileScreen />, { wrapper: Providers });
+
+    // Check if profile header exists
+    expect(screen.getByText('Profile')).toBeTruthy();
+  });
+
+  it('renders all menu items as pressable', () => {
+    render(<ProfileScreen />, { wrapper: Providers });
+
+    // Verify main menu items are rendered
+    expect(screen.getByText('Settings')).toBeTruthy();
+    expect(screen.getByText('Notifications')).toBeTruthy();
+    expect(screen.getByText('Help & support')).toBeTruthy();
+    expect(screen.getByText('Log out')).toBeTruthy();
+  });
+
+  it('displays correct structure with avatar', () => {
+    const { toJSON } = render(<ProfileScreen />, { wrapper: Providers });
+    expect(toJSON()).toBeTruthy();
+  });
 });

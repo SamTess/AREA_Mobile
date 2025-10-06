@@ -2,7 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Camera, KeyRound, Languages, Moon, Save, Sun } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -44,6 +44,14 @@ export default function EditProfileScreen() {
   const [avatar, setAvatar] = useState(user?.avatar || '');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setEmail(user.email || '');
+      setAvatar(user.avatar || '');
+    }
+  }, [user]);
 
   const getUserInitials = () => {
     if (!name) return user?.name ? user.name.substring(0, 2).toUpperCase() : 'U';

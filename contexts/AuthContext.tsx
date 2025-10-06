@@ -133,6 +133,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       setUser(updatedUser);
+      await storage.saveUserData(JSON.stringify(updatedUser));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Update failed';
       setError(message);

@@ -111,7 +111,11 @@
     "successTitle": "Connexion réussie",
     "successMessage": "Vous êtes maintenant connecté",
     "errorTitle": "Erreur",
-    "errorMessage": "La connexion a échoué"
+    "errorMessage": "La connexion a échoué",
+    "orContinueWith": "Ou continuer avec",
+    "githubButton": "Continuer avec GitHub",
+    "googleButton": "Continuer avec Google",
+    "microsoftButton": "Continuer avec Microsoft"
   },
   "register": {
     "title": "Inscription",
