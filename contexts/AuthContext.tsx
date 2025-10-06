@@ -1,5 +1,6 @@
 import * as authService from '@/services/auth';
 import * as storage from '@/services/storage';
+import * as userService from '@/services/user';
 import { AuthTokens, User } from '@/types/auth';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
@@ -12,6 +13,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (userData: Partial<User>) => Promise<void>;
   clearError: () => void;
 }
 
@@ -116,6 +118,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const updateUser = async (userData: Partial<User>) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      if (!user) {
+        throw new Error('No user to update');
+      }
+
+      const updatedUser = await userService.updateProfileWithAvatar({
+        ...user,
+        ...userData,
+      });
+
+      setUser(updatedUser);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Update failed';
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const clearError = () => {
     setError(null);
   };
@@ -129,6 +155,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     register,
     logout,
+    updateUser,
     clearError,
   };
 

@@ -8,7 +8,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar, AvatarBadge, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Badge, BadgeIcon, BadgeText } from '@/components/ui/badge';
 import { Box } from '@/components/ui/box';
-import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { Heading } from '@/components/ui/heading';
 import { useDesignTokens } from '@/components/ui/hooks/useDesignTokens';
@@ -46,14 +45,9 @@ const MenuItem: React.FC<{
 };
 
 export default function ProfileScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const router = useRouter();
-  
-  const isFrench = i18n.language?.startsWith('fr');
-  const toggleLanguage = () => {
-    i18n.changeLanguage(isFrench ? 'en' : 'fr');
-  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -104,13 +98,6 @@ export default function ProfileScreen() {
           <Text size="md" className="text-typography-600">
             {t('profile.subtitle')}
           </Text>
-          <Box className="mt-3">
-            <Button variant="outline" onPress={toggleLanguage}>
-              <Text>
-                {isFrench ? t('profile.toggleToEnglish') : t('profile.toggleToFrench')}
-              </Text>
-            </Button>
-          </Box>
         </Box>
 
         {/* Profile Card */}
@@ -153,6 +140,7 @@ export default function ProfileScreen() {
             icon={Settings}
             title={t('profile.settingsTitle')}
             subtitle={t('profile.settingsSubtitle')}
+            onPress={() => router.push('/(tabs)/edit-profile')}
           />
           <Divider className="my-2" />
           <MenuItem
