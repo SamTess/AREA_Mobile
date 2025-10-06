@@ -16,7 +16,7 @@ const MOCK_DELAY = ENV.MOCK_DELAY;
 export async function uploadAvatar(fileUri: string): Promise<string> {
   if (USE_MOCK) {
     await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY));
-    return `https://api.example.com/avatars/mock_${Date.now()}.jpg`;
+    return fileUri;
   }
 
   try {
