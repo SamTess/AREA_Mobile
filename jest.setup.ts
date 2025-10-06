@@ -37,3 +37,23 @@ jest.mock('expo-image', () => require('react-native'));
 
 // Initialize i18n for tests with default language 'en'
 import '@/i18n';
+
+// Suppress specific console.error warnings that are expected in tests
+const originalError = console.error;
+beforeAll(() => {
+  console.error = (...args: any[]) => {
+    // Ignore React act() warnings from async state updates in tests
+    if (
+      typeof args[0] === 'string' &&
+      (args[0].includes('inside a test was not wrapped in act') ||
+       args[0].includes('An update to') && args[0].includes('was not wrapped in act'))
+    ) {
+      return;
+    }
+    originalError.call(console, ...args);
+  };
+});
+
+afterAll(() => {
+  console.error = originalError;
+});
