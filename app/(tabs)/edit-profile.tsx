@@ -1,10 +1,11 @@
+import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Camera, KeyRound, Languages, Moon, Save, Sun } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView } from 'react-native';
+import { Alert, BackHandler, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar, AvatarBadge, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
@@ -39,30 +40,34 @@ export default function EditProfileScreen() {
     setColorScheme(isDark ? 'light' : 'dark');
   };
   
-  const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [avatar, setAvatar] = useState(user?.avatar || '');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [avatar, setAvatar] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
 
-  useEffect(() => {
-    if (user) {
-      setName(user.name || '');
-      setEmail(user.email || '');
-      setAvatar(user.avatar || '');
-    }
-  }, [user]);
+  const [initialValues, setInitialValues] = useState({
+    name: '',
+    email: '',
+    avatar: '',
+  });
 
-  const getUserInitials = () => {
-    if (!name) return user?.name ? user.name.substring(0, 2).toUpperCase() : 'U';
-    const names = name.split(' ');
-    if (names.length >= 2) {
-      return `${names[0][0]}${names[1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  };
+  const hasUnsavedChanges = useCallback(() => {
+    const currentName = name || '';
+    const currentEmail = email || '';
+    const currentAvatar = avatar || '';
+    const initName = initialValues.name || '';
+    const initEmail = initialValues.email || '';
+    const initAvatar = initialValues.avatar || '';
+    
+    return (
+      currentName !== initName ||
+      currentEmail !== initEmail ||
+      currentAvatar !== initAvatar
+    );
+  }, [name, email, avatar, initialValues]);
 
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     const newErrors: { name?: string; email?: string } = {};
 
     if (!name.trim()) {
@@ -82,9 +87,9 @@ export default function EditProfileScreen() {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [name, email, t]);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!validateForm()) {
       return;
     }
@@ -99,6 +104,12 @@ export default function EditProfileScreen() {
           avatar: avatar || user?.avatar,
         });
       }
+
+      setInitialValues({
+        name: name.trim(),
+        email: email.trim(),
+        avatar: avatar || user?.avatar || '',
+      });
 
       Alert.alert(
         t('editProfile.successTitle'),
@@ -119,6 +130,82 @@ export default function EditProfileScreen() {
     } finally {
       setIsLoading(false);
     }
+  }, [validateForm, name, email, avatar, user, updateUser, t, router]);
+
+  const handleBackPress = useCallback(() => {
+    if (hasUnsavedChanges()) {
+      Alert.alert(
+        t('editProfile.unsavedChangesTitle'),
+        t('editProfile.unsavedChangesMessage'),
+        [
+          {
+            text: t('editProfile.keepEditing'),
+            style: 'cancel',
+          },
+          {
+            text: t('editProfile.discardChanges'),
+            style: 'destructive',
+            onPress: () => router.back(),
+          },
+          {
+            text: t('editProfile.saveChanges'),
+            onPress: handleSave,
+          },
+        ]
+      );
+    } else {
+      router.back();
+    }
+  }, [hasUnsavedChanges, t, router, handleSave]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        const userNameValue = user.name || '';
+        const userEmailValue = user.email || '';
+        const userAvatarValue = user.avatar || '';
+        
+        setName(userNameValue);
+        setEmail(userEmailValue);
+        setAvatar(userAvatarValue);
+        setInitialValues({
+          name: userNameValue,
+          email: userEmailValue,
+          avatar: userAvatarValue,
+        });
+        setErrors({});
+      }
+    }, [user])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        const hasChanges = 
+          name !== initialValues.name ||
+          email !== initialValues.email ||
+          avatar !== initialValues.avatar;
+          
+        if (hasChanges) {
+          handleBackPress();
+          return true;
+        }
+        return false;
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => subscription.remove();
+    }, [name, email, avatar, initialValues, handleBackPress])
+  );
+
+  const getUserInitials = () => {
+    if (!name) return user?.name ? user.name.substring(0, 2).toUpperCase() : 'U';
+    const names = name.split(' ');
+    if (names.length >= 2) {
+      return `${names[0][0]}${names[1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   };
 
   const requestCameraPermission = async () => {
@@ -219,7 +306,7 @@ export default function EditProfileScreen() {
       {/* Header */}
       <Box className="px-6 py-4 border-b border-outline-100">
         <HStack space="md" align="center">
-          <Pressable onPress={() => router.push('/(tabs)/profile')}>
+          <Pressable onPress={handleBackPress}>
             <Icon as={ArrowLeft} size="xl" className="text-typography-900" />
           </Pressable>
           <Heading size="xl" className="text-typography-900 flex-1">

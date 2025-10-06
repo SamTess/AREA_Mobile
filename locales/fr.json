@@ -87,7 +87,12 @@
     "galleryError": "Impossible d'ouvrir la galerie. Veuillez réessayer.",
     "preferencesLabel": "Préférences",
     "switchToLight": "Passer en mode clair",
-    "switchToDark": "Passer en mode sombre"
+    "switchToDark": "Passer en mode sombre",
+    "unsavedChangesTitle": "Modifications non enregistrées",
+    "unsavedChangesMessage": "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter sans enregistrer ?",
+    "discardChanges": "Abandonner",
+    "saveChanges": "Enregistrer les modifications",
+    "keepEditing": "Continuer l'édition"
   },
   "login": {
     "title": "Connexion",

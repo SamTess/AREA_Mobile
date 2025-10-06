@@ -87,7 +87,12 @@
     "galleryError": "Failed to open gallery. Please try again.",
     "preferencesLabel": "Preferences",
     "switchToLight": "Switch to Light Mode",
-    "switchToDark": "Switch to Dark Mode"
+    "switchToDark": "Switch to Dark Mode",
+    "unsavedChangesTitle": "Unsaved Changes",
+    "unsavedChangesMessage": "You have unsaved changes. Are you sure you want to leave without saving?",
+    "discardChanges": "Discard",
+    "saveChanges": "Save Changes",
+    "keepEditing": "Keep Editing"
   },
   "login": {
     "title": "Login",
