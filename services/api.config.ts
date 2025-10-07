@@ -17,19 +17,18 @@ export const ENV = {
  */
 export const API_ENDPOINTS = {
     // Authentication
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
-    REFRESH: '/auth/refresh',
-    ME: '/auth/me',
-    FORGOT_PASSWORD: '/auth/forgot-password',
-    
+    LOGIN: '/api/auth/login',
+    REGISTER: '/api/auth/register',
+    LOGOUT: '/api/auth/logout',
+    REFRESH: '/api/auth/refresh',
+    ME: '/api/auth/me',
+    FORGOT_PASSWORD: '/api/auth/forgot-password',
+
     // User
     USER_PROFILE: '/user/profile',
     USER_UPDATE: '/user/update',
     USER_DELETE: '/user/delete',
-    
-    // TODO: Add more endpoints as needed
+
 } as const;
 
 /**

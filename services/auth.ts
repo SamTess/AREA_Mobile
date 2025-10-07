@@ -8,7 +8,7 @@ import {
     mockRegister,
 } from './__mocks__/auth.mock';
 import { API_CONFIG, ENV } from './api.config';
-import { clearAuthData, saveAccessToken, saveRefreshToken, saveUserData } from './storage';
+import { clearAuthData, getAccessToken, saveAccessToken, saveRefreshToken, saveUserData } from './storage';
 
 /**
  * Mock mode configuration
@@ -18,16 +18,27 @@ const USE_MOCK = ENV.USE_MOCK;
 const MOCK_DELAY = ENV.MOCK_DELAY;
 
 /**
+ * Helper function to get authorization headers
+ */
+async function getAuthHeaders(): Promise<Record<string, string>> {
+    const token = await getAccessToken();
+    return {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    };
+}
+
+/**
  * Login
  */
 export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
     if (USE_MOCK) {
         const response = await mockLogin(credentials, { delay: MOCK_DELAY });
-        
+
         await saveAccessToken(response.tokens.accessToken);
         await saveRefreshToken(response.tokens.refreshToken);
         await saveUserData(JSON.stringify(response.user));
-        
+
         return response;
     }
 
@@ -110,11 +121,10 @@ export async function logout(): Promise<void> {
     }
 
     try {
+        const headers = await getAuthHeaders();
         await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGOUT}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers,
         });
     } catch (error) {
         console.error('Logout error:', error);
@@ -139,11 +149,10 @@ export async function getCurrentUser(): Promise<User | null> {
     }
 
     try {
+        const headers = await getAuthHeaders();
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ME}`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers,
         });
 
         if (!response.ok) {
