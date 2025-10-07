@@ -101,14 +101,14 @@ export default function EditProfileScreen() {
           ...user,
           name: name.trim(),
           email: email.trim(),
-          avatar: avatar || user?.avatar,
+          avatarUrl: avatar || (user?.avatarUrl as string) || (user as any)?.avatar,
         });
       }
 
       setInitialValues({
         name: name.trim(),
         email: email.trim(),
-        avatar: avatar || user?.avatar || '',
+        avatar: avatar || (user?.avatarUrl as string) || (user as any)?.avatar || '',
       });
 
       Alert.alert(
@@ -161,9 +161,9 @@ export default function EditProfileScreen() {
   useFocusEffect(
     useCallback(() => {
       if (user) {
-        const userNameValue = user.name || '';
-        const userEmailValue = user.email || '';
-        const userAvatarValue = user.avatar || '';
+  const userNameValue = user.name || '';
+  const userEmailValue = user.email || '';
+  const userAvatarValue = (user.avatarUrl as string) || (user as any)?.avatar || '';
         
         setName(userNameValue);
         setEmail(userEmailValue);
@@ -331,10 +331,10 @@ export default function EditProfileScreen() {
           <Box className="relative">
             <Avatar size="2xl">
               <AvatarFallbackText>{getUserInitials()}</AvatarFallbackText>
-              {(avatar || user?.avatar) && (
+              {(avatar || user?.avatarUrl || (user as any)?.avatar) && (
                 <AvatarImage
                   source={{
-                    uri: avatar || user?.avatar,
+                    uri: avatar || user?.avatarUrl || (user as any)?.avatar,
                   }}
                 />
               )}

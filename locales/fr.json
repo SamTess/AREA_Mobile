@@ -1,6 +1,7 @@
 {
   "home": {
     "greeting": "Bonjour !",
+    "subtitle": "Automatisez vos tâches quotidiennes",
     "discover": "Découvrez nos dernières recommandations",
     "searchPlaceholder": "Rechercher...",
     "recommended": "Recommandé",
@@ -9,9 +10,38 @@
     "previous": "Précédent",
     "next": "Suivant",
     "ctaTitle": "Découvrez encore plus",
-    "ctaSubtitle": "Explorez toutes nos recommandations personnalisées"
+    "ctaSubtitle": "Explorez toutes nos recommandations personnalisées",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "toggleOn": "ON",
+    "toggleOff": "OFF",
+    "labelAction": "ACTION",
+    "labelReaction": "REACTION",
+    "triggers": "déclenchements",
+    "activesLabel": "ACTIVES",
+    "totalLabel": "TOTAL",
+    "automationsInProgress": "automations en cours",
+    "myAutomationsTitle": "Mes Automations",
+    "noAutomationsTitle": "Aucune automation",
+    "noAutomationsDesc": "Créez votre première automation pour commencer",
+    "servicesTitle": "Services Disponibles",
+    "createAutomationTitle": "Créer une automation",
+    "createAutomationSubtitle": "Connectez vos services préférés et automatisez vos workflows en quelques clics",
+    "createAutomationButton": "Nouvelle AREA",
+    "popularTemplatesTitle": "Templates Populaires",
+    "template1Title": "GitHub → Microsoft Teams",
+    "template1Desc": "Alertes de commits et PR",
+    "template2Title": "Google Calendar → Gmail",
+    "template2Desc": "Rappels d'événements",
+    "template3Title": "GitHub Issues → Microsoft Planner",
+    "template3Desc": "Création automatique de tâches",
+    "category": {
+      "dev": "Dev",
+      "productivity": "Productivité"
+    }
   },
   "details": {
+    "title": "Restaurant Gastronomique",
     "address": "123 Rue de la Paix, Paris",
     "reviews": "4.8 (245 avis)",
     "description": "Découvrez une expérience culinaire exceptionnelle dans ce restaurant gastronomique renommé. Notre chef exécutif propose une cuisine raffinée alliant tradition et innovation, avec des ingrédients de saison soigneusement sélectionnés.",
@@ -166,6 +196,7 @@
     "successTitle": "Email envoyé",
     "successMessage": "Un lien de réinitialisation a été envoyé à votre adresse email",
     "errorTitle": "Erreur",
-    "errorMessage": "Impossible d'envoyer l'email. Veuillez réessayer"
+    "errorMessage": "Impossible d'envoyer l'email. Veuillez réessayer",
+    "failedToSendEmail": "Échec de l'envoi de l'email"
   }
 }

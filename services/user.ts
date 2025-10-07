@@ -1,6 +1,6 @@
 import { User } from '@/types/auth';
 import { API_CONFIG, ENV } from './api.config';
-import { getAccessToken, getUserData, saveUserData } from './storage';
+import { getUserData, saveUserData } from './storage';
 
 /**
  * Mock mode configuration
@@ -13,55 +13,13 @@ const MOCK_DELAY = ENV.MOCK_DELAY;
  * @param fileUri - Local file URI from image picker
  * @returns Server URL of uploaded avatar
  */
-export async function uploadAvatar(fileUri: string): Promise<string> {
+export async function uploadAvatar(_fileUri: string): Promise<string> {
   if (USE_MOCK) {
     await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY));
-    return fileUri;
+    return _fileUri;
   }
-
-  try {
-    const token = await getAccessToken();
-    
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-
-    const formData = new FormData();
-
-    const filename = fileUri.split('/').pop() || 'avatar.jpg';
-    const match = /\.(\w+)$/.exec(filename);
-    const type = match ? `image/${match[1]}` : 'image/jpeg';
-
-    formData.append('avatar', {
-      uri: fileUri,
-      name: filename,
-      type,
-    } as any);
-
-    const response = await fetch(`${API_CONFIG.BASE_URL}/user/avatar`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || 'Avatar upload failed');
-    }
-
-    const data = await response.json();
-    
-    if (!data.avatarUrl) {
-      throw new Error('Server did not return avatar URL');
-    }
-
-    return data.avatarUrl;
-  } catch (error) {
-    console.error('Upload avatar error:', error);
-    throw error;
-  }
+  // Explicitly unsupported in real backend per spec
+  throw new Error('Avatar upload is not supported by the current backend.');
 }
 
 /**
@@ -79,7 +37,7 @@ export async function updateProfile(userData: Partial<User>): Promise<User> {
     const updatedUser = {
       ...existingData,
       ...userData,
-      updatedAt: new Date().toISOString(),
+      lastLoginAt: existingData?.lastLoginAt,
     };
     
     await saveUserData(JSON.stringify(updatedUser));
@@ -87,18 +45,13 @@ export async function updateProfile(userData: Partial<User>): Promise<User> {
   }
 
   try {
-    const token = await getAccessToken();
-    
-    if (!token) {
-      throw new Error('No authentication token found');
+    if (!userData.id) {
+      throw new Error('Missing user id for profile update');
     }
-
-    const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USER_UPDATE}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/users/${encodeURIComponent(userData.id)}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
     });
 
@@ -127,13 +80,13 @@ export async function updateProfile(userData: Partial<User>): Promise<User> {
 export async function updateProfileWithAvatar(userData: Partial<User>): Promise<User> {
   let finalUserData = { ...userData };
 
-  if (userData.avatar && userData.avatar.startsWith('file://')) {
+  if ((userData as any).avatarUrl && (userData as any).avatarUrl.startsWith?.('file://')) {
     try {
-      const avatarUrl = await uploadAvatar(userData.avatar);
-      finalUserData.avatar = avatarUrl;
+      const avatarUrl = await uploadAvatar((userData as any).avatarUrl);
+      (finalUserData as any).avatarUrl = avatarUrl;
     } catch (error) {
       console.error('Avatar upload failed:', error);
-      delete finalUserData.avatar;
+      delete (finalUserData as any).avatarUrl;
     }
   }
 
@@ -151,23 +104,7 @@ export async function deleteAvatar(): Promise<void> {
   }
 
   try {
-    const token = await getAccessToken();
-    
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-
-    const response = await fetch(`${API_CONFIG.BASE_URL}/user/avatar`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || 'Avatar deletion failed');
-    }
+    throw new Error('Avatar deletion is not supported by the current backend.');
   } catch (error) {
     console.error('Delete avatar error:', error);
     throw error;

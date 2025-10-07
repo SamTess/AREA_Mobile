@@ -54,12 +54,10 @@ export default function ForgotPasswordScreen() {
                     },
                 ]
             );
-        } catch {
+        } catch (err) {
             setIsLoading(false);
-            Alert.alert(
-                t('forgotPassword.errorTitle'),
-                t('forgotPassword.errorMessage')
-            );
+            const msg = err instanceof Error ? err.message : t('forgotPassword.errorMessage');
+            Alert.alert(t('forgotPassword.errorTitle'), msg as string);
         }
     };
 

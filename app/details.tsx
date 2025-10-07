@@ -52,7 +52,7 @@ export default function DetailsScreen() {
         <VStack className="px-6 gap-4">
           <VStack className="gap-2">
             <Heading size="2xl" className="text-typography-900">
-              Restaurant Gastronomique
+              {t('details.title')}
             </Heading>
             <HStack space="sm" align="center">
               <MapPin size={16} color={getToken('gray-500')} />

@@ -1,6 +1,7 @@
 {
   "home": {
     "greeting": "Hello!",
+    "subtitle": "Automatisez vos tâches quotidiennes",
     "discover": "Discover our latest recommendations",
     "searchPlaceholder": "Search...",
     "recommended": "Recommended",
@@ -9,9 +10,38 @@
     "previous": "Previous",
     "next": "Next",
     "ctaTitle": "Discover even more",
-    "ctaSubtitle": "Explore all our personalized recommendations"
+    "ctaSubtitle": "Explore all our personalized recommendations",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "toggleOn": "ON",
+    "toggleOff": "OFF",
+    "labelAction": "ACTION",
+    "labelReaction": "REACTION",
+    "triggers": "déclenchements",
+    "activesLabel": "ACTIVES",
+    "totalLabel": "TOTAL",
+    "automationsInProgress": "automations en cours",
+    "myAutomationsTitle": "Mes Automations",
+    "noAutomationsTitle": "Aucune automation",
+    "noAutomationsDesc": "Créez votre première automation pour commencer",
+    "servicesTitle": "Services Disponibles",
+    "createAutomationTitle": "Créer une automation",
+    "createAutomationSubtitle": "Connectez vos services préférés et automatisez vos workflows en quelques clics",
+    "createAutomationButton": "Nouvelle AREA",
+    "popularTemplatesTitle": "Templates Populaires",
+    "template1Title": "GitHub → Microsoft Teams",
+    "template1Desc": "Alertes de commits et PR",
+    "template2Title": "Google Calendar → Gmail",
+    "template2Desc": "Rappels d'événements",
+    "template3Title": "GitHub Issues → Microsoft Planner",
+    "template3Desc": "Création automatique de tâches",
+    "category": {
+      "dev": "Dev",
+      "productivity": "Productivity"
+    }
   },
   "details": {
+    "title": "Restaurant Gastronomique",
     "address": "123 Peace Street, Paris",
     "reviews": "4.8 (245 reviews)",
     "description": "Enjoy an exceptional culinary experience in this renowned gourmet restaurant. Our executive chef offers refined cuisine combining tradition and innovation, with carefully selected seasonal ingredients.",
@@ -166,6 +196,7 @@
     "successTitle": "Email sent",
     "successMessage": "A reset link has been sent to your email address",
     "errorTitle": "Error",
-    "errorMessage": "Unable to send email. Please try again"
+    "errorMessage": "Unable to send email. Please try again",
+    "failedToSendEmail": "Failed to send email"
   }
 }

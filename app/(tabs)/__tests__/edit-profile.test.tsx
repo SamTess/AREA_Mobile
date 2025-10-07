@@ -1,5 +1,6 @@
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { NavigationContainer } from '@react-navigation/native';
 import '@testing-library/jest-native/extend-expect';
 import { render, waitFor } from '@testing-library/react-native';
 import React from 'react';
@@ -23,7 +24,7 @@ jest.mock('expo-secure-store', () => ({
 
 // Mock expo-image-picker
 jest.mock('expo-image-picker', () => ({
-  requestMediaLibraryPermissionsAsync: jest.fn(() => 
+  requestMediaLibraryPermissionsAsync: jest.fn(() =>
     Promise.resolve({ status: 'granted' })
   ),
   launchImageLibraryAsync: jest.fn(() =>
@@ -42,7 +43,9 @@ jest.mock('react-native/Libraries/Alert/Alert', () => ({
 function Providers({ children }: { children: React.ReactNode }) {
   return (
     <GluestackUIProvider mode="light">
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        <NavigationContainer>{children}</NavigationContainer>
+      </AuthProvider>
     </GluestackUIProvider>
   );
 }
@@ -54,7 +57,7 @@ describe('EditProfileScreen', () => {
 
   it('renders the edit profile screen', async () => {
     const { toJSON } = render(<EditProfileScreen />, { wrapper: Providers });
-    
+
     await waitFor(() => {
       expect(toJSON()).toBeTruthy();
     });

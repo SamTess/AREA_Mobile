@@ -14,7 +14,7 @@ import { ActivityIndicator, Alert, ScrollView } from 'react-native';
 
 export default function RegisterScreen() {
     const { t } = useTranslation();
-    const { register, isLoading, error, clearError } = useAuth();
+    const { register, isLoading, clearError } = useAuth();
     const router = useRouter();
     
     const [name, setName] = useState('');
@@ -95,14 +95,15 @@ export default function RegisterScreen() {
                 [
                     {
                         text: 'OK',
-                        onPress: () => router.push('/(tabs)'),
+                        onPress: () => router.replace('/(tabs)'),
                     },
                 ]
             );
-        } catch {
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : (t('register.errorMessage') || "L'inscription a échoué");
             Alert.alert(
                 t('register.errorTitle') || 'Erreur',
-                error || t('register.errorMessage') || 'L\'inscription a échoué'
+                msg
             );
         }
     };

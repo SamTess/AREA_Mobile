@@ -66,6 +66,7 @@ export async function clearAuthData(): Promise<void> {
  * Checks if the user is authenticated
  */
 export async function isAuthenticated(): Promise<boolean> {
-    const token = await getAccessToken();
-    return token !== null;
+    // Deprecated: with HttpOnly cookies, rely on /api/auth/me; here we fallback to cached user data
+    const user = await getUserData();
+    return user !== null;
 }

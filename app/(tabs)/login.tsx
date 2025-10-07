@@ -16,7 +16,7 @@ import { ActivityIndicator, Alert } from 'react-native';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
-  const { login, isLoading, error, clearError } = useAuth();
+  const { login, isLoading, clearError } = useAuth();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -76,14 +76,15 @@ export default function LoginScreen() {
         [
           {
             text: 'OK',
-            onPress: () => router.push('/(tabs)'),
+            onPress: () => router.replace('/(tabs)'),
           },
         ]
       );
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : (t('login.errorMessage') || 'La connexion a échoué');
       Alert.alert(
         t('login.errorTitle') || 'Erreur',
-        error || t('login.errorMessage') || 'La connexion a échoué'
+        msg
       );
     }
   };

@@ -105,10 +105,10 @@ export default function ProfileScreen() {
           <HStack space="md" align="center">
             <Avatar size="xl">
               <AvatarFallbackText>{getUserInitials()}</AvatarFallbackText>
-              {user?.avatar && (
+              {(user?.avatarUrl) && (
                 <AvatarImage
                   source={{
-                    uri: user.avatar,
+                    uri: user.avatarUrl,
                   }}
                 />
               )}
