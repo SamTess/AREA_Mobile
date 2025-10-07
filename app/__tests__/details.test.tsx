@@ -16,24 +16,13 @@ function Providers({ children }: { children: React.ReactNode }) {
 describe('DetailsScreen', () => {
   it('renders content and handles back button', () => {
     render(<DetailsScreen />, { wrapper: Providers });
+  // Details screen now renders the placeholder while the real details UI is in progress
+  expect(screen.getByText('Page under construction')).toBeTruthy();
+  expect(screen.getByText('This feature will be available soon')).toBeTruthy();
 
-  // Title remains a proper noun; keep as-is
-  expect(screen.getByText('Restaurant Gastronomique')).toBeTruthy();
-  // i18n default is English in tests
-  expect(screen.getByText('Features')).toBeTruthy();
-  expect(screen.getByText('Book a table')).toBeTruthy();
-
-    // Back button press triggers router.back
-    const back = screen.getByTestId('back-button');
-    fireEvent.press(back);
-    expect(mockBack).toHaveBeenCalled();
-
-    // Exercise ghost header action icons presence
-    // These are Heart and Share buttons; we simply ensure they render by finding two ghost buttons implicitly
-    // and pressing them to execute any no-op handlers
-    // Not strictly necessary to check side effects since none are defined.
-    // Also cover outline buttons in CTA section by pressing them
-  fireEvent.press(screen.getByText('Call'));
-  fireEvent.press(screen.getByText('Directions'));
+  // Back button press should trigger router.back (the mock calls mockBack)
+  const back = screen.getByTestId('back-button');
+  fireEvent.press(back);
+  expect(mockBack).toHaveBeenCalled();
   });
 });

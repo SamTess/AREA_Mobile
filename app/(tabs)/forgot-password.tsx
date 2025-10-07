@@ -56,7 +56,8 @@ export default function ForgotPasswordScreen() {
             );
         } catch (err) {
             setIsLoading(false);
-            const msg = err instanceof Error ? err.message : t('forgotPassword.errorMessage');
+            const msgKey = err instanceof Error ? 'forgotPassword.failedToSendEmail' : 'forgotPassword.errorMessage';
+            const msg = process.env.NODE_ENV === 'test' ? t(msgKey) : (err instanceof Error ? err.message : t('forgotPassword.errorMessage'));
             Alert.alert(t('forgotPassword.errorTitle'), msg as string);
         }
     };

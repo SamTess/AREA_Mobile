@@ -198,5 +198,23 @@
     "errorTitle": "Error",
     "errorMessage": "Unable to send email. Please try again",
     "failedToSendEmail": "Failed to send email"
+  },
+  "placeholder": {
+    "title": "Page under construction",
+    "description": "This feature will be available soon",
+    "back": "Back"
+  },
+  "actionReaction": {
+    "action": "ACTION",
+    "reaction": "REACTION",
+    "connect": "Connect",
+    "connected": "Connected",
+    "notConnected": "Not connected",
+    "githubAction": "GitHub Action",
+    "githubReaction": "GitHub Reaction",
+    "microsoftAction": "Microsoft Action",
+    "microsoftReaction": "Microsoft Reaction",
+    "googleAction": "Google Action",
+    "googleReaction": "Google Reaction"
   }
 }

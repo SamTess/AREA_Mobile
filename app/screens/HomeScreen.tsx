@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
-import { Activity, ArrowRight, Bell, CheckCircle, Clock, Github, Mail, Plus, Zap } from 'lucide-react-native';
+import { Activity, ArrowRight, Bell, Github, Mail, Plus, Zap } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import ActionReactionItem from '@/components/ActionReactionItem';
 import { Badge, BadgeText } from '@/components/ui/badge';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
@@ -17,116 +18,27 @@ import { ScrollView } from '@/components/ui/scroll-view';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 
-// Types pour les automations
-interface Automation {
-  id: number;
-  name: string;
-  action: string;
-  reaction: string;
-  isActive: boolean;
-  triggerCount: number;
-  lastTriggered?: string;
-}
-
 interface Service {
   id: number;
   name: string;
   icon: any;
   color: string;
   category: string;
+  isConnected: boolean;
 }
 
-const AutomationCard: React.FC<{
-  automation: Automation;
-  onToggle: (id: number) => void;
-  onPress: () => void;
-}> = ({ automation, onToggle, onPress }) => {
-  const { getToken } = useDesignTokens();
-  const { t } = useTranslation();
-  
-  return (
-    <Pressable onPress={onPress}>
-      <Box className="bg-background-0 rounded-xl p-4 shadow-soft-1 border border-outline-100">
-        <VStack space="md">
-          {/* Header avec nom et statut */}
-          <HStack justify="between" align="center">
-            <VStack className="flex-1 pr-2">
-              <Heading size="sm" className="text-typography-900 mb-1">
-                {automation.name}
-              </Heading>
-              <HStack space="xs" align="center">
-                <Icon 
-                  as={automation.isActive ? CheckCircle : Clock} 
-                  size="xs" 
-                  className={automation.isActive ? "text-success-500" : "text-warning-500"} 
-                />
-                <Text size="xs" className={automation.isActive ? "text-success-600" : "text-warning-600"}>
-                  {automation.isActive ? t('home.statusActive') : t('home.statusInactive')}
-                </Text>
-              </HStack>
-            </VStack>
-            {/* Toggle switch simulé avec Badge */}
-            <Pressable onPress={() => onToggle(automation.id)}>
-              <Badge 
-                size="md" 
-                variant="solid" 
-                action={automation.isActive ? "success" : "muted"}
-                className="px-3 py-1"
-              >
-                <BadgeText>{automation.isActive ? t('home.toggleOn') : t('home.toggleOff')}</BadgeText>
-              </Badge>
-            </Pressable>
-          </HStack>
-
-          <Divider />
-
-          {/* Action → Reaction */}
-          <HStack space="sm" align="center">
-            <Box className="flex-1 bg-primary-50 rounded-lg p-3">
-              <HStack space="xs" align="center" className="mb-1">
-                <Icon as={Zap} size="xs" className="text-primary-600" />
-                <Text size="xs" className="text-primary-700 font-semibold">{t('home.labelAction')}</Text>
-              </HStack>
-              <Text size="sm" className="text-typography-900" numberOfLines={2}>
-                {automation.action}
-              </Text>
-            </Box>
-
-            <Icon as={ArrowRight} size="lg" className="text-typography-400" />
-
-            <Box className="flex-1 bg-secondary-50 rounded-lg p-3">
-              <HStack space="xs" align="center" className="mb-1">
-                <Icon as={Activity} size="xs" className="text-secondary-600" />
-                <Text size="xs" className="text-secondary-700 font-semibold">{t('home.labelReaction')}</Text>
-              </HStack>
-              <Text size="sm" className="text-typography-900" numberOfLines={2}>
-                {automation.reaction}
-              </Text>
-            </Box>
-          </HStack>
-
-          {/* Stats */}
-          <HStack justify="between" align="center" className="pt-2">
-            <HStack space="xs" align="center">
-              <Icon as={Activity} size="xs" className="text-typography-500" />
-              <Text size="xs" className="text-typography-600">
-                {automation.triggerCount} {t('home.triggers')}
-              </Text>
-            </HStack>
-            {automation.lastTriggered && (
-              <HStack space="xs" align="center">
-                <Icon as={Clock} size="xs" className="text-typography-500" />
-                <Text size="xs" className="text-typography-600">
-                  {automation.lastTriggered}
-                </Text>
-              </HStack>
-            )}
-          </HStack>
-        </VStack>
-      </Box>
-    </Pressable>
-  );
-};
+interface ActionReactionPair {
+  id: number;
+  actionName: string;
+  reactionName: string;
+  actionIcon: any;
+  reactionIcon: any;
+  actionColor: string;
+  reactionColor: string;
+  isConnected: boolean;
+  actionService: string;
+  reactionService: string;
+}
 
 const ServiceCard: React.FC<{
   service: Service;
@@ -134,22 +46,23 @@ const ServiceCard: React.FC<{
 }> = ({ service, onPress }) => {
   const { t } = useTranslation();
   const categoryKey = (service.category || '').toLowerCase();
-  const categoryLabel = categoryKey === 'dev' || categoryKey === 'productivity'
-    ? t(`home.category.${categoryKey}` as any)
-    : service.category;
+  const categoryLabel =
+    categoryKey === 'dev' || categoryKey === 'productivity'
+      ? t(`home.category.${categoryKey}` as any)
+      : service.category;
+
   return (
     <Pressable onPress={onPress} testID={`service-card-${service.name}`}>
-      <Box className="bg-background-0 rounded-xl p-4 shadow-soft-1 border border-outline-100 mr-3" style={{ width: 140 }}>
+      <Box
+        className="bg-background-0 rounded-xl p-4 shadow-soft-1 border border-outline-100 mr-3"
+        style={{ width: 140 }}
+      >
         <VStack space="sm" className="items-center">
-          <Box 
+          <Box
             className="w-14 h-14 rounded-full items-center justify-center"
             style={{ backgroundColor: service.color + '20' }}
           >
-            <Icon 
-              as={service.icon} 
-              size="xl" 
-              style={{ color: service.color }}
-            />
+            <Icon as={service.icon} size="xl" style={{ color: service.color }} />
           </Box>
           <VStack space="xs" className="items-center">
             <Text size="sm" className="text-typography-900 font-semibold text-center">
@@ -159,6 +72,11 @@ const ServiceCard: React.FC<{
               <BadgeText className="text-xs">{categoryLabel}</BadgeText>
             </Badge>
           </VStack>
+          {service.isConnected && (
+            <Badge size="sm" variant="solid" action="success">
+              <BadgeText className="text-xs">{t('actionReaction.connected')}</BadgeText>
+            </Badge>
+          )}
         </VStack>
       </Box>
     </Pressable>
@@ -169,42 +87,80 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const { getToken } = useDesignTokens();
 
-  // Données mockées pour les automations - VIDE pour le moment
-  const [automations, setAutomations] = useState<Automation[]>([]);
+  // Services disponibles avec leur état de connexion
+  const [services, setServices] = useState<Service[]>([
+    { id: 1, name: 'GitHub', icon: Github, color: '#181717', category: 'Dev', isConnected: false },
+    { id: 2, name: 'Microsoft', icon: Mail, color: '#00A4EF', category: 'Productivity', isConnected: false },
+    { id: 3, name: 'Google', icon: Mail, color: '#EA4335', category: 'Productivity', isConnected: false },
+  ]);
 
-  // Services disponibles
-  const services: Service[] = [
-    { id: 1, name: "GitHub", icon: Github, color: "#181717", category: "Dev" },
-    { id: 2, name: "Microsoft", icon: Mail, color: "#00A4EF", category: "Productivity" },
-    { id: 3, name: "Google", icon: Mail, color: "#EA4335", category: "Productivity" }
-  ];
+  // Exemples d'Action-Réaction pairs (pour démonstration)
+  const [actionReactionPairs, setActionReactionPairs] = useState<ActionReactionPair[]>([
+    {
+      id: 1,
+      actionName: t('actionReaction.githubAction'),
+      reactionName: t('actionReaction.microsoftReaction'),
+      actionIcon: Github,
+      reactionIcon: Mail,
+      actionColor: '#181717',
+      reactionColor: '#00A4EF',
+      isConnected: false,
+      actionService: 'GitHub',
+      reactionService: 'Microsoft',
+    },
+    {
+      id: 2,
+      actionName: t('actionReaction.googleAction'),
+      reactionName: t('actionReaction.githubReaction'),
+      actionIcon: Mail,
+      reactionIcon: Github,
+      actionColor: '#EA4335',
+      reactionColor: '#181717',
+      isConnected: false,
+      actionService: 'Google',
+      reactionService: 'GitHub',
+    },
+  ]);
 
-  const toggleAutomation = (id: number) => {
-    setAutomations(prev =>
-      prev.map(auto =>
-        auto.id === id ? { ...auto, isActive: !auto.isActive } : auto
+  const handleServicePress = (serviceId: number) => {
+    router.push('/details'); // Page de configuration du service
+  };
+
+  const handleConnectService = (pairId: number) => {
+    // Mettre à jour l'état de connexion de l'action-réaction
+    setActionReactionPairs((prev) =>
+      prev.map((pair) =>
+        pair.id === pairId ? { ...pair, isConnected: !pair.isConnected } : pair
       )
     );
+
+    // Mettre à jour aussi l'état des services correspondants
+    const pair = actionReactionPairs.find((p) => p.id === pairId);
+    if (pair) {
+      setServices((prev) =>
+        prev.map((service) =>
+          service.name === pair.actionService || service.name === pair.reactionService
+            ? { ...service, isConnected: true }
+            : service
+        )
+      );
+    }
+  };
+
+  const handleActionReactionPress = (pairId: number) => {
+    router.push('/details'); // Page de détails de l'automation
   };
 
   const handleCreateNew = () => {
-    router.push('/details'); // Temporaire - à remplacer par la vraie page de création
+    router.push('/details'); // Page de création d'automation
   };
 
-  const handleAutomationPress = () => {
-    router.push('/details'); // Temporaire - à remplacer par la page de détails
-  };
-
-  const handleServicePress = () => {
-    router.push('/details'); // Temporaire - à remplacer par la page de configuration
-  };
-
-  const activeCount = automations.filter(a => a.isActive).length;
-  const totalTriggers = automations.reduce((sum, a) => sum + a.triggerCount, 0);
+  const connectedCount = actionReactionPairs.filter((p) => p.isConnected).length;
+  const totalCount = actionReactionPairs.length;
 
   return (
     <SafeAreaView className="flex-1 bg-background-50">
-      <ScrollView 
+      <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
@@ -225,10 +181,12 @@ export default function HomeScreen() {
             <VStack space="xs">
               <HStack space="xs" align="center">
                 <Icon as={Zap} size="sm" className="text-primary-50" />
-                <Text size="xs" className="text-primary-100 font-semibold">{t('home.activesLabel')}</Text>
+                <Text size="xs" className="text-primary-100 font-semibold">
+                  {t('home.activesLabel')}
+                </Text>
               </HStack>
               <Heading size="2xl" className="text-typography-0">
-                {activeCount}
+                {connectedCount}
               </Heading>
               <Text size="xs" className="text-primary-100">
                 {t('home.automationsInProgress')}
@@ -240,30 +198,32 @@ export default function HomeScreen() {
             <VStack space="xs">
               <HStack space="xs" align="center">
                 <Icon as={Activity} size="sm" className="text-success-50" />
-                <Text size="xs" className="text-success-100 font-semibold">{t('home.totalLabel')}</Text>
+                <Text size="xs" className="text-success-100 font-semibold">
+                  {t('home.totalLabel')}
+                </Text>
               </HStack>
               <Heading size="2xl" className="text-typography-0">
-                {totalTriggers}
+                {totalCount}
               </Heading>
               <Text size="xs" className="text-success-100">
-                {t('home.triggers')}
+                {'AREAS'}
               </Text>
             </VStack>
           </Box>
         </HStack>
 
-        {/* Mes Automations */}
+        {/* Mes Action-Réactions */}
         <VStack className="gap-4 px-6 mb-6">
           <HStack justify="between" align="center">
             <Heading size="lg" className="text-typography-900">
               {t('home.myAutomationsTitle')}
             </Heading>
             <Badge size="sm" variant="solid" action="info">
-              <BadgeText>{automations.length}</BadgeText>
+              <BadgeText>{actionReactionPairs.length}</BadgeText>
             </Badge>
           </HStack>
 
-          {automations.length === 0 ? (
+          {actionReactionPairs.length === 0 ? (
             <Box className="bg-background-0 rounded-xl p-8 border-2 border-dashed border-outline-200">
               <VStack space="md" className="items-center">
                 <Box className="w-16 h-16 bg-primary-50 rounded-full items-center justify-center">
@@ -281,17 +241,25 @@ export default function HomeScreen() {
             </Box>
           ) : (
             <VStack space="md">
-              {automations.map((automation) => (
-                <AutomationCard
-                  key={automation.id}
-                  automation={automation}
-                  onToggle={toggleAutomation}
-                  onPress={handleAutomationPress}
+              {actionReactionPairs.map((pair) => (
+                <ActionReactionItem
+                  key={pair.id}
+                  actionName={pair.actionName}
+                  reactionName={pair.reactionName}
+                  actionIcon={pair.actionIcon}
+                  reactionIcon={pair.reactionIcon}
+                  actionColor={pair.actionColor}
+                  reactionColor={pair.reactionColor}
+                  isConnected={pair.isConnected}
+                  onConnect={() => handleConnectService(pair.id)}
+                  onPress={() => handleActionReactionPress(pair.id)}
                 />
               ))}
             </VStack>
           )}
         </VStack>
+
+        <Divider className="my-4" />
 
         {/* Services Disponibles */}
         <VStack className="gap-4 mb-6">
@@ -299,10 +267,8 @@ export default function HomeScreen() {
             <Heading size="lg" className="text-typography-900">
               {t('home.servicesTitle')}
             </Heading>
-            <Button variant="link" size="sm">
-              <ButtonText className="text-primary-600">
-                {t('home.seeAll')}
-              </ButtonText>
+            <Button variant="link" size="sm" onPress={() => router.push('/details')}>
+              <ButtonText className="text-primary-600">{t('home.seeAll')}</ButtonText>
               <ButtonIcon as={ArrowRight} className="text-primary-600" size="sm" />
             </Button>
           </HStack>
@@ -310,8 +276,8 @@ export default function HomeScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ 
-              paddingLeft: 24, 
+            contentContainerStyle={{
+              paddingLeft: 24,
               paddingRight: 24,
             }}
             decelerationRate="fast"
@@ -321,7 +287,7 @@ export default function HomeScreen() {
                 <ServiceCard
                   key={service.id}
                   service={service}
-                  onPress={handleServicePress}
+                  onPress={() => handleServicePress(service.id)}
                 />
               ))}
             </HStack>
@@ -343,9 +309,9 @@ export default function HomeScreen() {
                   {t('home.createAutomationSubtitle')}
                 </Text>
               </VStack>
-              <Button 
-                variant="solid" 
-                size="lg" 
+              <Button
+                variant="solid"
+                size="lg"
                 className="bg-background-0 self-start"
                 onPress={handleCreateNew}
                 testID="btn-create-automation"
@@ -364,14 +330,14 @@ export default function HomeScreen() {
           <Heading size="lg" className="text-typography-900">
             {t('home.popularTemplatesTitle')}
           </Heading>
-          
+
           <VStack space="sm">
             {[
               { title: t('home.template1Title'), desc: t('home.template1Desc'), icon: Github },
               { title: t('home.template2Title'), desc: t('home.template2Desc'), icon: Bell },
-              { title: t('home.template3Title'), desc: t('home.template3Desc'), icon: Github }
+              { title: t('home.template3Title'), desc: t('home.template3Desc'), icon: Github },
             ].map((template, idx) => (
-              <Pressable key={idx} onPress={handleServicePress}>
+              <Pressable key={idx} onPress={handleCreateNew}>
                 <Box className="bg-background-0 rounded-lg p-4 border border-outline-100">
                   <HStack justify="between" align="center">
                     <HStack space="md" align="center" className="flex-1">
@@ -399,7 +365,7 @@ export default function HomeScreen() {
       {/* FAB - Bouton d'action flottant */}
       <Box className="absolute bottom-6 right-6">
         <Pressable onPress={handleCreateNew}>
-          <Box 
+          <Box
             className="w-16 h-16 bg-primary-600 rounded-full items-center justify-center shadow-hard-2"
             style={{
               shadowColor: getToken('primary-600'),

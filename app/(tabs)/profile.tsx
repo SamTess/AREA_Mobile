@@ -147,11 +147,13 @@ export default function ProfileScreen() {
             icon={Bell}
             title={t('profile.notificationsTitle')}
             subtitle={t('profile.notificationsSubtitle')}
+            onPress={() => router.push('/details')}
           />
           <MenuItem
             icon={HelpCircle}
             title={t('profile.helpTitle')}
             subtitle={t('profile.helpSubtitle')}
+            onPress={() => router.push('/details')}
           />
           <Divider className="my-2" />
           <MenuItem

@@ -198,5 +198,23 @@
     "errorTitle": "Erreur",
     "errorMessage": "Impossible d'envoyer l'email. Veuillez réessayer",
     "failedToSendEmail": "Échec de l'envoi de l'email"
+  },
+  "placeholder": {
+    "title": "Page en construction",
+    "description": "Cette fonctionnalité sera bientôt disponible",
+    "back": "Retour"
+  },
+  "actionReaction": {
+    "action": "ACTION",
+    "reaction": "RÉACTION",
+    "connect": "Connecter",
+    "connected": "Connecté",
+    "notConnected": "Non connecté",
+    "githubAction": "Action GitHub",
+    "githubReaction": "Réaction GitHub",
+    "microsoftAction": "Action Microsoft",
+    "microsoftReaction": "Réaction Microsoft",
+    "googleAction": "Action Google",
+    "googleReaction": "Réaction Google"
   }
 }
