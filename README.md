@@ -1,56 +1,86 @@
-# Welcome to your Expo app 👋
+# Documentation Index
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Welcome to the AREA Mobile documentation.
 
-## Get started
+---
 
-1. Install dependencies
+## Quick Start
 
-   ```bash
-   npm install
-   ```
+- **[QUICKSTART.md](QUICKSTART.md)** - Get up and running in 5 minutes
+- **[INSTALLATION.md](INSTALLATION.md)** - Detailed installation guide
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## Development
 
-In the output, you'll find options to open the app in a
+- **[TECHNICAL.md](TECHNICAL.md)** - Tech stack, architecture, and code reference
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Software architecture and design patterns
+- **[USE_GLUESTACK_COMPONENTS.md](USE_GLUESTACK_COMPONENTS.md)** - Gluestack UI component usage
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Contribution
 
-## Get a fresh project
+- **[../HOWTOCONTRIBUTE.md](../HOWTOCONTRIBUTE.md)** - How to contribute (commit conventions, code standards)
 
-When you're ready, run:
+---
 
-```bash
-npm run reset-project
+## Testing & CI
+
+- **[LOCAL_CI_TESTING.md](LOCAL_CI_TESTING.md)** - Test CI workflows locally
+
+---
+
+## Release & Deployment
+
+- **[QUICK_RELEASE_GUIDE.md](QUICK_RELEASE_GUIDE.md)** - Fast release process
+- **[MANUAL_RELEASE_GUIDE.md](MANUAL_RELEASE_GUIDE.md)** - Detailed manual release guide
+
+### Guides pratiques
+
+- **[Using Gluestack Components](use-gluestack-components.md)** 🎨
+  - Guide d'utilisation des composants UI
+  - Exemples et bonnes pratiques
+
+- **[Manual Release Guide](manual-release-guide.md)** 📦
+  - Processus de release complet
+  - Build staging et production
+  - Soumission aux stores
+
+- **[Quick Release Guide](quick-release-guide.md)** ⚡
+
+
+---
+
+## Documentation Map
+
+```
+📁 Project Root
+├── 📄 README.md                    Main project readme
+├── 📄 HOWTOCONTRIBUTE.md           Contribution guide
+└── � docs/
+    ├── 📄 README.md                This file
+    ├── 📄 QUICKSTART.md            Quick start guide
+    ├── 📄 INSTALLATION.md          Installation instructions
+    ├── 📄 TECHNICAL.md             Technical reference
+    ├── 📄 ARCHITECTURE.md          Architecture patterns
+    ├── 📄 USE_GLUESTACK_COMPONENTS.md
+    ├── 📄 LOCAL_CI_TESTING.md
+    ├── 📄 QUICK_RELEASE_GUIDE.md
+    └── 📄 MANUAL_RELEASE_GUIDE.md
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Documentation (EN)
+## Getting Help
 
-- [Installation](docs/installation.md)
-- [Using the use-gluestack-components tool](docs/use-gluestack-components.md)
-- [Manual Release Guide](docs/manual-release-guide.md) - How to create staging/production releases
+1. **Start here:** Read [QUICKSTART.md](QUICKSTART.md)
+2. **Need details?** Check [TECHNICAL.md](TECHNICAL.md)
+3. **Contributing?** See [../HOWTOCONTRIBUTE.md](../HOWTOCONTRIBUTE.md)
+4. **Architecture questions?** Read [ARCHITECTURE.md](ARCHITECTURE.md)
+5. **Found a bug?** Open an issue on GitHub
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+**Need something else?** Open an issue or reach out to the team.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
