@@ -61,12 +61,3 @@ export async function clearAuthData(): Promise<void> {
         SecureStore.deleteItemAsync(STORAGE_KEYS.USER_DATA),
     ]);
 }
-
-/**
- * Checks if the user is authenticated
- */
-export async function isAuthenticated(): Promise<boolean> {
-    // Deprecated: with HttpOnly cookies, rely on /api/auth/me; here we fallback to cached user data
-    const user = await getUserData();
-    return user !== null;
-}
