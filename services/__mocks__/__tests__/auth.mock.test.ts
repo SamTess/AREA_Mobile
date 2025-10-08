@@ -114,7 +114,7 @@ describe('Mock Authentication Service', () => {
             };
 
             await expect(mockRegister(data, { delay: 0 })).rejects.toThrow(
-                'Password must be at least 6 characters'
+                'Password must be at least 8 characters'
             );
         });
 

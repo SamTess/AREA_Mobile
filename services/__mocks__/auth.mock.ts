@@ -137,8 +137,8 @@ export async function mockRegister(
         throw new MockAPIError('Email and password are required', 400, 'MISSING_FIELDS');
     }
 
-    if (data.password.length < 6) {
-        throw new MockAPIError('Password must be at least 6 characters', 400, 'WEAK_PASSWORD');
+    if (data.password.length < 8) {
+        throw new MockAPIError('Password must be at least 8 characters', 400, 'WEAK_PASSWORD');
     }
 
     // Check if email already exists

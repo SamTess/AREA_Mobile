@@ -59,7 +59,7 @@ export default function LoginScreen() {
     if (!password) {
       setPasswordError(t('login.passwordRequired'));
       hasError = true;
-    } else if (password.length < 6) {
+    } else if (password.length < 8) {
       setPasswordError(t('login.passwordTooShort'));
       hasError = true;
     }

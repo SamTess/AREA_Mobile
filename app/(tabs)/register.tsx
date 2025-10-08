@@ -70,7 +70,7 @@ export default function RegisterScreen() {
         if (!password) {
             setPasswordError(t('register.passwordRequired'));
             hasError = true;
-        } else if (password.length < 6) {
+        } else if (password.length < 8) {
             setPasswordError(t('register.passwordTooShort'));
             hasError = true;
         }
