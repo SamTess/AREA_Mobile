@@ -54,7 +54,7 @@ describe('TabLayout', () => {
     expect(tabsProps.screenOptions).toBeTruthy();
     expect(tabsProps.screenOptions.headerShown).toBe(false);
     expect(tabsProps.screenOptions.tabBarLabelStyle.fontSize).toBe(12);
-    expect(screens.length).toBe(5);
+    expect(screens.length).toBe(6);
 
     // Verify that only 2 tabs are visible in the tab bar (login, register, and forgot-password have href: null)
     const visibleScreens = screens.filter((s: any) => s.options.href !== null);

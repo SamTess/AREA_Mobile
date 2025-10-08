@@ -7,7 +7,8 @@
  * Environment variables
  */
 export const ENV = {
-    API_URL: process.env.EXPO_PUBLIC_API_URL || 'https://api.example.com',
+    // Use Android emulator loopback by default; override via EXPO_PUBLIC_API_URL
+    API_URL: process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8080',
     USE_MOCK: process.env.EXPO_PUBLIC_USE_MOCK !== 'false', // Default to true for development
     MOCK_DELAY: parseInt(process.env.EXPO_PUBLIC_MOCK_DELAY || '1000', 10),
 } as const;
@@ -17,19 +18,11 @@ export const ENV = {
  */
 export const API_ENDPOINTS = {
     // Authentication
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
-    REFRESH: '/auth/refresh',
-    ME: '/auth/me',
-    FORGOT_PASSWORD: '/auth/forgot-password',
-    
-    // User
-    USER_PROFILE: '/user/profile',
-    USER_UPDATE: '/user/update',
-    USER_DELETE: '/user/delete',
-    
-    // TODO: Add more endpoints as needed
+    LOGIN: '/api/auth/login',
+    REGISTER: '/api/auth/register',
+    LOGOUT: '/api/auth/logout',
+    REFRESH: '/api/auth/refresh',
+    ME: '/api/auth/me',
 } as const;
 
 /**

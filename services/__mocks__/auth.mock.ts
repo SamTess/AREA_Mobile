@@ -18,7 +18,7 @@ export const MOCK_USERS_DB = [
             id: '1',
             email: 'user@example.com',
             name: 'John Doe',
-            avatar: 'https://i.pravatar.cc/150?img=1',
+            avatarUrl: 'https://i.pravatar.cc/150?img=1',
             createdAt: '2024-01-01T00:00:00.000Z',
         },
     },
@@ -29,7 +29,7 @@ export const MOCK_USERS_DB = [
             id: '2',
             email: 'test@test.com',
             name: 'Jane Smith',
-            avatar: 'https://i.pravatar.cc/150?img=2',
+            avatarUrl: 'https://i.pravatar.cc/150?img=2',
             createdAt: '2024-01-02T00:00:00.000Z',
         },
     },
@@ -40,7 +40,7 @@ export const MOCK_USERS_DB = [
             id: '3',
             email: 'admin@example.com',
             name: 'Admin User',
-            avatar: 'https://i.pravatar.cc/150?img=3',
+            avatarUrl: 'https://i.pravatar.cc/150?img=3',
             createdAt: '2024-01-03T00:00:00.000Z',
         },
     },
@@ -66,7 +66,8 @@ export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, 
 /**
  * Generate a mock JWT token
  */
-export function generateMockToken(prefix = 'access'): string {
+// Private token emulation (not exposed)
+function generateMockToken(prefix = 'access'): string {
     const timestamp = Date.now();
     const random = Math.random().toString(36).substr(2, 9);
     return `mock_${prefix}_${timestamp}_${random}`;
@@ -107,17 +108,17 @@ export async function mockLogin(
     );
 
     if (!mockUser) {
-        throw new MockAPIError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
+        throw new MockAPIError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
-    // Return auth response
+    // Emulate cookie set (internal only)
+    generateMockToken('access');
+    generateMockToken('refresh');
+
+    // Return auth response contract
     return {
+        message: 'Login successful',
         user: mockUser.user,
-        tokens: {
-            accessToken: generateMockToken('access'),
-            refreshToken: generateMockToken('refresh'),
-            expiresIn: 3600, // 1 hour
-        },
     };
 }
 
@@ -136,21 +137,22 @@ export async function mockRegister(
         throw new MockAPIError('Email and password are required', 400, 'MISSING_FIELDS');
     }
 
-    if (data.password.length < 6) {
-        throw new MockAPIError('Password must be at least 6 characters', 400, 'WEAK_PASSWORD');
+    if (data.password.length < 8) {
+        throw new MockAPIError('Password must be at least 8 characters', 400, 'WEAK_PASSWORD');
     }
 
     // Check if email already exists
     if (registeredUsers.some(u => u.email === data.email)) {
-        throw new MockAPIError('Email already exists', 409, 'EMAIL_EXISTS');
+        throw new MockAPIError('Email already registered', 409, 'EMAIL_EXISTS');
     }
 
     // Create new user
     const newUser: User = {
         id: String(registeredUsers.length + 1),
         email: data.email,
-        name: data.name || 'New User',
-        avatar: `https://i.pravatar.cc/150?img=${registeredUsers.length + 1}`,
+        isActive: true,
+        isAdmin: false,
+        avatarUrl: data.avatarUrl || `https://i.pravatar.cc/150?img=${registeredUsers.length + 1}`,
         createdAt: new Date().toISOString(),
     };
 
@@ -161,20 +163,20 @@ export async function mockRegister(
         user: {
             id: newUser.id,
             email: newUser.email,
-            name: newUser.name || 'New User',
-            avatar: newUser.avatar || `https://i.pravatar.cc/150?img=${registeredUsers.length + 1}`,
-            createdAt: newUser.createdAt,
+            name: 'New User',
+            avatarUrl: newUser.avatarUrl || `https://i.pravatar.cc/150?img=${registeredUsers.length + 1}`,
+            createdAt: newUser.createdAt || new Date().toISOString(),
         },
     });
 
     // Return auth response
+    // Emulate cookie set (internal only)
+    generateMockToken('access');
+    generateMockToken('refresh');
+
     return {
+        message: 'Registration successful',
         user: newUser,
-        tokens: {
-            accessToken: generateMockToken('access'),
-            refreshToken: generateMockToken('refresh'),
-            expiresIn: 3600,
-        },
     };
 }
 
@@ -195,17 +197,12 @@ export async function mockLogout(
  * Simulates API GET /auth/me
  */
 export async function mockGetCurrentUser(
-    token: string,
-    options: { delay: number } = { delay: 500 }
+    arg?: { delay: number } | string,
+    maybeOptions?: { delay: number }
 ): Promise<User | null> {
+    const options = (typeof arg === 'object' && arg !== null ? arg : maybeOptions) || { delay: 500 };
     await delay(options.delay);
-
-    // Validate token
-    if (!token || !token.startsWith('mock_access_')) {
-        throw new MockAPIError('Invalid or expired token', 401, 'INVALID_TOKEN');
-    }
-
-    // For mock, return first user
+    // Ignore token if provided (cookie-based)
     return registeredUsers[0]?.user || null;
 }
 
@@ -213,23 +210,10 @@ export async function mockGetCurrentUser(
  * Mock refresh token
  * Simulates API POST /auth/refresh
  */
-export async function mockRefreshToken(
-    refreshToken: string,
-    options: { delay: number } = { delay: 500 }
-): Promise<{ accessToken: string; refreshToken: string; expiresIn: number }> {
-    await delay(options.delay);
-
-    // Validate refresh token
-    if (!refreshToken || !refreshToken.startsWith('mock_refresh_')) {
-        throw new MockAPIError('Invalid refresh token', 401, 'INVALID_REFRESH_TOKEN');
-    }
-
-    // Return new tokens
-    return {
-        accessToken: generateMockToken('access'),
-        refreshToken: generateMockToken('refresh'),
-        expiresIn: 3600,
-    };
+// Left for backward compatibility in tests; not used by app code anymore
+export async function mockRefreshToken() {
+    await delay(0);
+    return { accessToken: '', refreshToken: '', expiresIn: 0 };
 }
 
 /**

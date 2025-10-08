@@ -1,6 +1,22 @@
 /**
- * Types for authentication
+ * Types for authentication (cookie-based, no public tokens)
  */
+
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+  isActive?: boolean;
+  isAdmin?: boolean;
+  createdAt?: string;
+  lastLoginAt?: string;
+  avatarUrl?: string | null;
+}
+
+export interface AuthResponse {
+  message: string;
+  user: User | null;
+}
 
 export interface LoginCredentials {
   email: string;
@@ -10,37 +26,17 @@ export interface LoginCredentials {
 export interface RegisterData {
   email: string;
   password: string;
-  name?: string;
-}
-
-export interface User {
-  id: string;
-  email: string;
-  name?: string;
-  avatar?: string;
-  createdAt: string;
-}
-
-export interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
-}
-
-export interface AuthResponse {
-  user: User;
-  tokens: AuthTokens;
+  avatarUrl?: string | null;
 }
 
 export interface AuthError {
-  code: string;
+  code?: string;
   message: string;
   field?: string;
 }
 
 export interface AuthState {
   user: User | null;
-  tokens: AuthTokens | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: AuthError | null;

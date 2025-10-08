@@ -2,7 +2,9 @@ import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Center } from '@/components/ui/center';
 import { Heading } from '@/components/ui/heading';
+import { HStack } from '@/components/ui/hstack';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
+import { GithubIcon, GoogleIcon, MicrosoftIcon } from '@/components/ui/oauth-buttons';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,7 +16,7 @@ import { ActivityIndicator, Alert } from 'react-native';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
-  const { login, isLoading, error, clearError } = useAuth();
+  const { login, isLoading, clearError } = useAuth();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -24,6 +26,14 @@ export default function LoginScreen() {
 
   const handleShowPassword = () => {
     setShowPassword((prev) => !prev);
+  };
+
+  const handleOAuthLogin = (provider: 'github' | 'google' | 'microsoft') => {
+    Alert.alert(
+      t('login.successTitle'),
+      `OAuth login with ${provider} (to be implemented)`,
+      [{ text: 'OK' }]
+    );
   };
 
   const validateEmail = (email: string) => {
@@ -49,7 +59,7 @@ export default function LoginScreen() {
     if (!password) {
       setPasswordError(t('login.passwordRequired'));
       hasError = true;
-    } else if (password.length < 6) {
+    } else if (password.length < 8) {
       setPasswordError(t('login.passwordTooShort'));
       hasError = true;
     }
@@ -66,14 +76,15 @@ export default function LoginScreen() {
         [
           {
             text: 'OK',
-            onPress: () => router.push('/(tabs)'),
+            onPress: () => router.replace('/(tabs)'),
           },
         ]
       );
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : (t('login.errorMessage') || 'La connexion a échoué');
       Alert.alert(
         t('login.errorTitle') || 'Erreur',
-        error || t('login.errorMessage') || 'La connexion a échoué'
+        msg
       );
     }
   };
@@ -206,6 +217,51 @@ export default function LoginScreen() {
                 {t('login.forgotPassword')}
               </Text>
             </Box>
+
+            {/* Divider avec texte */}
+            <HStack space="md" className="items-center my-4">
+              <Box className="flex-1 h-[1px] bg-outline-200" />
+              <Text size="sm" className="text-typography-500">
+                {t('login.orContinueWith')}
+              </Text>
+              <Box className="flex-1 h-[1px] bg-outline-200" />
+            </HStack>
+
+            {/* Boutons OAuth - Version compacte horizontale */}
+            <HStack space="md" className="justify-center">
+              {/* GitHub */}
+              <Button
+                size="lg"
+                variant="outline"
+                action="default"
+                onPress={() => handleOAuthLogin('github')}
+                className="border-outline-300 bg-background-0 hover:bg-background-50 rounded-lg flex-1"
+              >
+                <GithubIcon size={24} />
+              </Button>
+
+              {/* Google */}
+              <Button
+                size="lg"
+                variant="outline"
+                action="default"
+                onPress={() => handleOAuthLogin('google')}
+                className="border-outline-300 bg-background-0 hover:bg-background-50 rounded-lg flex-1"
+              >
+                <GoogleIcon size={24} />
+              </Button>
+
+              {/* Microsoft */}
+              <Button
+                size="lg"
+                variant="outline"
+                action="default"
+                onPress={() => handleOAuthLogin('microsoft')}
+                className="border-outline-300 bg-background-0 hover:bg-background-50 rounded-lg flex-1"
+              >
+                <MicrosoftIcon size={24} />
+              </Button>
+            </HStack>
           </VStack>
         </Box>
 

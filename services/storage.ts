@@ -61,11 +61,3 @@ export async function clearAuthData(): Promise<void> {
         SecureStore.deleteItemAsync(STORAGE_KEYS.USER_DATA),
     ]);
 }
-
-/**
- * Checks if the user is authenticated
- */
-export async function isAuthenticated(): Promise<boolean> {
-    const token = await getAccessToken();
-    return token !== null;
-}

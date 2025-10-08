@@ -102,7 +102,7 @@ describe('ForgotPasswordScreen', () => {
             expect(mockForgotPassword).toHaveBeenCalledWith('test@example.com');
             expect(require('react-native').Alert.alert).toHaveBeenCalledWith(
                 'forgotPassword.errorTitle',
-                'forgotPassword.errorMessage'
+                'forgotPassword.failedToSendEmail'
             );
         });
     });

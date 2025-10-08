@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react-native';
+import { Activity, ArrowRight, Bell, Github, Mail, Plus, Zap } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import ActionReactionItem from '@/components/ActionReactionItem';
 import { Badge, BadgeText } from '@/components/ui/badge';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
@@ -11,138 +12,72 @@ import { Divider } from '@/components/ui/divider';
 import { Heading } from '@/components/ui/heading';
 import { useDesignTokens } from '@/components/ui/hooks/useDesignTokens';
 import { HStack } from '@/components/ui/hstack';
-import { Image } from '@/components/ui/image';
-import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
+import { Icon } from '@/components/ui/icon';
 import { Pressable } from '@/components/ui/pressable';
 import { ScrollView } from '@/components/ui/scroll-view';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 
-const RecommendationCard: React.FC<{
-  title: string;
-  subtitle: string;
-  imageUrl: string;
-  onPress?: () => void;
-}> = ({ title, subtitle, imageUrl, onPress }) => {
+interface Service {
+  id: number;
+  name: string;
+  icon: any;
+  color: string;
+  category: string;
+  isConnected: boolean;
+}
+
+interface ActionReactionPair {
+  id: number;
+  actionName: string;
+  reactionName: string;
+  actionIcon: any;
+  reactionIcon: any;
+  actionColor: string;
+  reactionColor: string;
+  isConnected: boolean;
+  actionService: string;
+  reactionService: string;
+}
+
+const ServiceCard: React.FC<{
+  service: Service;
+  onPress: () => void;
+}> = ({ service, onPress }) => {
   const { t } = useTranslation();
+  const categoryKey = (service.category || '').toLowerCase();
+  const categoryLabel =
+    categoryKey === 'dev' || categoryKey === 'productivity'
+      ? t(`home.category.${categoryKey}` as any)
+      : service.category;
+
   return (
-    <Pressable onPress={onPress} testID={`rec-card-${title.replace(/\s+/g, '-')}` }>
-      <Box className="bg-surface rounded-lg p-4 shadow-soft-1 mr-4" style={{ width: 280, minWidth: 280 }}>
-        <Image
-          source={{ uri: imageUrl }}
-          style={{ width: '100%', height: 160, borderRadius: 8, marginBottom: 12 }}
-          resizeMode="cover"
-          alt={title}
-        />
-        <VStack className="gap-1">
-          <HStack space="sm" align="center">
-            <Heading size="sm" className="text-typography-900">
-              {title}
-            </Heading>
-            <Badge size="sm" variant="solid" action="success">
-              <BadgeText>{t('common.popularBadge')}</BadgeText>
-            </Badge>
-          </HStack>
-          <Text size="sm" className="text-typography-600">
-            {subtitle}
-          </Text>
-        </VStack>
-      </Box>
-    </Pressable>
-  );
-};
-
-const POPULAR_ITEMS = [
-  {
-    id: 1,
-    title: "Restaurant Gastronomique",
-    subtitle: "Une expérience culinaire exceptionnelle",
-    imageUrl: "https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?w=100&h=100&fit=crop"
-  },
-  {
-    id: 2,
-    title: "Musée d'Art Moderne",
-    subtitle: "Explorez les collections contemporaines",
-    imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100&h=100&fit=crop"
-  },
-  {
-    id: 3,
-    title: "Parc National",
-    subtitle: "Reconnectez-vous avec la nature",
-    imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100&h=100&fit=crop"
-  },
-  {
-    id: 4,
-    title: "Centre Commercial",
-    subtitle: "Shopping et divertissement",
-    imageUrl: "https://images.unsplash.com/photo-1555529902-ce3e8653cd83?w=100&h=100&fit=crop"
-  },
-  {
-    id: 5,
-    title: "Théâtre Historic",
-    subtitle: "Spectacles et performances artistiques",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
-  },
-  {
-    id: 6,
-    title: "Plage Paradisiaque",
-    subtitle: "Détente et sports nautiques",
-    imageUrl: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=100&h=100&fit=crop"
-  },
-  {
-    id: 7,
-    title: "Marché Local",
-    subtitle: "Produits frais et artisanat",
-    imageUrl: "https://images.unsplash.com/photo-1555617981-dac40e924671?w=100&h=100&fit=crop"
-  },
-  {
-    id: 8,
-    title: "Observatoire",
-    subtitle: "Découverte de l'astronomie",
-    imageUrl: "https://images.unsplash.com/photo-1419833479618-c595710f6026?w=100&h=100&fit=crop"
-  }
-];
-
-const ITEMS_PER_PAGE = 3;
-
-const PopularItem: React.FC<{
-  title: string;
-  subtitle: string;
-  imageUrl: string;
-  onPress?: () => void;
-}> = ({ title, subtitle, imageUrl, onPress }) => {
-  const { t } = useTranslation();
-  const { getToken } = useDesignTokens();
-  
-  return (
-    <Pressable onPress={onPress} testID={`popular-item-${title.replace(/\s+/g, '-')}` }>
-      <Box className="bg-surface rounded-lg p-4 shadow-soft-1 w-full">
-        <HStack space="md" align="center" className="w-full">
-          <Box className="flex-shrink-0">
-            <Image
-              source={{ uri: imageUrl }}
-              style={{ width: 70, height: 70, borderRadius: 8 }}
-              resizeMode="cover"
-              alt={title}
-            />
+    <Pressable onPress={onPress} testID={`service-card-${service.name}`}>
+      <Box
+        className="bg-background-0 rounded-xl p-4 shadow-soft-1 border border-outline-100 mr-3"
+        style={{ width: 140 }}
+      >
+        <VStack space="sm" className="items-center">
+          <Box
+            className="w-14 h-14 rounded-full items-center justify-center"
+            style={{ backgroundColor: service.color + '20' }}
+          >
+            <Icon as={service.icon} size="xl" style={{ color: service.color }} />
           </Box>
-          <VStack className="flex-1 gap-1 pr-2">
-            <HStack space="sm" align="center" className="flex-wrap">
-              <Heading size="sm" className="text-typography-900 flex-shrink">
-                {title}
-              </Heading>
-              <Badge size="sm" variant="solid" action="success">
-                <BadgeText>{t('common.popularBadge')}</BadgeText>
-              </Badge>
-            </HStack>
-            <Text size="sm" className="text-typography-600 flex-wrap">
-              {subtitle}
+          <VStack space="xs" className="items-center">
+            <Text size="sm" className="text-typography-900 font-semibold text-center">
+              {service.name}
             </Text>
+            <Badge size="sm" variant="outline" action="muted">
+              <BadgeText className="text-xs">{categoryLabel}</BadgeText>
+            </Badge>
           </VStack>
-          <Box className="flex-shrink-0">
-            <ChevronRight size={20} color={getToken('gray-500')} />
-          </Box>
-        </HStack>
+          {service.isConnected && (
+            <Badge size="sm" variant="solid" action="success">
+              <BadgeText className="text-xs">{t('actionReaction.connected')}</BadgeText>
+            </Badge>
+          )}
+        </VStack>
       </Box>
     </Pressable>
   );
@@ -151,41 +86,84 @@ const PopularItem: React.FC<{
 export default function HomeScreen() {
   const { t } = useTranslation();
   const { getToken } = useDesignTokens();
-  const [currentPage, setCurrentPage] = useState(0);
-  const totalPages = Math.ceil(POPULAR_ITEMS.length / ITEMS_PER_PAGE);
-  
-  const getCurrentPageItems = () => {
-    const startIndex = currentPage * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    return POPULAR_ITEMS.slice(startIndex, endIndex);
+
+  // Services disponibles avec leur état de connexion
+  const [services, setServices] = useState<Service[]>([
+    { id: 1, name: 'GitHub', icon: Github, color: '#181717', category: 'Dev', isConnected: false },
+    { id: 2, name: 'Microsoft', icon: Mail, color: '#00A4EF', category: 'Productivity', isConnected: false },
+    { id: 3, name: 'Google', icon: Mail, color: '#EA4335', category: 'Productivity', isConnected: false },
+  ]);
+
+  // Exemples d'Action-Réaction pairs (pour démonstration)
+  const [actionReactionPairs, setActionReactionPairs] = useState<ActionReactionPair[]>([
+    {
+      id: 1,
+      actionName: t('actionReaction.githubAction'),
+      reactionName: t('actionReaction.microsoftReaction'),
+      actionIcon: Github,
+      reactionIcon: Mail,
+      actionColor: '#181717',
+      reactionColor: '#00A4EF',
+      isConnected: false,
+      actionService: 'GitHub',
+      reactionService: 'Microsoft',
+    },
+    {
+      id: 2,
+      actionName: t('actionReaction.googleAction'),
+      reactionName: t('actionReaction.githubReaction'),
+      actionIcon: Mail,
+      reactionIcon: Github,
+      actionColor: '#EA4335',
+      reactionColor: '#181717',
+      isConnected: false,
+      actionService: 'Google',
+      reactionService: 'GitHub',
+    },
+  ]);
+
+  const handleServicePress = (serviceId: number) => {
+    router.push('/details'); // Page de configuration du service
   };
 
-  const goToNextPage = () => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage(currentPage + 1);
+  const handleConnectService = (pairId: number) => {
+    // Mettre à jour l'état de connexion de l'action-réaction
+    setActionReactionPairs((prev) =>
+      prev.map((pair) =>
+        pair.id === pairId ? { ...pair, isConnected: !pair.isConnected } : pair
+      )
+    );
+
+    // Mettre à jour aussi l'état des services correspondants
+    const pair = actionReactionPairs.find((p) => p.id === pairId);
+    if (pair) {
+      setServices((prev) =>
+        prev.map((service) =>
+          service.name === pair.actionService || service.name === pair.reactionService
+            ? { ...service, isConnected: true }
+            : service
+        )
+      );
     }
   };
 
-  const goToPreviousPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
-    }
+  const handleActionReactionPress = (pairId: number) => {
+    router.push('/details'); // Page de détails de l'automation
   };
 
-  const handleItemPress = () => {
-    router.push('/details');
+  const handleCreateNew = () => {
+    router.push('/details'); // Page de création d'automation
   };
 
-  const handleRecommendationPress = () => {
-    router.push('/details');
-  };
+  const connectedCount = actionReactionPairs.filter((p) => p.isConnected).length;
+  const totalCount = actionReactionPairs.length;
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light">
-      <ScrollView 
+    <SafeAreaView className="flex-1 bg-background-50">
+      <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
       >
         {/* Header */}
         <Box className="px-6 py-4">
@@ -193,178 +171,214 @@ export default function HomeScreen() {
             {t('home.greeting')}
           </Heading>
           <Text size="md" className="text-typography-600">
-            {t('home.discover')}
+            {t('home.subtitle')}
           </Text>
         </Box>
 
-        {/* Search Bar */}
-        <Box className="mx-6 mb-6">
-          <Button variant="ghost" className="p-0 w-full">
-            <Input className="bg-surface border-outline-200 pointer-events-none w-full">
-              <InputSlot className="pl-3">
-          <InputIcon as={Search} className="text-typography-400" size="sm" />
-              </InputSlot>
-              <InputField
-                placeholder={t('home.searchPlaceholder')}
-                className="text-typography-900"
-                placeholderTextColor={getToken('gray-400')}
-                editable={false}
-              />
-            </Input>
-          </Button>
-        </Box>
+        {/* Stats Cards */}
+        <HStack space="md" className="px-6 mb-6">
+          <Box className="flex-1 bg-primary-600 rounded-xl p-4">
+            <VStack space="xs">
+              <HStack space="xs" align="center">
+                <Icon as={Zap} size="sm" className="text-primary-50" />
+                <Text size="xs" className="text-primary-100 font-semibold">
+                  {t('home.activesLabel')}
+                </Text>
+              </HStack>
+              <Heading size="2xl" className="text-typography-0">
+                {connectedCount}
+              </Heading>
+              <Text size="xs" className="text-primary-100">
+                {t('home.automationsInProgress')}
+              </Text>
+            </VStack>
+          </Box>
 
-        {/* Recommended Section Header */}
-        <HStack justify="between" align="center" className="px-6 mb-4">
-          <Heading size="lg" className="text-typography-900">
-            {t('home.recommended')}
-          </Heading>
-          <Button variant="link" size="sm">
-            <ButtonText className="text-primary-600">
-              {t('home.seeAll')}
-            </ButtonText>
-            <ButtonIcon as={ChevronRight} className="text-primary-600" size="sm" />
-          </Button>
+          <Box className="flex-1 bg-success-600 rounded-xl p-4">
+            <VStack space="xs">
+              <HStack space="xs" align="center">
+                <Icon as={Activity} size="sm" className="text-success-50" />
+                <Text size="xs" className="text-success-100 font-semibold">
+                  {t('home.totalLabel')}
+                </Text>
+              </HStack>
+              <Heading size="2xl" className="text-typography-0">
+                {totalCount}
+              </Heading>
+              <Text size="xs" className="text-success-100">
+                {'AREAS'}
+              </Text>
+            </VStack>
+          </Box>
         </HStack>
 
-        {/* Recommended Cards */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="mb-6"
-          contentContainerStyle={{ 
-            paddingLeft: 24, 
-            paddingRight: 24,
-            alignItems: 'flex-start'
-          }}
-          decelerationRate="fast"
-          snapToInterval={296}
-          snapToAlignment="start"
-        >
-          <HStack space="md">
-            <RecommendationCard
-              title="Destination Tropicale"
-              subtitle="Découvrez les plus belles plages du monde"
-              imageUrl="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=200&fit=crop"
-              onPress={handleRecommendationPress}
-            />
-            <RecommendationCard
-              title="Aventure en Montagne"
-              subtitle="Explorez les sommets les plus spectaculaires"
-              imageUrl="https://images.unsplash.com/photo-1464822759844-d150baec93d1?w=400&h=200&fit=crop"
-              onPress={handleRecommendationPress}
-            />
-            <RecommendationCard
-              title="Ville Cosmopolite"
-              subtitle="Plongez dans l'effervescence urbaine"
-              imageUrl="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=200&fit=crop"
-              onPress={handleRecommendationPress}
-            />
-          </HStack>
-        </ScrollView>
-
-        {/* Additional Content Section */}
-        <VStack className="gap-4 px-6">
+        {/* Mes Action-Réactions */}
+        <VStack className="gap-4 px-6 mb-6">
           <HStack justify="between" align="center">
             <Heading size="lg" className="text-typography-900">
-              {t('home.popularThisWeek')}
+              {t('home.myAutomationsTitle')}
             </Heading>
-            <Text size="sm" className="text-typography-500">
-              {currentPage + 1} / {totalPages}
-            </Text>
+            <Badge size="sm" variant="solid" action="info">
+              <BadgeText>{actionReactionPairs.length}</BadgeText>
+            </Badge>
           </HStack>
-          
-          <VStack className="gap-2">
-            {getCurrentPageItems().map((item, index) => (
-              <VStack key={item.id}>
-                <PopularItem
-                  title={item.title}
-                  subtitle={item.subtitle}
-                  imageUrl={item.imageUrl}
-                  onPress={handleItemPress}
-                />
-                {index < getCurrentPageItems().length - 1 && (
-                  <Divider className="my-2" />
-                )}
+
+          {actionReactionPairs.length === 0 ? (
+            <Box className="bg-background-0 rounded-xl p-8 border-2 border-dashed border-outline-200">
+              <VStack space="md" className="items-center">
+                <Box className="w-16 h-16 bg-primary-50 rounded-full items-center justify-center">
+                  <Icon as={Zap} size="xl" className="text-primary-600" />
+                </Box>
+                <VStack space="xs" className="items-center">
+                  <Heading size="sm" className="text-typography-900 text-center">
+                    {t('home.noAutomationsTitle')}
+                  </Heading>
+                  <Text size="sm" className="text-typography-600 text-center">
+                    {t('home.noAutomationsDesc')}
+                  </Text>
+                </VStack>
               </VStack>
-            ))}
-          </VStack>
-
-          {/* Pagination Controls */}
-          <HStack justify="between" align="center" className="mt-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onPress={goToPreviousPage}
-              disabled={currentPage === 0}
-              className={`${currentPage === 0 ? 'opacity-50' : ''}`}
-            >
-              <ButtonIcon as={ChevronLeft} className="text-typography-600" size="sm" />
-              <ButtonText className="text-typography-600">
-                {t('home.previous')}
-              </ButtonText>
-            </Button>
-
-            <HStack space="sm" align="center">
-              {Array.from({ length: totalPages }, (_, index) => (
-                <Button
-                  key={index}
-                  variant={index === currentPage ? "solid" : "outline"}
-                  size="sm"
-                  onPress={() => setCurrentPage(index)}
-                  style={{ minWidth: 32, height: 32 }}
-                  className={index === currentPage ? "bg-primary-600" : ""}
-                >
-                  <ButtonText 
-                    className={index === currentPage ? "text-typography-0" : "text-typography-600"}
-                    size="sm"
-                  >
-                    {index + 1}
-                  </ButtonText>
-                </Button>
+            </Box>
+          ) : (
+            <VStack space="md">
+              {actionReactionPairs.map((pair) => (
+                <ActionReactionItem
+                  key={pair.id}
+                  actionName={pair.actionName}
+                  reactionName={pair.reactionName}
+                  actionIcon={pair.actionIcon}
+                  reactionIcon={pair.reactionIcon}
+                  actionColor={pair.actionColor}
+                  reactionColor={pair.reactionColor}
+                  isConnected={pair.isConnected}
+                  onConnect={() => handleConnectService(pair.id)}
+                  onPress={() => handleActionReactionPress(pair.id)}
+                />
               ))}
-            </HStack>
-
-            <Button 
-              variant="outline" 
-              size="sm"
-              onPress={goToNextPage}
-              disabled={currentPage === totalPages - 1}
-              className={`${currentPage === totalPages - 1 ? 'opacity-50' : ''}`}
-            >
-              <ButtonText className="text-typography-600">
-                {t('home.next')}
-              </ButtonText>
-              <ButtonIcon as={ChevronRight} className="text-typography-600" size="sm" />
-            </Button>
-          </HStack>
+            </VStack>
+          )}
         </VStack>
 
-        {/* CTA Section */}
-        <Box className="px-6 mt-8">
-          <Box className="bg-primary-600 rounded-xl p-6 shadow-soft-2">
-            <VStack className="gap-4">
-              <VStack className="gap-2">
-                <Heading size="lg" className="text-typography-0">
-                  {t('home.ctaTitle')}
-                </Heading>
+        <Divider className="my-4" />
+
+        {/* Services Disponibles */}
+        <VStack className="gap-4 mb-6">
+          <HStack justify="between" align="center" className="px-6">
+            <Heading size="lg" className="text-typography-900">
+              {t('home.servicesTitle')}
+            </Heading>
+            <Button variant="link" size="sm" onPress={() => router.push('/details')}>
+              <ButtonText className="text-primary-600">{t('home.seeAll')}</ButtonText>
+              <ButtonIcon as={ArrowRight} className="text-primary-600" size="sm" />
+            </Button>
+          </HStack>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingLeft: 24,
+              paddingRight: 24,
+            }}
+            decelerationRate="fast"
+          >
+            <HStack space="md">
+              {services.map((service) => (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  onPress={() => handleServicePress(service.id)}
+                />
+              ))}
+            </HStack>
+          </ScrollView>
+        </VStack>
+
+        {/* CTA - Créer nouvelle automation */}
+        <Box className="px-6">
+          <Box className="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-xl p-6 shadow-soft-2">
+            <VStack space="md">
+              <VStack space="sm">
+                <HStack space="sm" align="center">
+                  <Icon as={Plus} size="lg" className="text-typography-0" />
+                  <Heading size="lg" className="text-typography-0">
+                    {t('home.createAutomationTitle')}
+                  </Heading>
+                </HStack>
                 <Text size="md" className="text-primary-100">
-                  {t('home.ctaSubtitle')}
+                  {t('home.createAutomationSubtitle')}
                 </Text>
               </VStack>
-              <Button 
-                variant="solid" 
-                size="md" 
-                className="bg-surface self-start"
+              <Button
+                variant="solid"
+                size="lg"
+                className="bg-background-0 self-start"
+                onPress={handleCreateNew}
+                testID="btn-create-automation"
               >
+                <ButtonIcon as={Plus} className="text-primary-600" />
                 <ButtonText className="text-primary-600 font-semibold">
-                  {t('home.seeAll')}
+                  {t('home.createAutomationButton')}
                 </ButtonText>
               </Button>
             </VStack>
           </Box>
         </Box>
+
+        {/* Templates populaires */}
+        <VStack className="gap-4 px-6 mt-6">
+          <Heading size="lg" className="text-typography-900">
+            {t('home.popularTemplatesTitle')}
+          </Heading>
+
+          <VStack space="sm">
+            {[
+              { title: t('home.template1Title'), desc: t('home.template1Desc'), icon: Github },
+              { title: t('home.template2Title'), desc: t('home.template2Desc'), icon: Bell },
+              { title: t('home.template3Title'), desc: t('home.template3Desc'), icon: Github },
+            ].map((template, idx) => (
+              <Pressable key={idx} onPress={handleCreateNew}>
+                <Box className="bg-background-0 rounded-lg p-4 border border-outline-100">
+                  <HStack justify="between" align="center">
+                    <HStack space="md" align="center" className="flex-1">
+                      <Box className="w-10 h-10 bg-primary-50 rounded-full items-center justify-center">
+                        <Icon as={template.icon} size="md" className="text-primary-600" />
+                      </Box>
+                      <VStack className="flex-1">
+                        <Text size="sm" className="text-typography-900 font-semibold">
+                          {template.title}
+                        </Text>
+                        <Text size="xs" className="text-typography-600">
+                          {template.desc}
+                        </Text>
+                      </VStack>
+                    </HStack>
+                    <Icon as={ArrowRight} size="md" className="text-typography-400" />
+                  </HStack>
+                </Box>
+              </Pressable>
+            ))}
+          </VStack>
+        </VStack>
       </ScrollView>
+
+      {/* FAB - Bouton d'action flottant */}
+      <Box className="absolute bottom-6 right-6">
+        <Pressable onPress={handleCreateNew}>
+          <Box
+            className="w-16 h-16 bg-primary-600 rounded-full items-center justify-center shadow-hard-2"
+            style={{
+              shadowColor: getToken('primary-600'),
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 8,
+            }}
+          >
+            <Icon as={Plus} size="xl" className="text-typography-0" />
+          </Box>
+        </Pressable>
+      </Box>
     </SafeAreaView>
   );
 }
