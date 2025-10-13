@@ -54,15 +54,15 @@ describe('TabLayout', () => {
     expect(tabsProps.screenOptions).toBeTruthy();
     expect(tabsProps.screenOptions.headerShown).toBe(false);
     expect(tabsProps.screenOptions.tabBarLabelStyle.fontSize).toBe(12);
-    expect(screens.length).toBe(6);
+  expect(screens.length).toBe(7);
 
     // Verify that only 2 tabs are visible in the tab bar (login, register, and forgot-password have href: null)
     const visibleScreens = screens.filter((s: any) => s.options.href !== null);
     expect(visibleScreens.length).toBe(2); // Only Home and Profile are visible
     
-    const icon1 = screens[0].options.tabBarIcon({ color: testColors.focused, size: 20, focused: true });
-    const icon4 = screens[3].options.tabBarIcon({ color: testColors.unfocused, size: 22, focused: false });
-    expect(icon1).toBeTruthy();
-    expect(icon4).toBeTruthy();
+  const homeIcon = screens[0].options.tabBarIcon({ color: testColors.focused, size: 20, focused: true });
+  const profileIcon = screens[4].options.tabBarIcon({ color: testColors.unfocused, size: 22, focused: false });
+  expect(homeIcon).toBeTruthy();
+  expect(profileIcon).toBeTruthy();
   });
 });

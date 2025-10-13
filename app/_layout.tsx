@@ -15,6 +15,7 @@ function AppContent() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="screens/HomeScreen" options={{ title: "Home" }} />
         <Stack.Screen name="details" options={{ title: "Details" }} />
+        <Stack.Screen name="area-detail" options={{ title: "Area Details" }} />
       </Stack>
     </AuthProvider>
   );
