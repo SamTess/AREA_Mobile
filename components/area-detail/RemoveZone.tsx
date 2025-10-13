@@ -17,20 +17,15 @@ interface RemoveZoneProps {
 }
 
 export function RemoveZone({ isDragging, isActive }: RemoveZoneProps) {
-  const progress = useSharedValue(0);
+  const opacityProgress = useSharedValue(0);
 
   useEffect(() => {
-    const target = !isDragging ? 0 : isActive ? 1 : 0.6;
-    progress.value = withTiming(target, { duration: 220 });
-  }, [isActive, isDragging, progress]);
+    const opacityTarget = !isDragging ? 0 : isActive ? 1 : 0.6;
+    opacityProgress.value = withTiming(opacityTarget, { duration: 220 });
+  }, [isActive, isDragging, opacityProgress]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: progress.value,
-    transform: [
-      {
-        translateY: (1 - progress.value) * REMOVE_ZONE_HEIGHT,
-      },
-    ],
+    opacity: opacityProgress.value,
   }));
 
   return (
