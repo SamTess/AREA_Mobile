@@ -61,7 +61,8 @@
     "home": "Home",
     "login": "Login",
     "register": "Register",
-    "profile": "Profile"
+    "profile": "Profile",
+    "areas": "Areas"
   },
   "profile": {
     "title": "Profile",

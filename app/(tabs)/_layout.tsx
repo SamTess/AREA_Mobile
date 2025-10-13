@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Tabs, useRouter } from 'expo-router';
-import { Home, User } from 'lucide-react-native';
+import { Home, User, Zap } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { useTranslation } from 'react-i18next';
 
@@ -9,7 +9,7 @@ export default function TabLayout() {
   const { colorScheme } = useColorScheme();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  
+
   const getColorValue = (token: string) => {
     const tokenMap = {
       'indigo-600': colorScheme === 'dark' ? 'rgb(129 140 248)' : 'rgb(99 102 241)',
@@ -45,6 +45,13 @@ export default function TabLayout() {
         options={{
           title: t('tabs.home'),
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="areas"
+        options={{
+          title: t('tabs.areas', 'Areas'),
+          tabBarIcon: ({ color, size }) => <Zap size={size} color={color} />,
         }}
       />
       {/* Login, Register and Forgot Password are hidden from the navigation bar */}
