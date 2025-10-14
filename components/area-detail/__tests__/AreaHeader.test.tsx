@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
 import { AreaHeader } from '../AreaHeader';
+import i18n from '@/i18n';
 
 describe('AreaHeader', () => {
   const onChangeTitle = jest.fn();
@@ -43,10 +44,16 @@ describe('AreaHeader', () => {
       />
     );
 
-    fireEvent.changeText(getByPlaceholderText('Area title'), 'Updated');
+    fireEvent.changeText(
+      getByPlaceholderText(i18n.t('areaDetail.header.titlePlaceholder')),
+      'Updated'
+    );
     expect(onChangeTitle).toHaveBeenCalledWith('Updated');
 
-    fireEvent.changeText(getByPlaceholderText('Area description'), 'Details');
+    fireEvent.changeText(
+      getByPlaceholderText(i18n.t('areaDetail.header.descriptionPlaceholder')),
+      'Details'
+    );
     expect(onChangeDescription).toHaveBeenCalledWith('Details');
   });
 });

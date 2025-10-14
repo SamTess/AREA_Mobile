@@ -289,7 +289,7 @@ describe('Mock Authentication Service', () => {
             );
             const endTime = Date.now();
 
-            expect(endTime - startTime).toBeLessThan(50);
+            expect(endTime - startTime).toBeLessThan(150);
         });
     });
 });

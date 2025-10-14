@@ -1,6 +1,10 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, TextInput, TouchableOpacity } from 'react-native';
 import { Edit3, Trash2, ArrowLeft } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
+
+import { Box } from '@/components/ui/box';
+import { Text } from '@/components/ui/text';
 
 interface AreaHeaderProps {
   title: string;
@@ -23,9 +27,11 @@ export function AreaHeader({
   onRequestDelete,
   onBack,
 }: AreaHeaderProps) {
+  const { t } = useTranslation();
+
   return (
-    <View
-      className="bg-white p-4 border-b border-gray-200 shadow-sm"
+    <Box
+      className="bg-surface p-4 border-b border-outline-200 shadow-sm"
       style={{ zIndex: 40, elevation: 40 }}
     >
       <View className="flex-row items-center justify-between">
@@ -35,7 +41,7 @@ export function AreaHeader({
             className="p-2 mr-2"
             testID="back-button"
           >
-            <ArrowLeft size={24} color="#374151" />
+            <ArrowLeft size={24} color="#1f2937" />
           </TouchableOpacity>
         )}
 
@@ -45,21 +51,21 @@ export function AreaHeader({
               <TextInput
                 value={title}
                 onChangeText={onChangeTitle}
-                className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-2"
-                placeholder="Area title"
+                className="text-xl font-bold text-typography-900 border-b border-outline-200 pb-1 mb-2"
+                placeholder={t('areaDetail.header.titlePlaceholder')}
               />
               <TextInput
                 value={description}
                 onChangeText={onChangeDescription}
-                className="text-sm text-gray-600 border-b border-gray-300 pb-1"
-                placeholder="Area description"
+                className="text-sm text-typography-600 border-b border-outline-200 pb-1"
+                placeholder={t('areaDetail.header.descriptionPlaceholder')}
                 multiline
               />
             </View>
           ) : (
             <View>
-              <Text className="text-xl font-bold text-gray-900">{title}</Text>
-              <Text className="text-sm text-gray-600 mt-1">{description}</Text>
+              <Text className="text-xl font-bold text-typography-900">{title}</Text>
+              <Text className="text-sm text-typography-600 mt-1">{description}</Text>
             </View>
           )}
         </View>
@@ -67,7 +73,7 @@ export function AreaHeader({
         <View className="flex-row gap-2 ml-4">
           <TouchableOpacity
             onPress={onToggleEditing}
-            className="p-2 bg-blue-500 rounded-full"
+            className="p-2 bg-primary-500 rounded-full"
             testID="toggle-edit"
           >
             <Edit3 size={20} color="white" />
@@ -75,13 +81,13 @@ export function AreaHeader({
 
           <TouchableOpacity
             onPress={onRequestDelete}
-            className="p-2 bg-red-500 rounded-full"
+            className="p-2 bg-error-500 rounded-full"
             testID="request-delete"
           >
             <Trash2 size={20} color="white" />
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </Box>
   );
 }

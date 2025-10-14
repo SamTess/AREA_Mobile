@@ -99,14 +99,14 @@ describe('Card', () => {
     const { getByText } = render(<Card card={mockCard} {...defaultProps} />);
 
     expect(getByText('Test Action')).toBeTruthy();
-    expect(getByText('action')).toBeTruthy();
+    expect(getByText('Action')).toBeTruthy();
   });
 
   it('renders reaction card with correct styling and content', () => {
     const { getByText } = render(<Card card={mockReactionCard} {...defaultProps} />);
 
     expect(getByText('Test Reaction')).toBeTruthy();
-    expect(getByText('reaction')).toBeTruthy();
+    expect(getByText('Reaction')).toBeTruthy();
   });
 
   it('calls onSelect when card is pressed', () => {
@@ -137,14 +137,14 @@ describe('Card', () => {
 
   it('displays action type with green styling', () => {
     const { getByText } = render(<Card card={mockCard} {...defaultProps} />);
-    const actionText = getByText('action');
+    const actionText = getByText('Action');
     
     expect(actionText).toBeTruthy();
   });
 
   it('displays reaction type with blue styling', () => {
     const { getByText } = render(<Card card={mockReactionCard} {...defaultProps} />);
-    const reactionText = getByText('reaction');
+    const reactionText = getByText('Reaction');
     
     expect(reactionText).toBeTruthy();
   });
@@ -177,7 +177,7 @@ describe('Card', () => {
     const { getByText } = render(<Card card={mockCard} {...defaultProps} />);
     
     expect(getByText('Test Action')).toBeTruthy();
-    expect(getByText('action')).toBeTruthy();
+    expect(getByText('Action')).toBeTruthy();
   });
 
   it('handles cards with long names', () => {
@@ -225,6 +225,6 @@ describe('Card', () => {
 
     const { getByText } = render(<Card card={minimalCard} {...defaultProps} />);
     expect(getByText('Minimal')).toBeTruthy();
-    expect(getByText('action')).toBeTruthy();
+    expect(getByText('Action')).toBeTruthy();
   });
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import { Alert } from 'react-native';
 import { fireEvent, render } from '@testing-library/react-native';
 import { AddCardButton } from '../AddCardButton';
+import i18n from '@/i18n';
 
 describe('AddCardButton', () => {
   const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
@@ -30,8 +31,8 @@ describe('AddCardButton', () => {
     fireEvent.press(getByTestId('add-card'));
 
     expect(alertSpy).toHaveBeenCalledWith(
-      'Add Card',
-      'What type of card do you want to add?',
+      i18n.t('areaDetail.alerts.addCardTitle'),
+      i18n.t('areaDetail.alerts.addCardMessage'),
       expect.any(Array)
     );
 
@@ -39,10 +40,10 @@ describe('AddCardButton', () => {
     const findButton = (label: string) =>
       buttons.find((button) => button?.text === label);
 
-    findButton('Action')?.onPress?.();
+    findButton(i18n.t('areaDetail.alerts.addCardAction'))?.onPress?.();
     expect(onAddAction).toHaveBeenCalled();
 
-    findButton('Reaction')?.onPress?.();
+    findButton(i18n.t('areaDetail.alerts.addCardReaction'))?.onPress?.();
     expect(onAddReaction).toHaveBeenCalled();
   });
 });

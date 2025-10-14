@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import Animated, {
   FadeInDown,
   FadeOutDown,
@@ -8,8 +8,10 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { Trash2 } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 
 import { REMOVE_ZONE_HEIGHT } from './constants';
+import { Text } from '@/components/ui/text';
 
 interface RemoveZoneProps {
   isDragging: boolean;
@@ -18,6 +20,7 @@ interface RemoveZoneProps {
 
 export function RemoveZone({ isDragging, isActive }: RemoveZoneProps) {
   const opacityProgress = useSharedValue(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const opacityTarget = !isDragging ? 0 : isActive ? 1 : 0.6;
@@ -43,7 +46,7 @@ export function RemoveZone({ isDragging, isActive }: RemoveZoneProps) {
         animatedStyle,
       ]}
     >
-      <View className="flex-1 bg-red-500" />
+  <View className="flex-1 bg-error-500" />
 
       <Animated.View
         entering={FadeInDown.springify().damping(20)}
@@ -52,7 +55,9 @@ export function RemoveZone({ isDragging, isActive }: RemoveZoneProps) {
       >
         <View className="flex-row items-center">
           <Trash2 size={24} color="white" />
-          <Text className="text-white font-medium ml-2">Drop here to remove</Text>
+          <Text className="text-white font-medium ml-2">
+            {t('areaDetail.cards.dropRemove')}
+          </Text>
         </View>
       </Animated.View>
     </Animated.View>

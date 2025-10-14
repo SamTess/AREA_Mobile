@@ -2,6 +2,7 @@ import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { CardDetailsSheet } from '../CardDetailsSheet';
 import type { CardData } from '@/types/area-detail';
+import i18n from '@/i18n';
 
 // Mock services data
 jest.mock('@/mocks/services.json', () => [
@@ -90,7 +91,7 @@ describe('CardDetailsSheet', () => {
       <CardDetailsSheet {...defaultProps} visible={false} />
     );
 
-    expect(queryByText('Edit Card Settings')).toBeNull();
+    expect(queryByText(i18n.t('areaDetail.detailsSheet.title'))).toBeNull();
   });
 
   it('renders card details when visible with action card', () => {
@@ -98,7 +99,7 @@ describe('CardDetailsSheet', () => {
       <CardDetailsSheet {...defaultProps} />
     );
 
-    expect(getByText('Edit Card Settings')).toBeTruthy();
+    expect(getByText(i18n.t('areaDetail.detailsSheet.title'))).toBeTruthy();
     expect(getByDisplayValue('Test Action')).toBeTruthy();
   });
 
@@ -107,7 +108,7 @@ describe('CardDetailsSheet', () => {
       <CardDetailsSheet {...defaultProps} card={mockReactionCard} />
     );
 
-    expect(getByText('Edit Card Settings')).toBeTruthy();
+    expect(getByText(i18n.t('areaDetail.detailsSheet.title'))).toBeTruthy();
     expect(getByDisplayValue('Test Reaction')).toBeTruthy();
   });
 
@@ -138,9 +139,9 @@ describe('CardDetailsSheet', () => {
       <CardDetailsSheet {...defaultProps} />
     );
 
-    expect(getByText('Manual')).toBeTruthy();
-    expect(getByText('Webhook')).toBeTruthy();
-    expect(getByText('Cron')).toBeTruthy();
+    expect(getByText(i18n.t('areaDetail.detailsSheet.triggerTypes.manual'))).toBeTruthy();
+    expect(getByText(i18n.t('areaDetail.detailsSheet.triggerTypes.webhook'))).toBeTruthy();
+    expect(getByText(i18n.t('areaDetail.detailsSheet.triggerTypes.cron'))).toBeTruthy();
   });
 
   it('changes trigger type when option is pressed', () => {
@@ -148,11 +149,11 @@ describe('CardDetailsSheet', () => {
       <CardDetailsSheet {...defaultProps} />
     );
 
-    const webhookButton = getByText('Webhook');
+    const webhookButton = getByText(i18n.t('areaDetail.detailsSheet.triggerTypes.webhook'));
     fireEvent.press(webhookButton);
 
     // Webhook fields should appear
-    expect(getByText('Webhook URL')).toBeTruthy();
+    expect(getByText(i18n.t('areaDetail.detailsSheet.webhookUrlLabel'))).toBeTruthy();
   });
 
   it('shows webhook fields when webhook trigger is selected', () => {

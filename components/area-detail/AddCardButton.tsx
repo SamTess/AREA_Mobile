@@ -7,6 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { Plus } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -26,6 +27,7 @@ export function AddCardButton({
   testID,
 }: AddCardButtonProps) {
   const highlight = useSharedValue(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     highlight.value = withTiming(isRemoveZoneActive ? 1 : 0, {
@@ -37,7 +39,7 @@ export function AddCardButton({
     backgroundColor: interpolateColor(
       highlight.value,
       [0, 1],
-      ['#2563eb', '#1e3a8a']
+      ['#6366f1', '#4338ca']
     ),
     transform: [
       {
@@ -48,26 +50,26 @@ export function AddCardButton({
 
   const handlePress = useCallback(() => {
     Alert.alert(
-      'Add Card',
-      'What type of card do you want to add?',
+      t('areaDetail.alerts.addCardTitle'),
+      t('areaDetail.alerts.addCardMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('areaDetail.alerts.addCardCancel'), style: 'cancel' },
         {
-          text: 'Action',
+          text: t('areaDetail.alerts.addCardAction'),
           onPress: onAddAction,
         },
         {
-          text: 'Reaction',
+          text: t('areaDetail.alerts.addCardReaction'),
           onPress: onAddReaction,
         },
       ]
     );
-  }, [onAddAction, onAddReaction]);
+  }, [onAddAction, onAddReaction, t]);
 
   return (
     <AnimatedTouchableOpacity
       onPress={handlePress}
-      className="rounded-full p-4 shadow-lg"
+      className="rounded-full p-4 shadow-lg bg-primary-500"
       style={[animatedStyle, style]}
       testID={testID}
     >

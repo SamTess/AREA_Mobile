@@ -1,10 +1,14 @@
 
 import React, { useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Alert, Text, View } from 'react-native';
+import { Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+
+import { Box } from '@/components/ui/box';
+import { Text } from '@/components/ui/text';
+import { useTranslation } from 'react-i18next';
 
 import {
   AddCardButton,
@@ -81,6 +85,7 @@ const findConnectionTarget = (
 export default function AreaDetailScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
+  const { t } = useTranslation();
   const areaId = params.id as string;
 
   const area = areasData.areas.find((a) => a.id === areaId) as AreaDto | undefined;
@@ -216,7 +221,7 @@ export default function AreaDetailScreen() {
       data: {
         id: newId,
         actionDefinitionId: '',
-        name: 'New Action',
+        name: t('areaDetail.cards.newActionName'),
         parameters: {},
         activationConfig: { type: 'manual' },
       } as ActionDto,
@@ -233,7 +238,7 @@ export default function AreaDetailScreen() {
       data: {
         id: newId,
         actionDefinitionId: '',
-        name: 'New Reaction',
+        name: t('areaDetail.cards.newReactionName'),
         parameters: {},
         order: cards.filter((c) => c.type === 'reaction').length,
         continue_on_error: false,
@@ -250,11 +255,11 @@ export default function AreaDetailScreen() {
 
   const handleRequestDelete = () => {
     Alert.alert(
-      'Delete Area',
-      'Are you sure you want to delete this area?',
+      t('areaDetail.alerts.deleteTitle'),
+      t('areaDetail.alerts.deleteMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive' },
+        { text: t('areaDetail.alerts.deleteCancel'), style: 'cancel' },
+        { text: t('areaDetail.alerts.deleteConfirm'), style: 'destructive' },
       ]
     );
   };
@@ -271,16 +276,18 @@ export default function AreaDetailScreen() {
 
   if (!area) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <Text className="text-lg text-gray-600">Area not found</Text>
-      </View>
+      <Box className="flex-1 items-center justify-center bg-background-50">
+        <Text size="lg" className="text-typography-600">
+          {t('areaDetail.notFound')}
+        </Text>
+      </Box>
     );
   }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-        <View className="flex-1 bg-gray-50">
+        <Box className="flex-1 bg-background-50">
           <AreaHeader
             title={areaTitle}
             description={areaDescription}
@@ -292,7 +299,7 @@ export default function AreaDetailScreen() {
             onBack={handleBack}
           />
 
-          <View className="flex-1 relative">
+          <Box className="flex-1 relative">
             <GestureDetector gesture={canvasPan}>
               <Animated.View style={[{ flex: 1 }, canvasAnimatedStyle]}>
                 <DotGridBackground />
@@ -329,17 +336,17 @@ export default function AreaDetailScreen() {
               </Animated.View>
             </GestureDetector>
 
-            <View className="absolute bottom-6 right-6">
+            <Box className="absolute bottom-6 right-6">
               <AddCardButton
                 isRemoveZoneActive={isRemoveZoneActive}
                 onAddAction={handleAddAction}
                 onAddReaction={handleAddReaction}
                 testID="area-add-card-button"
               />
-            </View>
+            </Box>
 
             <RemoveZone isDragging={isDraggingCard} isActive={isRemoveZoneActive} />
-          </View>
+          </Box>
 
           <CardDetailsSheet
             visible={sideMenuVisible}
@@ -347,7 +354,7 @@ export default function AreaDetailScreen() {
             onClose={() => setSideMenuVisible(false)}
             onCardEdit={handleCardEdit}
           />
-        </View>
+        </Box>
       </SafeAreaView>
     </GestureHandlerRootView>
   );

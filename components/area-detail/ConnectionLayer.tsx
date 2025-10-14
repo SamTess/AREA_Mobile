@@ -43,7 +43,7 @@ export function ConnectionLayer({ cards, connections, activeConnection }: Connec
               y1={fromPoint.y}
               x2={toPoint.x}
               y2={toPoint.y}
-              stroke="#3b82f6"
+              stroke="#6366f1"
               strokeWidth={3}
               strokeLinecap="round"
             />
@@ -71,7 +71,7 @@ export function ConnectionLayer({ cards, connections, activeConnection }: Connec
           y1={activeConnection.start.y}
           x2={activeConnection.point.x}
           y2={activeConnection.point.y}
-          stroke="#3b82f6"
+          stroke="#6366f1"
           strokeWidth={3}
           strokeDasharray="6,6"
           strokeLinecap="round"

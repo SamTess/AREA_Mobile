@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import {
   Gesture,
   GestureDetector,
@@ -12,9 +12,11 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
 
 import type { CardData, CardDockPosition } from '@/types/area-detail';
 import { CARD_WIDTH, CARD_HEIGHT } from './constants';
+import { Text } from '@/components/ui/text';
 
 interface CardProps {
   card: CardData;
@@ -44,6 +46,7 @@ export function Card({
   const translateX = useSharedValue(card.position.x);
   const translateY = useSharedValue(card.position.y);
   const isOverRemoveZone = useSharedValue(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     translateX.value = card.position.x;
@@ -167,23 +170,25 @@ export function Card({
         <TouchableOpacity
           onPress={() => onSelect(card)}
           activeOpacity={0.9}
-          className={`flex-1 rounded-lg border-2 p-3 ${
+          className={`flex-1 rounded-xl border-2 p-3 shadow-hard-1 ${
             card.type === 'action'
-              ? 'bg-green-50 border-green-300'
-              : 'bg-blue-50 border-blue-300'
+              ? 'bg-success-50 border-success-200'
+              : 'bg-primary-50 border-primary-200'
           }`}
         >
-          <Text className="font-medium text-sm text-gray-900 mb-1">
+          <Text className="font-medium text-sm text-typography-900 mb-1">
             {card.data.name}
           </Text>
-          <Text className="text-xs text-gray-600 capitalize">
-            {card.type}
+          <Text className="text-xs text-typography-600 uppercase">
+            {card.type === 'action'
+              ? t('areaDetail.cards.typeLabel.action')
+              : t('areaDetail.cards.typeLabel.reaction')}
           </Text>
 
           {leftConnection &&
             <GestureDetector gesture={leftConnection}>
                 <View
-                className="absolute left-[-10] w-6 h-6 bg-none rounded-full border-2 border-blue-500 shadow-md"
+                className="absolute left-[-10] w-6 h-6 bg-background-0 rounded-full border-2 border-primary-500 shadow-md"
                 style={{ top: '50%' }}
                 />
             </GestureDetector>
@@ -191,7 +196,7 @@ export function Card({
 
           <GestureDetector gesture={rightConnection}>
             <View
-              className="absolute right-[-10] w-6 h-6 bg-none rounded-full border-2 border-blue-500 shadow-md"
+              className="absolute right-[-10] w-6 h-6 bg-background-0 rounded-full border-2 border-primary-500 shadow-md"
               style={{ top: '50%' }}
             />
           </GestureDetector>

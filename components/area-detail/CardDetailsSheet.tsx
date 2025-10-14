@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { Modal, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { X } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 
 import type { CardData, ActionDto, ReactionDto } from '@/types/area-detail';
 import type { Service } from '@/types/services';
@@ -8,6 +9,7 @@ import { Input, InputField } from '@/components/ui/input';
 import { Button, ButtonText } from '@/components/ui/button';
 import { VStack } from '@/components/ui/vstack';
 import { Heading } from '@/components/ui/heading';
+import { Text } from '@/components/ui/text';
 
 interface CardDetailsSheetProps {
   visible: boolean;
@@ -19,6 +21,7 @@ interface CardDetailsSheetProps {
 type TriggerType = 'cron' | 'webhook' | 'manual';
 
 export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDetailsSheetProps) {
+  const { t } = useTranslation();
   const [editedCard, setEditedCard] = useState<CardData | null>(null);
   const [name, setName] = useState('');
   const [triggerType, setTriggerType] = useState<TriggerType>('manual');
@@ -105,7 +108,9 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
     return (
       <VStack space="md" className="mt-4">
         <View>
-          <Text className="text-sm font-semibold mb-2 text-gray-700">Trigger Type</Text>
+          <Text className="text-sm font-semibold mb-2 text-typography-700">
+            {t('areaDetail.detailsSheet.triggerType')}
+          </Text>
           <View className="flex-row gap-2 flex-wrap">
             {(['manual', 'webhook', 'cron'] as TriggerType[]).map((type) => (
               <TouchableOpacity
@@ -114,15 +119,15 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
                 className={`px-4 py-2 rounded-lg border ${
                   triggerType === type
                     ? 'bg-primary-500 border-primary-500'
-                    : 'bg-white border-gray-300'
+                    : 'bg-surface border-outline-200'
                 }`}
               >
                 <Text
                   className={`text-sm font-medium ${
-                    triggerType === type ? 'text-white' : 'text-gray-700'
+                    triggerType === type ? 'text-background-0' : 'text-typography-700'
                   }`}
                 >
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                  {t(`areaDetail.detailsSheet.triggerTypes.${type}`)}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -132,35 +137,39 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
         {triggerType === 'webhook' && (
           <>
             <View>
-              <Text className="text-sm font-semibold mb-2 text-gray-700">Webhook URL</Text>
+              <Text className="text-sm font-semibold mb-2 text-typography-700">
+                {t('areaDetail.detailsSheet.webhookUrlLabel')}
+              </Text>
               <Input variant="outline" size="md">
                 <InputField
                   value={webhookUrl}
                   onChangeText={setWebhookUrl}
-                  placeholder="https://example.com/webhook"
+                  placeholder={t('areaDetail.detailsSheet.webhookUrlPlaceholder')}
                 />
               </Input>
             </View>
 
             <View>
-              <Text className="text-sm font-semibold mb-2 text-gray-700">Service (Optional)</Text>
+              <Text className="text-sm font-semibold mb-2 text-typography-700">
+                {t('areaDetail.detailsSheet.serviceOptionalLabel')}
+              </Text>
               {loading ? (
                 <ActivityIndicator size="small" color="#6366f1" />
               ) : (
-                <ScrollView className="max-h-40 border border-gray-300 rounded-lg">
+                <ScrollView className="max-h-40 border border-outline-200 rounded-lg bg-surface">
                   {services.map((service) => (
                     <TouchableOpacity
                       key={service.id}
                       onPress={() => setSelectedService(service)}
-                      className={`p-3 border-b border-gray-200 ${
-                        selectedService?.id === service.id ? 'bg-primary-50' : 'bg-white'
+                      className={`p-3 border-b border-outline-100 ${
+                        selectedService?.id === service.id ? 'bg-primary-50' : 'bg-surface'
                       }`}
                     >
                       <Text
                         className={`text-sm ${
                           selectedService?.id === service.id
                             ? 'font-semibold text-primary-700'
-                            : 'text-gray-700'
+                            : 'text-typography-700'
                         }`}
                       >
                         {service.name}
@@ -175,16 +184,18 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
 
         {triggerType === 'cron' && (
           <View>
-            <Text className="text-sm font-semibold mb-2 text-gray-700">Cron Expression</Text>
+            <Text className="text-sm font-semibold mb-2 text-typography-700">
+              {t('areaDetail.detailsSheet.cronLabel')}
+            </Text>
             <Input variant="outline" size="md">
               <InputField
                 value={cronExpression}
                 onChangeText={setCronExpression}
-                placeholder="*/5 * * * *"
+                placeholder={t('areaDetail.detailsSheet.cronPlaceholder')}
               />
             </Input>
-            <Text className="text-xs text-gray-500 mt-1">
-              Example: */5 * * * * (every 5 minutes)
+            <Text className="text-xs text-typography-500 mt-1">
+              {t('areaDetail.detailsSheet.cronHelper')}
             </Text>
           </View>
         )}
@@ -196,30 +207,32 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
     return (
       <VStack space="md" className="mt-4">
         <View>
-          <Text className="text-sm font-semibold mb-2 text-gray-700">Select Service</Text>
+          <Text className="text-sm font-semibold mb-2 text-typography-700">
+            {t('areaDetail.detailsSheet.selectServiceLabel')}
+          </Text>
           {loading ? (
             <ActivityIndicator size="small" color="#6366f1" />
           ) : (
-            <ScrollView className="max-h-60 border border-gray-300 rounded-lg">
+            <ScrollView className="max-h-60 border border-outline-200 rounded-lg bg-surface">
               {services.map((service) => (
                 <TouchableOpacity
                   key={service.id}
                   onPress={() => setSelectedService(service)}
-                  className={`flex-row gap-4 justify-between p-3 border-b border-gray-200 ${
-                    selectedService?.id === service.id ? 'bg-primary-50' : 'bg-white'
+                  className={`flex-row gap-4 justify-between p-3 border-b border-outline-100 ${
+                    selectedService?.id === service.id ? 'bg-primary-50' : 'bg-surface'
                   }`}
                 >
                   <Text
                     className={`text-base ${
                       selectedService?.id === service.id
                         ? 'font-semibold text-primary-700'
-                        : 'text-gray-700'
+                        : 'text-typography-700'
                     }`}
                   >
                     {service.name}
                   </Text>
-                  <Text className="text-xs text-gray-500 mt-1">
-                    Auth: {service.auth}
+                  <Text className="text-xs text-typography-500 mt-1">
+                    {t('areaDetail.detailsSheet.authLabel')} {service.auth}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -228,12 +241,13 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
         </View>
 
         {selectedService && (
-          <View className="p-3 bg-blue-50 rounded-lg">
-            <Text className="text-sm text-blue-900">
-              Selected: <Text className="font-semibold">{selectedService.name}</Text>
+          <View className="p-3 bg-primary-50 rounded-lg">
+            <Text className="text-sm text-primary-900">
+              {t('areaDetail.detailsSheet.selectedService')}{' '}
+              <Text className="font-semibold text-primary-900">{selectedService.name}</Text>
             </Text>
-            <Text className="text-xs text-blue-700 mt-1">
-              Action selection will be available in the next step
+            <Text className="text-xs text-primary-700 mt-1">
+              {t('areaDetail.detailsSheet.selectedServiceHelper')}
             </Text>
           </View>
         )}
@@ -248,10 +262,10 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background-0">
         {/* Header */}
-        <View className="flex-row items-center justify-between p-4 border-b border-gray-200 bg-white">
-          <Heading size="lg">Edit Card Settings</Heading>
+        <View className="flex-row items-center justify-between p-4 border-b border-outline-200 bg-background-0">
+          <Heading size="lg">{t('areaDetail.detailsSheet.title')}</Heading>
           <TouchableOpacity onPress={onClose}>
             <X size={24} color="#666" />
           </TouchableOpacity>
@@ -262,20 +276,24 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
           {card && (
             <VStack space="lg">
               {/* Card Type Badge */}
-              <View className="bg-gray-100 p-3 rounded-lg">
-                <Text className="text-sm font-semibold text-gray-600 uppercase">
-                  {card.type === 'action' ? '⚡ Action (Trigger)' : '⚙️ Reaction'}
+              <View className="bg-background-100 p-3 rounded-lg">
+                <Text className="text-sm font-semibold text-typography-600 uppercase">
+                  {card.type === 'action'
+                    ? t('areaDetail.detailsSheet.cardType.action')
+                    : t('areaDetail.detailsSheet.cardType.reaction')}
                 </Text>
               </View>
 
               {/* Name Input */}
               <View>
-                <Text className="text-sm font-semibold mb-2 text-gray-700">Name</Text>
+                <Text className="text-sm font-semibold mb-2 text-typography-700">
+                  {t('areaDetail.detailsSheet.nameLabel')}
+                </Text>
                 <Input variant="outline" size="md">
                   <InputField
                     value={name}
                     onChangeText={setName}
-                    placeholder="Enter card name"
+                    placeholder={t('areaDetail.detailsSheet.namePlaceholder')}
                   />
                 </Input>
               </View>
@@ -287,7 +305,7 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
         </ScrollView>
 
         {/* Footer */}
-        <View className="p-4 border-t border-gray-200 bg-white">
+        <View className="p-4 border-t border-outline-200 bg-background-0">
           <View className="flex-row gap-3">
             <Button
               onPress={onClose}
@@ -295,14 +313,14 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
               variant="outline"
               className="flex-1"
             >
-              <ButtonText>Cancel</ButtonText>
+              <ButtonText>{t('areaDetail.detailsSheet.cancel')}</ButtonText>
             </Button>
             <Button
               onPress={handleSave}
               action="primary"
               className="flex-1"
             >
-              <ButtonText>Save Changes</ButtonText>
+              <ButtonText>{t('areaDetail.detailsSheet.save')}</ButtonText>
             </Button>
           </View>
         </View>
