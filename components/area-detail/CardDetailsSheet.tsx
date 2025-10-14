@@ -13,12 +13,12 @@ interface CardDetailsSheetProps {
   visible: boolean;
   card: CardData | null;
   onClose: () => void;
-  onSave?: (card: CardData) => void;
+  onCardEdit?: (cardId: string, updatedCard: CardData) => void;
 }
 
 type TriggerType = 'cron' | 'webhook' | 'manual';
 
-export function CardDetailsSheet({ visible, card, onClose, onSave }: CardDetailsSheetProps) {
+export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDetailsSheetProps) {
   const [editedCard, setEditedCard] = useState<CardData | null>(null);
   const [name, setName] = useState('');
   const [triggerType, setTriggerType] = useState<TriggerType>('manual');
@@ -28,7 +28,6 @@ export function CardDetailsSheet({ visible, card, onClose, onSave }: CardDetails
   const [webhookUrl, setWebhookUrl] = useState('');
   const [cronExpression, setCronExpression] = useState('');
 
-  // Load services from mock data
   useEffect(() => {
     const loadServices = async () => {
       try {
@@ -41,7 +40,6 @@ export function CardDetailsSheet({ visible, card, onClose, onSave }: CardDetails
     loadServices();
   }, []);
 
-  // Initialize form when card changes
   useEffect(() => {
     if (card) {
       setEditedCard(card);
@@ -74,16 +72,14 @@ export function CardDetailsSheet({ visible, card, onClose, onSave }: CardDetails
         type: triggerType,
         ...(triggerType === 'webhook' && {
           webhook_url: webhookUrl,
-          secret_token: '', // Can be added later
+          secret_token: '',
         }),
         ...(triggerType === 'cron' && {
           cron_expression: cronExpression
         }),
       };
 
-      // If webhook trigger is selected and a service is chosen
       if (triggerType === 'webhook' && selectedService) {
-        // Store service reference in parameters
         actionData.parameters = {
           ...actionData.parameters,
           serviceId: selectedService.id,
@@ -92,7 +88,6 @@ export function CardDetailsSheet({ visible, card, onClose, onSave }: CardDetails
       }
     } else if (editedCard.type === 'reaction') {
       const reactionData = updatedCard.data as ReactionDto;
-      // For reactions, store the selected service
       if (selectedService) {
         reactionData.parameters = {
           ...reactionData.parameters,
@@ -102,7 +97,7 @@ export function CardDetailsSheet({ visible, card, onClose, onSave }: CardDetails
       }
     }
 
-    onSave?.(updatedCard);
+    onCardEdit?.(editedCard.id, updatedCard);
     onClose();
   };
 

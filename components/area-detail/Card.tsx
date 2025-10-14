@@ -106,6 +106,10 @@ export function Card({
           y: event.translationY,
         };
         onUpdateConnection(updatePoint);
+        if (isOverRemoveZone.value) {
+          isOverRemoveZone.value = false;
+          onToggleRemoveZone(false);
+        }
       })
       .onEnd((event: GestureStateChangeEvent<PanGestureHandlerEventPayload>) => {
         const finalPoint: CardDockPosition = {

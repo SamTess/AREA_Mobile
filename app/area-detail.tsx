@@ -1,6 +1,6 @@
 
 import React, { useRef, useState } from 'react';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -80,6 +80,7 @@ const findConnectionTarget = (
 
 export default function AreaDetailScreen() {
   const params = useLocalSearchParams();
+  const router = useRouter();
   const areaId = params.id as string;
 
   const area = areasData.areas.find((a) => a.id === areaId) as AreaDto | undefined;
@@ -167,7 +168,10 @@ export default function AreaDetailScreen() {
     const point = { x: activeConnection.start.x + translationValue.x, y: activeConnection.start.y + translationValue.y };
     console.log('New connection translation:', translationValue);
     console.log('Updating connection point to:', point);
-    setIsRemoveZoneActive(false);
+    // Always keep remove zone inactive during connection dragging
+    if (isRemoveZoneActive) {
+      setIsRemoveZoneActive(false);
+    }
     setActiveConnection((prev) => (prev ? { ...prev, point: point } : prev));
   };
 
@@ -256,6 +260,16 @@ export default function AreaDetailScreen() {
     );
   };
 
+  const handleCardEdit = (cardId: string, updatedCard: CardData) => {
+    setCards((prev) =>
+      prev.map((c) => (c.id === cardId ? updatedCard : c))
+    );
+  };
+
+  const handleBack = () => {
+    router.back();
+  };
+
   if (!area) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-50">
@@ -276,6 +290,7 @@ export default function AreaDetailScreen() {
             onChangeDescription={setAreaDescription}
             onToggleEditing={handleToggleEditing}
             onRequestDelete={handleRequestDelete}
+            onBack={handleBack}
           />
 
           <View className="flex-1 relative">
@@ -331,6 +346,7 @@ export default function AreaDetailScreen() {
             visible={sideMenuVisible}
             card={selectedCard}
             onClose={() => setSideMenuVisible(false)}
+            onCardEdit={handleCardEdit}
           />
         </View>
       </SafeAreaView>

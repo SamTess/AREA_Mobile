@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { Edit3, Trash2 } from 'lucide-react-native';
+import { Edit3, Trash2, ArrowLeft } from 'lucide-react-native';
 
 interface AreaHeaderProps {
   title: string;
@@ -10,6 +10,7 @@ interface AreaHeaderProps {
   onChangeDescription: (value: string) => void;
   onToggleEditing: () => void;
   onRequestDelete: () => void;
+  onBack?: () => void;
 }
 
 export function AreaHeader({
@@ -20,6 +21,7 @@ export function AreaHeader({
   onChangeDescription,
   onToggleEditing,
   onRequestDelete,
+  onBack,
 }: AreaHeaderProps) {
   return (
     <View
@@ -27,6 +29,16 @@ export function AreaHeader({
       style={{ zIndex: 40, elevation: 40 }}
     >
       <View className="flex-row items-center justify-between">
+        {onBack && (
+          <TouchableOpacity
+            onPress={onBack}
+            className="p-2 mr-2"
+            testID="back-button"
+          >
+            <ArrowLeft size={24} color="#374151" />
+          </TouchableOpacity>
+        )}
+
         <View className="flex-1">
           {isEditing ? (
             <View>
