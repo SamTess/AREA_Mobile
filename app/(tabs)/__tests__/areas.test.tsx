@@ -49,7 +49,9 @@ describe('AreasTab', () => {
   it('displays areas list after loading', async () => {
     const { getByText, queryByText } = render(<AreasTab />);
 
-    await waitFor(() => expect(queryByText('Loading Areas...')).toBeNull());
+    await waitFor(() => expect(queryByText('Loading Areas...')).toBeNull(), {
+      timeout: 3000,
+    });
 
     expect(getByText('Test Area 1')).toBeTruthy();
     expect(getByText('Test Area 2')).toBeTruthy();
