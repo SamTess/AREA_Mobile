@@ -28,6 +28,56 @@ import type {
   Connection,
 } from '@/types/area-detail';
 
+type ConnectionSide = 'left' | 'right';
+
+const CONNECTION_SNAP_RADIUS = 28;
+
+const getCardConnectionPoints = (card: CardData): Partial<Record<ConnectionSide, CardDockPosition>> => {
+  const midpointY = card.position.y + CARD_HEIGHT / 2;
+
+  const points: Partial<Record<ConnectionSide, CardDockPosition>> = {
+    right: {
+      x: card.position.x + CARD_WIDTH,
+      y: midpointY,
+    },
+  };
+
+  if (card.type === 'reaction') {
+    points.left = {
+      x: card.position.x,
+      y: midpointY,
+    };
+  }
+
+  return points;
+};
+
+const findConnectionTarget = (
+  cards: CardData[],
+  dropPoint: CardDockPosition
+): { cardId: string; side: ConnectionSide } | null => {
+  const squareRadius = CONNECTION_SNAP_RADIUS * CONNECTION_SNAP_RADIUS;
+
+  for (const card of cards) {
+    const connectionPoints = getCardConnectionPoints(card);
+
+    for (const side of Object.keys(connectionPoints) as ConnectionSide[]) {
+      const targetPoint = connectionPoints[side];
+      if (!targetPoint) continue;
+
+      const dx = dropPoint.x - targetPoint.x;
+      const dy = dropPoint.y - targetPoint.y;
+      const distanceSquared = dx * dx + dy * dy;
+
+      if (distanceSquared <= squareRadius) {
+        return { cardId: card.id, side };
+      }
+    }
+  }
+
+  return null;
+};
+
 export default function AreaDetailScreen() {
   const params = useLocalSearchParams();
   const areaId = params.id as string;
@@ -112,15 +162,39 @@ export default function AreaDetailScreen() {
     setActiveConnection({ from: cardId, fromDirection: direction, start: startPoint, point: startPoint });
   };
 
-  const handleUpdateConnection = (point: CardDockPosition | null) => {
-    if (!point) return;
-    console.log('New connection point:', point);
+  const handleUpdateConnection = (translationValue: CardDockPosition | null) => {
+    if (!translationValue || !activeConnection) return;
+    const point = { x: activeConnection.start.x + translationValue.x, y: activeConnection.start.y + translationValue.y };
+    console.log('New connection translation:', translationValue);
+    console.log('Updating connection point to:', point);
     setIsRemoveZoneActive(false);
-    setActiveConnection((prev) => (prev ? { ...prev, point } : prev));
+    setActiveConnection((prev) => (prev ? { ...prev, point: point } : prev));
   };
 
-  const handleEndConnection = (_cardId: string, point: CardDockPosition | null) => {
-    console.log('Ending connection...');
+  const handleEndConnection = (_cardId: string, translationValue: CardDockPosition | null) => {
+    if (!activeConnection) {
+      setActiveConnection(null);
+      setIsRemoveZoneActive(false);
+      return;
+    }
+
+    const dropPoint = translationValue
+      ? {
+          x: activeConnection.start.x + translationValue.x,
+          y: activeConnection.start.y + translationValue.y,
+        }
+      : activeConnection.point;
+
+    const target = findConnectionTarget(cards, dropPoint);
+
+    if (target) {
+        if (activeConnection.fromDirection === 'right' && target.side === 'left') {
+          setConnections((prev) => [...prev, { from: activeConnection.from, to: target.cardId }]);
+        } else if (activeConnection.fromDirection === 'left' && target.side === 'right') {
+          setConnections((prev) => [...prev, { from: target.cardId, to: activeConnection.from }]);
+        }
+    }
+
     setIsRemoveZoneActive(false);
     setActiveConnection(null);
   };
@@ -145,7 +219,6 @@ export default function AreaDetailScreen() {
       } as ActionDto,
       position: { x: 100, y: 100 },
     };
-
     setCards((prev) => [...prev, newCard]);
   };
 

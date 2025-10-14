@@ -4,6 +4,20 @@ import Svg, { Line } from 'react-native-svg';
 import type { ActiveConnection, CardData, Connection } from '@/types/area-detail';
 import { CARD_WIDTH, CARD_HEIGHT, screenWidth, screenHeight } from './constants';
 
+const getDockPoint = (card: CardData, side: 'left' | 'right') => {
+  const y = card.position.y + CARD_HEIGHT / 2;
+
+  if (side === 'left') {
+    if (card.type === 'reaction') {
+      return { x: card.position.x, y };
+    }
+
+    return { x: card.position.x + CARD_WIDTH / 2, y };
+  }
+
+  return { x: card.position.x + CARD_WIDTH, y };
+};
+
 interface ConnectionLayerProps {
   cards: CardData[];
   connections: Connection[];
@@ -19,13 +33,16 @@ export function ConnectionLayer({ cards, connections, activeConnection }: Connec
           const toCard = cards.find((c) => c.id === connection.to);
           if (!fromCard || !toCard) return null;
 
+          const fromPoint = getDockPoint(fromCard, 'right');
+          const toPoint = getDockPoint(toCard, 'left');
+
           return (
             <Line
               key={`${connection.from}-${connection.to}`}
-              x1={fromCard.position.x + CARD_WIDTH / 2}
-              y1={fromCard.position.y + CARD_HEIGHT / 2}
-              x2={toCard.position.x + CARD_WIDTH / 2}
-              y2={toCard.position.y + CARD_HEIGHT / 2}
+              x1={fromPoint.x}
+              y1={fromPoint.y}
+              x2={toPoint.x}
+              y2={toPoint.y}
               stroke="#3b82f6"
               strokeWidth={3}
               strokeLinecap="round"
