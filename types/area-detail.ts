@@ -14,6 +14,8 @@ export interface CardData {
   position: CardDockPosition;
 }
 
+export type { ActionDto, ReactionDto } from './areas';
+
 export interface Connection {
   from: string;
   to: string;
