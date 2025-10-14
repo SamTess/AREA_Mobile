@@ -24,7 +24,7 @@ import type { AreaDto, ActionDto, ReactionDto } from '@/types/areas';
 import type {
   ActiveConnection,
   CardData,
-  CardPosition,
+  CardDockPosition,
   Connection,
 } from '@/types/area-detail';
 
@@ -107,46 +107,26 @@ export default function AreaDetailScreen() {
     ],
   }));
 
-  const handleStartConnection = (cardId: string, startPoint: CardPosition) => {
-    setActiveConnection({ from: cardId, start: startPoint, point: startPoint });
+  const handleStartConnection = (cardId: string, direction: 'left' | 'right', startPoint: CardDockPosition) => {
+    console.log('Starting connection from card:', cardId, 'direction:', direction, 'startPoint:', startPoint);
+    setActiveConnection({ from: cardId, fromDirection: direction, start: startPoint, point: startPoint });
   };
 
-  const handleUpdateConnection = (point: CardPosition | null) => {
-    if (point === null) {
-      setActiveConnection((prev) => (prev ? { ...prev, point: prev.start } : null));
-      return;
-    }
-
+  const handleUpdateConnection = (point: CardDockPosition | null) => {
+    if (!point) return;
+    console.log('New connection point:', point);
+    setIsRemoveZoneActive(false);
     setActiveConnection((prev) => (prev ? { ...prev, point } : prev));
   };
 
-  const handleEndConnection = (_cardId: string, point: CardPosition | null) => {
-    setActiveConnection((prev) => {
-      if (!prev) return null;
-
-      const finalPoint = point ?? prev.point;
-      const target = cards.find((c) =>
-        finalPoint.x >= c.position.x &&
-        finalPoint.x <= c.position.x + CARD_WIDTH &&
-        finalPoint.y >= c.position.y &&
-        finalPoint.y <= c.position.y + CARD_HEIGHT
-      );
-
-      if (target && target.id !== prev.from) {
-        setConnections((existing) => {
-          const alreadyLinked = existing.some(
-            (conn) => conn.from === prev.from && conn.to === target.id
-          );
-          if (alreadyLinked) return existing;
-          return [...existing, { from: prev.from, to: target.id }];
-        });
-      }
-
-      return null;
-    });
+  const handleEndConnection = (_cardId: string, point: CardDockPosition | null) => {
+    console.log('Ending connection...');
+    setIsRemoveZoneActive(false);
+    setActiveConnection(null);
   };
 
   const handleSelectCard = (card: CardData) => {
+    if (activeConnection) return;
     setSelectedCard(card);
     setSideMenuVisible(true);
   };

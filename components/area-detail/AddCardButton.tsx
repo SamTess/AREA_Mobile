@@ -15,6 +15,7 @@ interface AddCardButtonProps {
   onAddAction: () => void;
   onAddReaction: () => void;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
 export function AddCardButton({
@@ -22,6 +23,7 @@ export function AddCardButton({
   onAddAction,
   onAddReaction,
   style,
+  testID,
 }: AddCardButtonProps) {
   const highlight = useSharedValue(0);
 
@@ -67,6 +69,7 @@ export function AddCardButton({
       onPress={handlePress}
       className="rounded-full p-4 shadow-lg"
       style={[animatedStyle, style]}
+      testID={testID}
     >
       <Plus size={24} color="white" />
     </AnimatedTouchableOpacity>

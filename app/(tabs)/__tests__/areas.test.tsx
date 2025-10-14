@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, act } from '@testing-library/react-native';
+import { render, waitFor } from '@testing-library/react-native';
 import AreasTab from '../areas';
 
 // Mock the areas data
@@ -15,7 +15,7 @@ jest.mock('@/mocks/areas.json', () => ({
       actions: [],
       reactions: [],
       createdAt: '2025-10-01T10:00:00Z',
-      updatedAt: '2025-10-13T08:30:00Z'
+      updatedAt: '2025-10-13T08:30:00Z',
     },
     {
       id: '2',
@@ -27,34 +27,19 @@ jest.mock('@/mocks/areas.json', () => ({
       actions: [],
       reactions: [],
       createdAt: '2025-10-01T10:00:00Z',
-      updatedAt: '2025-10-13T08:30:00Z'
-    }
-  ]
+      updatedAt: '2025-10-13T08:30:00Z',
+    },
+  ],
 }));
 
 // Mock expo-router
 jest.mock('expo-router', () => ({
   router: {
-    push: jest.fn()
-  }
+    push: jest.fn(),
+  },
 }));
 
 describe('AreasTab', () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
-  });
-
-  afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
-  });
-
-  const flushTimers = async () => {
-    await act(async () => {
-      jest.advanceTimersByTime(1000);
-    });
-  };
-
   it('shows loading screen initially', () => {
     const { getByText } = render(<AreasTab />);
 
@@ -64,13 +49,8 @@ describe('AreasTab', () => {
   it('displays areas list after loading', async () => {
     const { getByText, queryByText } = render(<AreasTab />);
 
-    // Wait for loading to complete
-    await flushTimers();
-    await waitFor(() => {
-      expect(queryByText('Loading Areas...')).toBeNull();
-    });
+    await waitFor(() => expect(queryByText('Loading Areas...')).toBeNull());
 
-    // Check if areas are displayed
     expect(getByText('Test Area 1')).toBeTruthy();
     expect(getByText('Test Area 2')).toBeTruthy();
   });
@@ -78,19 +58,15 @@ describe('AreasTab', () => {
   it('displays header with title and new button', async () => {
     const { getByText } = render(<AreasTab />);
 
-    await flushTimers();
-    await waitFor(() => {
-      expect(getByText('Areas')).toBeTruthy();
-      expect(getByText('New')).toBeTruthy();
-    });
+    await waitFor(() => expect(getByText('Areas')).toBeTruthy());
+    expect(getByText('New')).toBeTruthy();
   });
 
   it('displays subtitle text', async () => {
     const { getByText } = render(<AreasTab />);
 
-    await flushTimers();
-    await waitFor(() => {
-      expect(getByText('Manage your automated workflows')).toBeTruthy();
-    });
+    await waitFor(() =>
+      expect(getByText('Manage your automated workflows')).toBeTruthy()
+    );
   });
 });

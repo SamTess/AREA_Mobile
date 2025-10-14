@@ -32,15 +32,15 @@ export default function AreasTab() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [areas, setAreas] = useState<AreaDto[]>([]);
+  const isTestEnvironment = process.env.NODE_ENV === 'test';
+  const loadDelayMs = isTestEnvironment ? 10 : 1000;
 
-  // Simulate loading data
   useEffect(() => {
     loadAreas();
   }, []);
 
   const loadAreas = async () => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, loadDelayMs));
     setAreas(areasData.areas as AreaDto[]);
     setIsLoading(false);
   };
@@ -56,7 +56,6 @@ export default function AreasTab() {
   };
 
   const handleCreateArea = () => {
-    // Navigate to create area screen (to be implemented)
     console.log('Create new area');
   };
 

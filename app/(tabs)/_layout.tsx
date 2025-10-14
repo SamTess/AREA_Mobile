@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Tabs, useRouter } from 'expo-router';
-import { Home, User, Zap } from 'lucide-react-native';
+import { Home, Settings, Zap } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { useTranslation } from 'react-i18next';
 
@@ -70,8 +70,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: t('tabs.profile'),
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+          title: t('tabs.settings', 'Settings'),
+          tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
         }}
         listeners={{
           tabPress: (e) => {

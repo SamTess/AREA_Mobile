@@ -1,6 +1,6 @@
 import type { ActionDto, ReactionDto } from './areas';
 
-export interface CardPosition {
+export interface CardDockPosition {
   x: number;
   y: number;
 }
@@ -11,7 +11,7 @@ export interface CardData {
   id: string;
   type: CardType;
   data: ActionDto | ReactionDto;
-  position: CardPosition;
+  position: CardDockPosition;
 }
 
 export interface Connection {
@@ -21,6 +21,7 @@ export interface Connection {
 
 export interface ActiveConnection {
   from: string;
-  start: CardPosition;
-  point: CardPosition;
+  fromDirection: 'left' | 'right';
+  start: CardDockPosition;
+  point: CardDockPosition;
 }

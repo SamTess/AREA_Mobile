@@ -1,24 +1,30 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import {
+  Gesture,
+  GestureDetector,
+  type GestureStateChangeEvent,
+  type GestureUpdateEvent,
+  type PanGestureHandlerEventPayload,
+} from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
 
-import type { CardData, CardPosition } from '@/types/area-detail';
+import type { CardData, CardDockPosition } from '@/types/area-detail';
 import { CARD_WIDTH, CARD_HEIGHT } from './constants';
 
 interface CardProps {
   card: CardData;
   removeZoneTop: number;
-  onMove: (id: string, position: CardPosition) => void;
+  onMove: (id: string, position: CardDockPosition) => void;
   onRemove: (id: string) => void;
   onSelect: (card: CardData) => void;
-  onStartConnection: (cardId: string, startPoint: CardPosition) => void;
-  onUpdateConnection: (point: CardPosition | null) => void;
-  onEndConnection: (cardId: string, point: CardPosition | null) => void;
+  onStartConnection: (cardId: string, direction: 'left' | 'right', startPoint: CardDockPosition) => void;
+  onUpdateConnection: (point: CardDockPosition | null) => void;
+  onEndConnection: (cardId: string, point: CardDockPosition | null) => void;
   setIsDragging: (dragging: boolean) => void;
   onToggleRemoveZone: (active: boolean) => void;
 }
@@ -38,18 +44,28 @@ export function Card({
   const translateX = useSharedValue(card.position.x);
   const translateY = useSharedValue(card.position.y);
   const isOverRemoveZone = useSharedValue(false);
+  const isCreatingConnectionRef = useRef(false);
 
   useEffect(() => {
     translateX.value = card.position.x;
     translateY.value = card.position.y;
   }, [card.position.x, card.position.y, translateX, translateY]);
 
-  const cardPan = Gesture.Pan()
-    .runOnJS(true)
+  const rawCardPan = Gesture.Pan().runOnJS(true);
+  const cardPanWithDistance =
+    typeof (rawCardPan as any).minDistance === 'function'
+      ? (rawCardPan as any).minDistance(10)
+      : rawCardPan;
+
+  const cardPan = cardPanWithDistance
     .onBegin(() => {
-      setIsDragging(true);
+      if (!isCreatingConnectionRef.current) {
+        setIsDragging(true);
+      }
     })
-    .onUpdate((event) => {
+    .onUpdate((event: GestureUpdateEvent<PanGestureHandlerEventPayload>) => {
+      if (isCreatingConnectionRef.current) return;
+
       translateX.value = card.position.x + event.translationX;
       translateY.value = card.position.y + event.translationY;
       const hoveringRemoveZone = event.absoluteY >= removeZoneTop;
@@ -58,7 +74,12 @@ export function Card({
         onToggleRemoveZone(hoveringRemoveZone);
       }
     })
-    .onEnd((event) => {
+    .onEnd((event: GestureStateChangeEvent<PanGestureHandlerEventPayload>) => {
+      if (isCreatingConnectionRef.current) {
+        setIsDragging(false);
+        return;
+      }
+
       const newX = card.position.x + event.translationX;
       const newY = card.position.y + event.translationY;
       const dropOnRemoveZone = event.absoluteY >= removeZoneTop;
@@ -77,45 +98,43 @@ export function Card({
     });
 
   const createConnectionGesture = (direction: 'left' | 'right') => {
-    let startPoint: CardPosition | null = null;
+    let startPoint: CardDockPosition | null = null;
 
     return Gesture.Pan()
       .runOnJS(true)
-      .onBegin(() => {
-        const offsetX = direction === 'left' ? 0 : CARD_WIDTH;
-        startPoint = {
-          x: card.position.x + offsetX,
-          y: card.position.y + CARD_HEIGHT / 2,
+        .onBegin(() => {
+          isCreatingConnectionRef.current = true;
+          const offsetX = direction === 'left' ? 0 : CARD_WIDTH;
+          startPoint = {
+            x: card.position.x + offsetX,
+            y: card.position.y + CARD_HEIGHT / 2,
+          };
+          onStartConnection(card.id, direction, startPoint!);
+        })
+      .onChange((event: GestureUpdateEvent<PanGestureHandlerEventPayload>) => {
+        const updatePoint: CardDockPosition = {
+          x: event.absoluteX,
+          y: event.absoluteY,
         };
-        onStartConnection(card.id, startPoint!);
+        // console.log('Updating connection to', updatePoint);
+        onUpdateConnection(updatePoint);
       })
-      .onChange((event) => {
-        if (!startPoint) return;
-        const point: CardPosition = {
-          x: startPoint.x + event.translationX,
-          y: startPoint.y + event.translationY,
+      .onEnd((event: GestureStateChangeEvent<PanGestureHandlerEventPayload>) => {
+        const finalPoint: CardDockPosition = {
+          x: event.absoluteX,
+          y: event.absoluteY,
         };
-        onUpdateConnection(point);
+        // console.log('Final connection point', finalPoint);
+        onEndConnection(card.id, finalPoint);
       })
-      .onEnd((event) => {
-        if (!startPoint) {
-          onEndConnection(card.id, null);
-          return;
-        }
-        const point: CardPosition = {
-          x: startPoint.x + event.translationX,
-          y: startPoint.y + event.translationY,
-        };
-        onEndConnection(card.id, point);
-        startPoint = null;
-      })
-      .onFinalize(() => {
-        onUpdateConnection(null);
-        if (isOverRemoveZone.value) {
-          isOverRemoveZone.value = false;
-          onToggleRemoveZone(false);
-        }
-      });
+        .onFinalize(() => {
+          isCreatingConnectionRef.current = false;
+          onUpdateConnection(null);
+          if (isOverRemoveZone.value) {
+            isOverRemoveZone.value = false;
+            onToggleRemoveZone(false);
+          }
+        });
   };
 
   const leftConnection = createConnectionGesture('left');

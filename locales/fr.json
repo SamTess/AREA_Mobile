@@ -62,7 +62,8 @@
     "login": "Connexion",
     "register": "Inscription",
     "profile": "Profil",
-    "areas": "Areas"
+    "areas": "Areas",
+    "settings": "Paramètres"
   },
   "profile": {
     "title": "Profil",
