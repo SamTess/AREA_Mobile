@@ -4,7 +4,7 @@ import { fireEvent, render } from '@testing-library/react-native';
 import { AddCardButton } from '../AddCardButton';
 
 describe('AddCardButton', () => {
-  const alertSpy = jest.spyOn(Alert, 'alert');
+  const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
 
   afterEach(() => {
     alertSpy.mockClear();

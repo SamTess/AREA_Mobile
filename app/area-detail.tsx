@@ -247,6 +247,7 @@ export default function AreaDetailScreen() {
                 isRemoveZoneActive={isRemoveZoneActive}
                 onAddAction={handleAddAction}
                 onAddReaction={handleAddReaction}
+                testID="area-add-card-button"
               />
             </View>
 

@@ -1,7 +1,8 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import AreaDetailScreen from '../area-detail';
 import { useLocalSearchParams } from 'expo-router';
+import { Alert } from 'react-native';
 
 // Mock expo-router
 jest.mock('expo-router', () => ({
@@ -107,10 +108,17 @@ jest.mock('lucide-react-native', () => {
 });
 
 describe('AreaDetailScreen', () => {
+  const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+
   beforeEach(() => {
     (useLocalSearchParams as jest.Mock).mockReturnValue({
       id: '1',
     });
+    alertSpy.mockClear();
+  });
+
+  afterAll(() => {
+    alertSpy.mockRestore();
   });
 
   it('should render area details when area exists', () => {
@@ -128,5 +136,62 @@ describe('AreaDetailScreen', () => {
     const { getByText } = render(<AreaDetailScreen />);
 
     expect(getByText('Area not found')).toBeTruthy();
+  });
+
+  it('allows toggling editing mode from the header', () => {
+    const { getByPlaceholderText, getByTestId, getByText } = render(<AreaDetailScreen />);
+
+    const toggleButton = getByTestId('toggle-edit');
+    fireEvent.press(toggleButton);
+
+    const titleInput = getByPlaceholderText('Area title');
+    expect(titleInput.props.value).toBe('Gmail to Slack Notification');
+
+    fireEvent.changeText(titleInput, 'Updated Area Title');
+    fireEvent.press(toggleButton);
+
+    expect(getByText('Updated Area Title')).toBeTruthy();
+  });
+
+  it('adds new action and reaction cards via the add button prompt', async () => {
+    const { getByTestId, getByText } = render(<AreaDetailScreen />);
+
+    const addButton = getByTestId('area-add-card-button');
+    fireEvent.press(addButton);
+
+    expect(alertSpy).toHaveBeenCalledTimes(1);
+    const firstAlertButtons = alertSpy.mock.calls[0]?.[2] ?? [];
+    const actionButton = firstAlertButtons.find((button) => button?.text === 'Action');
+    expect(actionButton).toBeDefined();
+
+    actionButton?.onPress?.();
+
+    await waitFor(() => {
+      expect(getByText('New Action')).toBeTruthy();
+    });
+
+    fireEvent.press(addButton);
+    expect(alertSpy).toHaveBeenCalledTimes(2);
+    const secondAlertButtons = alertSpy.mock.calls[1]?.[2] ?? [];
+    const reactionButton = secondAlertButtons.find((button) => button?.text === 'Reaction');
+    expect(reactionButton).toBeDefined();
+
+    reactionButton?.onPress?.();
+
+    await waitFor(() => {
+      expect(getByText('New Reaction')).toBeTruthy();
+    });
+  });
+
+  it('prompts a delete confirmation when delete is requested', () => {
+    const { getByTestId } = render(<AreaDetailScreen />);
+
+    fireEvent.press(getByTestId('request-delete'));
+
+    expect(alertSpy).toHaveBeenCalledWith(
+      'Delete Area',
+      'Are you sure you want to delete this area?',
+      expect.any(Array)
+    );
   });
 });

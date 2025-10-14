@@ -3,33 +3,36 @@ import { fireEvent, render } from '@testing-library/react-native';
 import { AreaHeader } from '../AreaHeader';
 
 describe('AreaHeader', () => {
+  const onChangeTitle = jest.fn();
+  const onChangeDescription = jest.fn();
+  const onToggleEditing = jest.fn();
+  const onRequestDelete = jest.fn();
+
   const defaultProps = {
     title: 'My Automation',
     description: 'Keep workflows flowing',
     isEditing: false,
-    onChangeTitle: jest.fn(),
-    onChangeDescription: jest.fn(),
-    onToggleEditing: jest.fn(),
-    onRequestDelete: jest.fn(),
+    onChangeTitle,
+    onChangeDescription,
+    onToggleEditing,
+    onRequestDelete,
   };
 
   beforeEach(() => {
-    Object.values(defaultProps).forEach((value) => {
-      if (typeof value === 'function') {
-        value.mockClear();
-      }
-    });
+    onChangeTitle.mockClear();
+    onChangeDescription.mockClear();
+    onToggleEditing.mockClear();
+    onRequestDelete.mockClear();
   });
 
   it('renders display mode and triggers edit/delete actions', () => {
-    const { getAllByRole } = render(<AreaHeader {...defaultProps} />);
+    const { getByTestId } = render(<AreaHeader {...defaultProps} />);
 
-    const [editButton, deleteButton] = getAllByRole('button');
-    fireEvent.press(editButton);
-    expect(defaultProps.onToggleEditing).toHaveBeenCalled();
+    fireEvent.press(getByTestId('toggle-edit'));
+    expect(onToggleEditing).toHaveBeenCalled();
 
-    fireEvent.press(deleteButton);
-    expect(defaultProps.onRequestDelete).toHaveBeenCalled();
+    fireEvent.press(getByTestId('request-delete'));
+    expect(onRequestDelete).toHaveBeenCalled();
   });
 
   it('renders editable fields and propagates changes', () => {
@@ -41,9 +44,9 @@ describe('AreaHeader', () => {
     );
 
     fireEvent.changeText(getByPlaceholderText('Area title'), 'Updated');
-    expect(defaultProps.onChangeTitle).toHaveBeenCalledWith('Updated');
+    expect(onChangeTitle).toHaveBeenCalledWith('Updated');
 
     fireEvent.changeText(getByPlaceholderText('Area description'), 'Details');
-    expect(defaultProps.onChangeDescription).toHaveBeenCalledWith('Details');
+    expect(onChangeDescription).toHaveBeenCalledWith('Details');
   });
 });

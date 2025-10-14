@@ -56,6 +56,7 @@ export function AreaHeader({
           <TouchableOpacity
             onPress={onToggleEditing}
             className="p-2 bg-blue-500 rounded-full"
+            testID="toggle-edit"
           >
             <Edit3 size={20} color="white" />
           </TouchableOpacity>
@@ -63,6 +64,7 @@ export function AreaHeader({
           <TouchableOpacity
             onPress={onRequestDelete}
             className="p-2 bg-red-500 rounded-full"
+            testID="request-delete"
           >
             <Trash2 size={20} color="white" />
           </TouchableOpacity>
