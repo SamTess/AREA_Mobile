@@ -168,7 +168,6 @@ export default function AreaDetailScreen() {
     const point = { x: activeConnection.start.x + translationValue.x, y: activeConnection.start.y + translationValue.y };
     console.log('New connection translation:', translationValue);
     console.log('Updating connection point to:', point);
-    // Always keep remove zone inactive during connection dragging
     if (isRemoveZoneActive) {
       setIsRemoveZoneActive(false);
     }
