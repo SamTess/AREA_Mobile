@@ -108,6 +108,41 @@
       "save": "Enregistrer"
     }
   },
+  "areas": {
+    "loading": {
+      "title": "Chargement des Areas..."
+    },
+    "header": {
+      "subtitle": "Gérez vos workflows automatisés",
+      "newButton": "Nouveau"
+    },
+    "create": {
+      "defaultName": "Nouvelle Area"
+    },
+    "error": {
+      "dismiss": "Ignorer",
+      "refresh": "Échec de l'actualisation des Areas"
+    },
+    "empty": {
+      "title": "Aucune Area pour le moment",
+      "description": "Créez votre première Area d'automatisation pour commencer",
+      "action": "Créer une Area"
+    },
+    "card": {
+      "status": {
+        "success": "Succès",
+        "failed": "Échec",
+        "inProgress": "En cours",
+        "notStarted": "Non démarré"
+      },
+      "actions": "{{count}} action",
+      "actions_plural": "{{count}} actions",
+      "reactions": "{{count}} réaction",
+      "reactions_plural": "{{count}} réactions",
+      "enabled": "Activée",
+      "disabled": "Désactivée"
+    }
+  },
   "common": {
     "popularBadge": "Populaire"
   },

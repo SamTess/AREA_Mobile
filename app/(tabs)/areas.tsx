@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { FlatList, RefreshControl } from 'react-native';
 import { Zap, Plus } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,17 +10,17 @@ import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
 import { useTranslation } from 'react-i18next';
 import { AreaListCard } from '@/components/ui/areas/AreaListCard';
-import type { AreaDto } from '@/types/areas';
-import areasData from '@/mocks/areas.json';
+import { useArea } from '@/contexts/AreaContext';
 
 // Loading Screen Component
 function LoadingScreen() {
+  const { t } = useTranslation();
   return (
     <SafeAreaView className="flex-1 bg-background-0 items-center justify-center">
       <Box className="items-center justify-center">
         <Zap size={48} color="#6366F1" />
         <Heading size="lg" className="text-typography-900 mt-4">
-          Loading Areas...
+          {t('areas.loading.title', 'Loading Areas...')}
         </Heading>
       </Box>
     </SafeAreaView>
@@ -29,34 +29,32 @@ function LoadingScreen() {
 
 export default function AreasTab() {
   const { t } = useTranslation();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [areas, setAreas] = useState<AreaDto[]>([]);
-  const isTestEnvironment = process.env.NODE_ENV === 'test';
-  const loadDelayMs = isTestEnvironment ? 10 : 1000;
+  const {
+    areas,
+    createArea,
+    isLoading,
+    isRefreshing,
+    error,
+    refreshAreas,
+    clearError,
+  } = useArea();
 
-  useEffect(() => {
-    loadAreas();
-  }, []);
-
-  const loadAreas = async () => {
-    await new Promise(resolve => setTimeout(resolve, loadDelayMs));
-    setAreas(areasData.areas as AreaDto[]);
-    setIsLoading(false);
-  };
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await loadAreas();
-    setIsRefreshing(false);
-  };
+  const handleRefresh = useCallback(() => {
+    refreshAreas().catch(err => console.error(t('areas.error.refresh', 'Failed to refresh areas'), err));
+  }, [refreshAreas, t]);
 
   const handleAreaPress = (areaId: string) => {
     router.push(`/area-detail?id=${areaId}`);
   };
 
   const handleCreateArea = () => {
-    console.log('Create new area');
+    createArea({
+      name: t('areas.create.defaultName', 'New Area'),
+      description: '',
+      enabled: false,
+      actions: [],
+      reactions: [],
+    });
   };
 
   if (isLoading) {
@@ -78,12 +76,24 @@ export default function AreasTab() {
           </HStack>
           <Button size="sm" onPress={handleCreateArea}>
             <ButtonIcon as={Plus} />
-            <ButtonText>New</ButtonText>
+            <ButtonText>{t('areas.header.newButton', 'New')}</ButtonText>
           </Button>
         </HStack>
         <Text className="text-typography-600 text-sm">
-          Manage your automated workflows
+          {t('areas.header.subtitle', 'Manage your automated workflows')}
         </Text>
+        {error && (
+          <Box className="bg-danger-50 border border-danger-200 rounded-md px-3 py-2 mt-3">
+            <HStack className="items-center justify-between">
+              <Text className="text-danger-700 text-xs flex-1">
+                {error}
+              </Text>
+              <Button size="xs" variant="link" action="negative" onPress={clearError}>
+                <ButtonText className="text-xs">{t('areas.error.dismiss', 'Dismiss')}</ButtonText>
+              </Button>
+            </HStack>
+          </Box>
+        )}
       </Box>
 
       {/* Areas List */}
@@ -112,14 +122,14 @@ export default function AreasTab() {
           <Box className="items-center justify-center py-12">
             <Zap size={64} color="#D1D5DB" />
             <Heading size="md" className="text-typography-600 mt-4">
-              No Areas Yet
+              {t('areas.empty.title', 'No Areas Yet')}
             </Heading>
             <Text className="text-typography-500 text-center mt-2 px-8">
-              Create your first automation area to get started
+              {t('areas.empty.description', 'Create your first automation area to get started')}
             </Text>
             <Button size="md" className="mt-6" onPress={handleCreateArea}>
               <ButtonIcon as={Plus} />
-              <ButtonText>Create Area</ButtonText>
+              <ButtonText>{t('areas.empty.action', 'Create Area')}</ButtonText>
             </Button>
           </Box>
         }

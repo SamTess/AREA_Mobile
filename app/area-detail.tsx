@@ -164,15 +164,12 @@ export default function AreaDetailScreen() {
   }));
 
   const handleStartConnection = (cardId: string, direction: 'left' | 'right', startPoint: CardDockPosition) => {
-    console.log('Starting connection from card:', cardId, 'direction:', direction, 'startPoint:', startPoint);
     setActiveConnection({ from: cardId, fromDirection: direction, start: startPoint, point: startPoint });
   };
 
   const handleUpdateConnection = (translationValue: CardDockPosition | null) => {
     if (!translationValue || !activeConnection) return;
     const point = { x: activeConnection.start.x + translationValue.x, y: activeConnection.start.y + translationValue.y };
-    console.log('New connection translation:', translationValue);
-    console.log('Updating connection point to:', point);
     if (isRemoveZoneActive) {
       setIsRemoveZoneActive(false);
     }

@@ -108,6 +108,41 @@
       "save": "Save Changes"
     }
   },
+  "areas": {
+    "loading": {
+      "title": "Loading Areas..."
+    },
+    "header": {
+      "subtitle": "Manage your automated workflows",
+      "newButton": "New"
+    },
+    "create": {
+      "defaultName": "New Area"
+    },
+    "error": {
+      "dismiss": "Dismiss",
+      "refresh": "Failed to refresh areas"
+    },
+    "empty": {
+      "title": "No Areas Yet",
+      "description": "Create your first automation area to get started",
+      "action": "Create Area"
+    },
+    "card": {
+      "status": {
+        "success": "Success",
+        "failed": "Failed",
+        "inProgress": "In Progress",
+        "notStarted": "Not Started"
+      },
+      "actions": "{{count}} Action",
+      "actions_plural": "{{count}} Actions",
+      "reactions": "{{count}} Reaction",
+      "reactions_plural": "{{count}} Reactions",
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    }
+  },
   "common": {
     "popularBadge": "Popular"
   },

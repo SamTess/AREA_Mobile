@@ -119,7 +119,6 @@ export function Card({
           x: event.translationX,
           y: event.translationY,
         };
-        console.log('Final connection point', finalPoint);
         onEndConnection(card.id, finalPoint);
       })
       .onFinalize(() => {

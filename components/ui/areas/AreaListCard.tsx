@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Box } from '@/components/ui/box';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
@@ -15,7 +16,10 @@ export interface AreaListCardProps {
 }
 
 const getStatusColor = (status: string) => {
-  switch (status) {
+  if (!status) {
+    return '#6B7280';
+  }
+  switch (status.toLowerCase()) {
     case 'success':
       return '#10B981';
     case 'failed':
@@ -30,7 +34,10 @@ const getStatusColor = (status: string) => {
 };
 
 const getStatusIcon = (status: string) => {
-  switch (status) {
+  if (!status) {
+    return Circle;
+  }
+  switch (status.toLowerCase()) {
     case 'success':
       return CheckCircle;
     case 'failed':
@@ -44,22 +51,15 @@ const getStatusIcon = (status: string) => {
   }
 };
 
-const getStatusText = (status: string) => {
-  switch (status) {
-    case 'success':
-      return 'Success';
-    case 'failed':
-      return 'Failed';
-    case 'in progress':
-      return 'In Progress';
-    case 'not started':
-      return 'Not Started';
-    default:
-      return status;
-  }
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  success: 'areas.card.status.success',
+  failed: 'areas.card.status.failed',
+  'in progress': 'areas.card.status.inProgress',
+  'not started': 'areas.card.status.notStarted',
 };
 
 export const AreaListCard: React.FC<AreaListCardProps> = ({ area, onPress }) => {
+  const { t } = useTranslation();
   // Handle both Area and AreaDto types
   const isAreaDto = 'actions' in area && 'reactions' in area;
   const services = isAreaDto ? [] : (area as Area).services || [];
@@ -70,6 +70,10 @@ export const AreaListCard: React.FC<AreaListCardProps> = ({ area, onPress }) => 
   const statusColor = getStatusColor(status);
   const actionsCount = isAreaDto ? (area as AreaDto).actions.length : 0;
   const reactionsCount = isAreaDto ? (area as AreaDto).reactions.length : 0;
+  const normalizedStatus = status?.toLowerCase?.() ?? '';
+  const statusTextKey = STATUS_LABEL_KEYS[normalizedStatus];
+  const statusLabel = statusTextKey ? t(statusTextKey) : status;
+  const enabledLabel = area.enabled ? t('areas.card.enabled', 'Enabled') : t('areas.card.disabled', 'Disabled');
 
   return (
     <Pressable onPress={onPress}>
@@ -94,7 +98,7 @@ export const AreaListCard: React.FC<AreaListCardProps> = ({ area, onPress }) => 
             >
               <HStack space="xs" className="items-center">
                 <Icon as={StatusIcon} size="xs" className="text-white" />
-                <BadgeText className="text-white text-xs">{getStatusText(status)}</BadgeText>
+                <BadgeText className="text-white text-xs">{statusLabel}</BadgeText>
               </HStack>
             </Badge>
           </HStack>
@@ -111,12 +115,12 @@ export const AreaListCard: React.FC<AreaListCardProps> = ({ area, onPress }) => 
             <HStack space="md">
               <Badge size="sm" variant="outline" action="info">
                 <BadgeText className="text-xs">
-                  {actionsCount} {actionsCount === 1 ? 'Action' : 'Actions'}
+                  {t('areas.card.actions', { count: actionsCount })}
                 </BadgeText>
               </Badge>
               <Badge size="sm" variant="outline" action="success">
                 <BadgeText className="text-xs">
-                  {reactionsCount} {reactionsCount === 1 ? 'Reaction' : 'Reactions'}
+                  {t('areas.card.reactions', { count: reactionsCount })}
                 </BadgeText>
               </Badge>
             </HStack>
@@ -146,7 +150,7 @@ export const AreaListCard: React.FC<AreaListCardProps> = ({ area, onPress }) => 
                 style={{ backgroundColor: area.enabled ? '#10B981' : '#6B7280' }}
               />
               <Text className="text-typography-600 text-xs">
-                {area.enabled ? 'Enabled' : 'Disabled'}
+                {enabledLabel}
               </Text>
             </HStack>
             {lastRun && (
