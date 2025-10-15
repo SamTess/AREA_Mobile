@@ -35,6 +35,21 @@ import type {
 type ConnectionSide = 'left' | 'right';
 
 const CONNECTION_SNAP_RADIUS = 28;
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 2.5;
+
+const clamp = (value: number, lower: number, upper: number) => {
+  'worklet';
+  return Math.min(Math.max(value, lower), upper);
+};
+
+const toCanvasCoords = (translation: CardDockPosition, scale: number): CardDockPosition => {
+  const safeScale = scale || 1;
+  return {
+    x: translation.x / safeScale,
+    y: translation.y / safeScale,
+  };
+};
 
 const getCardConnectionPoints = (card: CardData): Partial<Record<ConnectionSide, CardDockPosition>> => {
   const midpointY = card.position.y + CARD_HEIGHT / 2;
@@ -122,6 +137,8 @@ export default function AreaDetailScreen() {
 
   const canvasTranslateX = useSharedValue(0);
   const canvasTranslateY = useSharedValue(0);
+  const canvasScale = useSharedValue(1);
+  const pinchStartScale = useSharedValue(1);
   const canvasOffsetRef = useRef({ x: 0, y: 0 });
   const panStartRef = useRef({ x: 0, y: 0 });
   const isDraggingConnection = activeConnection !== null;
@@ -156,10 +173,22 @@ export default function AreaDetailScreen() {
       };
     });
 
+  const canvasPinch = Gesture.Pinch()
+    .onBegin(() => {
+      pinchStartScale.value = canvasScale.value;
+    })
+    .onUpdate((event) => {
+      const nextScale = clamp(pinchStartScale.value * event.scale, MIN_ZOOM, MAX_ZOOM);
+      canvasScale.value = nextScale;
+    });
+
+  const canvasGesture = Gesture.Simultaneous(canvasPan, canvasPinch);
+
   const canvasAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
       { translateX: canvasTranslateX.value },
       { translateY: canvasTranslateY.value },
+      { scale: canvasScale.value },
     ],
   }));
 
@@ -169,7 +198,11 @@ export default function AreaDetailScreen() {
 
   const handleUpdateConnection = (translationValue: CardDockPosition | null) => {
     if (!translationValue || !activeConnection) return;
-    const point = { x: activeConnection.start.x + translationValue.x, y: activeConnection.start.y + translationValue.y };
+    const scaledTranslation = toCanvasCoords(translationValue, canvasScale.value);
+    const point = {
+      x: activeConnection.start.x + scaledTranslation.x,
+      y: activeConnection.start.y + scaledTranslation.y,
+    };
     if (isRemoveZoneActive) {
       setIsRemoveZoneActive(false);
     }
@@ -183,10 +216,14 @@ export default function AreaDetailScreen() {
       return;
     }
 
-    const dropPoint = translationValue
+    const scaledTranslation = translationValue
+      ? toCanvasCoords(translationValue, canvasScale.value)
+      : null;
+
+    const dropPoint = scaledTranslation
       ? {
-          x: activeConnection.start.x + translationValue.x,
-          y: activeConnection.start.y + translationValue.y,
+          x: activeConnection.start.x + scaledTranslation.x,
+          y: activeConnection.start.y + scaledTranslation.y,
         }
       : activeConnection.point;
 
@@ -297,7 +334,7 @@ export default function AreaDetailScreen() {
           />
 
           <Box className="flex-1 relative">
-            <GestureDetector gesture={canvasPan}>
+            <GestureDetector gesture={canvasGesture}>
               <Animated.View style={[{ flex: 1 }, canvasAnimatedStyle]}>
                 <DotGridBackground />
                 <ConnectionLayer

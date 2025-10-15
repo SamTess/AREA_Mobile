@@ -13,22 +13,23 @@ jest.mock('expo-router', () => ({
 // Mock react-native-gesture-handler
 jest.mock('react-native-gesture-handler', () => {
   const View = require('react-native').View;
-  const createPanMock = () => {
-    const pan = {
-      runOnJS: jest.fn().mockReturnThis(),
-      onBegin: jest.fn().mockReturnThis(),
-      onStart: jest.fn().mockReturnThis(),
-      onChange: jest.fn().mockReturnThis(),
-      onUpdate: jest.fn().mockReturnThis(),
-      onEnd: jest.fn().mockReturnThis(),
-      onFinalize: jest.fn().mockReturnThis(),
-    };
-    return pan;
+  const createGestureMock = () => {
+    const gesture: any = {};
+    gesture.runOnJS = jest.fn(() => gesture);
+    gesture.onBegin = jest.fn(() => gesture);
+    gesture.onStart = jest.fn(() => gesture);
+    gesture.onChange = jest.fn(() => gesture);
+    gesture.onUpdate = jest.fn(() => gesture);
+    gesture.onEnd = jest.fn(() => gesture);
+    gesture.onFinalize = jest.fn(() => gesture);
+    return gesture;
   };
   return {
     GestureDetector: View,
     Gesture: {
-      Pan: () => createPanMock(),
+      Pan: () => createGestureMock(),
+      Pinch: () => createGestureMock(),
+      Simultaneous: () => createGestureMock(),
     },
     GestureHandlerRootView: View,
   };
