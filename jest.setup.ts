@@ -1,3 +1,6 @@
+process.env.EXPO_PUBLIC_USE_MOCK = process.env.EXPO_PUBLIC_USE_MOCK ?? 'true';
+process.env.EXPO_PUBLIC_MOCK_DELAY = process.env.EXPO_PUBLIC_MOCK_DELAY ?? '0';
+
 // Silence NativeWind style injection warnings during tests
 jest.mock('nativewind', () => {
   const actual = jest.requireActual('nativewind');

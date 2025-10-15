@@ -54,15 +54,24 @@ describe('TabLayout', () => {
     expect(tabsProps.screenOptions).toBeTruthy();
     expect(tabsProps.screenOptions.headerShown).toBe(false);
     expect(tabsProps.screenOptions.tabBarLabelStyle.fontSize).toBe(12);
-    expect(screens.length).toBe(6);
+    expect(screens.length).toBe(7);
 
-    // Verify that only 2 tabs are visible in the tab bar (login, register, and forgot-password have href: null)
-    const visibleScreens = screens.filter((s: any) => s.options.href !== null);
-    expect(visibleScreens.length).toBe(2); // Only Home and Profile are visible
-    
-    const icon1 = screens[0].options.tabBarIcon({ color: testColors.focused, size: 20, focused: true });
-    const icon4 = screens[3].options.tabBarIcon({ color: testColors.unfocused, size: 22, focused: false });
-    expect(icon1).toBeTruthy();
-    expect(icon4).toBeTruthy();
+    // Verify that only navigation-visible tabs (home, areas, settings) are exposed
+  const visibleScreens = screens.filter((s: any) => s.options?.href !== null);
+    expect(visibleScreens.length).toBe(3);
+
+    const homeIcon = visibleScreens[0].options.tabBarIcon({ color: testColors.focused, size: 20, focused: true });
+    const areasIcon = visibleScreens[1].options.tabBarIcon({ color: testColors.focused, size: 20, focused: false });
+    const settingsIcon = visibleScreens[2].options.tabBarIcon({ color: testColors.unfocused, size: 22, focused: false });
+
+    expect(homeIcon).toBeTruthy();
+    expect(areasIcon).toBeTruthy();
+    expect(settingsIcon).toBeTruthy();
+
+    expect(visibleScreens.map((screen: any) => screen.options.title)).toEqual([
+      'Home',
+      'Areas',
+      'Settings',
+    ]);
   });
 });

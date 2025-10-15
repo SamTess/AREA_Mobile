@@ -1,5 +1,6 @@
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { AreaProvider } from '@/contexts/AreaContext';
 import '@/global.css';
 import '@/i18n';
 import { Stack } from "expo-router";
@@ -10,12 +11,15 @@ import { useEffect } from 'react';
 function AppContent() {
   return (
     <AuthProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" options={{ title: "Home" }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="screens/HomeScreen" options={{ title: "Home" }} />
-        <Stack.Screen name="details" options={{ title: "Details" }} />
-      </Stack>
+      <AreaProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" options={{ title: "Home" }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/HomeScreen" options={{ title: "Home" }} />
+          <Stack.Screen name="details" options={{ title: "Details" }} />
+          <Stack.Screen name="area-detail" options={{ title: "Area Details" }} />
+        </Stack>
+      </AreaProvider>
     </AuthProvider>
   );
 }

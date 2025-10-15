@@ -50,3 +50,6 @@ package-lock.json
 
 # Coverage
 coverage/
+
+
+.env
