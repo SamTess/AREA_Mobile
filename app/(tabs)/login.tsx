@@ -16,7 +16,7 @@ import { ActivityIndicator, Alert } from 'react-native';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
-  const { login, isLoading, clearError } = useAuth();
+  const { login, loginWithGoogle, loginWithGithub, isLoading, clearError } = useAuth();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -28,12 +28,34 @@ export default function LoginScreen() {
     setShowPassword((prev) => !prev);
   };
 
-  const handleOAuthLogin = (provider: 'github' | 'google' | 'microsoft') => {
-    Alert.alert(
-      t('login.successTitle'),
-      `OAuth login with ${provider} (to be implemented)`,
-      [{ text: 'OK' }]
-    );
+  const handleOAuthLogin = async (provider: 'github' | 'google' | 'microsoft') => {
+    try {
+      if (provider === 'google') {
+        await loginWithGoogle();
+      } else if (provider === 'github') {
+        await loginWithGithub();
+      } else {
+        Alert.alert(
+          t('login.errorTitle') || 'Info',
+          `OAuth login with ${provider} is not yet implemented`,
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+      Alert.alert(
+        t('login.successTitle') || 'Connexion réussie',
+        t('login.successMessage') || 'Vous êtes maintenant connecté',
+        [
+          {
+            text: 'OK',
+            onPress: () => router.replace('/(tabs)'),
+          },
+        ]
+      );
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : (t('login.errorMessage') || 'La connexion a échoué');
+      Alert.alert(t('login.errorTitle') || 'Erreur', msg);
+    }
   };
 
   const validateEmail = (email: string) => {

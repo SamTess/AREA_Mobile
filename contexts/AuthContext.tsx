@@ -10,6 +10,8 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  loginWithGithub: () => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
@@ -87,11 +89,53 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const loginWithGoogle = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await authService.loginWithGoogle();
+      if (response.user) {
+        setUser(response.user);
+        await storage.saveUserData(JSON.stringify(response.user));
+      } else {
+        throw new Error('Failed to authenticate with Google');
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Google login failed';
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithGithub = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await authService.loginWithGithub();
+      if (response.user) {
+        setUser(response.user);
+        await storage.saveUserData(JSON.stringify(response.user));
+      } else {
+        throw new Error('Failed to authenticate with GitHub');
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'GitHub login failed';
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       setIsLoading(true);
       await authService.logout();
-      
+
       setUser(null);
       setError(null);
     } catch (err) {
@@ -136,6 +180,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isLoading,
     error,
     login,
+    loginWithGoogle,
+    loginWithGithub,
     register,
     logout,
     updateUser,
