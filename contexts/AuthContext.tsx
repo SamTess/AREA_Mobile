@@ -1,6 +1,19 @@
-import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
-import { loginWithGithub as svcLoginGithub, loginWithGoogle as svcLoginGoogle, getCurrentUser, logout as svcLogout, User } from '../services/auth';
-import { API_ENDPOINTS } from '../services/api.config';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+} from 'react';
+import {
+  loginWithGithub as svcLoginGithub,
+  loginWithGoogle as svcLoginGoogle,
+  getCurrentUser,
+  logout as svcLogout,
+  User,
+} from '../services/auth';
+import { API_CONFIG, API_ENDPOINTS } from '../services/api.config';
 import { saveUserData, getUserData, clearAuthData } from '../services/storage';
 
 type AuthError = { message: string; code?: string } | null;
@@ -10,6 +23,7 @@ interface AuthCtx {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: AuthError;
+  login: (email: string, password: string) => Promise<void>;
   loginWithGithub: () => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
@@ -18,6 +32,22 @@ interface AuthCtx {
 }
 
 const AuthContext = createContext<AuthCtx | undefined>(undefined);
+
+// Helpers
+function buildUrl(path: string) {
+  const base = API_CONFIG.BASE_URL.replace(/\/+$/, '');
+  const p = path.startsWith('/') ? path : `/${path}`;
+  return `${base}${p}`;
+}
+
+async function parseErrorMessage(res: Response) {
+  try {
+    const data = await res.json();
+    return data?.message as string | undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -34,16 +64,13 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     return false;
   }, []);
 
+  // Utilise la BASE_URL (fonctionne en RN/Expo)
   const tryRefresh = useCallback(async () => {
     try {
-      const res = await fetch(API_ENDPOINTS.AUTH.REFRESH.startsWith('/')
-
-        ? `${location.origin}${API_ENDPOINTS.AUTH.REFRESH}`
-        : API_ENDPOINTS.AUTH.REFRESH,
-        {
-          method: 'POST',
-          credentials: 'include',
-        });
+      const res = await fetch(buildUrl(API_ENDPOINTS.AUTH.REFRESH), {
+        method: 'POST',
+        credentials: 'include',
+      });
       return res.ok;
     } catch {
       return false;
@@ -67,6 +94,36 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   useEffect(() => {
     bootstrap();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // NEW: email/password login
+  const login = useCallback(async (email: string, password: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(buildUrl(API_ENDPOINTS.AUTH.LOGIN), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        const msg = (await parseErrorMessage(res)) || 'Invalid credentials';
+        throw new Error(msg);
+      }
+
+      const me = await getCurrentUser();
+      if (!me) throw new Error('Failed to load current user');
+
+      setUser(me);
+      await saveUserData(JSON.stringify(me));
+    } catch (e: any) {
+      setError({ message: e?.message || 'Login failed' });
+      throw e;
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   const loginWithGithub = useCallback(async () => {
@@ -116,17 +173,21 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
   const clearError = useCallback(() => setError(null), []);
 
-  const value = useMemo<AuthCtx>(() => ({
-    user,
-    isAuthenticated: !!user,
-    isLoading,
-    error,
-    loginWithGithub,
-    loginWithGoogle,
-    logout,
-    clearError,
-    refreshAuth: bootstrap,
-  }), [user, isLoading, error, loginWithGithub, loginWithGoogle, logout, clearError, bootstrap]);
+  const value = useMemo<AuthCtx>(
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      isLoading,
+      error,
+      login,                // <<— exposé au screen
+      loginWithGithub,
+      loginWithGoogle,
+      logout,
+      clearError,
+      refreshAuth: bootstrap,
+    }),
+    [user, isLoading, error, login, loginWithGithub, loginWithGoogle, logout, clearError, bootstrap]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

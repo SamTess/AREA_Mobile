@@ -1,25 +1,32 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { View, ActivityIndicator, Text, Button } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 
 import { API_CONFIG, API_ENDPOINTS } from '../services/api.config';
-import { getCurrentUser, logout } from '../services/auth';
+import { logout, markHandledCode } from '../services/auth';
 import { saveUserData } from '../services/storage';
 
 type Provider = 'github' | 'google';
 
 async function tryFetchMe() {
-  try {
-    const meRes = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.AUTH.ME}`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-    if (!meRes.ok) return null;
-    const me = await meRes.json();
-    return me ?? null;
-  } catch {
-    return null;
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const meRes = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.AUTH.ME}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (meRes.ok) {
+        const me = await meRes.json();
+        return me ?? null;
+      }
+      console.debug(`tryFetchMe attempt ${attempt}: HTTP ${meRes.status}`);
+    } catch (err) {
+      console.debug(`tryFetchMe attempt ${attempt}: network error`, err);
+    }
+    if (attempt < maxAttempts) await new Promise((res) => setTimeout(res, 250 * attempt));
   }
+  return null;
 }
 
 export default function OAuthRedirect() {
@@ -34,8 +41,15 @@ export default function OAuthRedirect() {
   const [message, setMessage] = useState('Completing authentication…');
   const [debug, setDebug] = useState<string | null>(null);
 
+  const hasHandledRef = useRef(false);
+
   useEffect(() => {
     const run = async () => {
+      if (hasHandledRef.current) {
+        console.debug('OAuthRedirect: already handled, skipping duplicate callback');
+        return;
+      }
+      hasHandledRef.current = true;
       const code = (params.code ?? '').toString();
       const providerParam = (params.provider ?? 'github').toString().toLowerCase();
       const provider: Provider = providerParam === 'google' ? 'google' : 'github';
@@ -88,6 +102,7 @@ export default function OAuthRedirect() {
             await saveUserData(JSON.stringify(me));
             setStatus('success');
             setMessage('Authentication completed. Redirecting…');
+            if (code) markHandledCode(code);
             setTimeout(() => router.replace('/'), 600);
             return;
           }
@@ -100,6 +115,7 @@ export default function OAuthRedirect() {
         if (!me) throw new Error('Failed to load current user after exchange');
 
         await saveUserData(JSON.stringify(me));
+        if (code) markHandledCode(code);
         setStatus('success');
         setMessage('Authentication successful! Redirecting…');
         setTimeout(() => router.replace('/'), 800);

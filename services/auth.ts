@@ -2,8 +2,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { API_CONFIG, API_ENDPOINTS, ERROR_MESSAGES } from './api.config';
 import {
-    saveUserData, getUserData, clearAuthData,
-    saveOAuthState, getOAuthState, clearOAuthState,
+    saveUserData, clearAuthData, saveOAuthState, clearOAuthState,
     savePkceVerifier, getPkceVerifier, clearPkceVerifier,
 } from './storage';
 
@@ -82,83 +81,133 @@ export async function logout(): Promise<void> {
     }
 }
 
-async function exchangeCodeAndLoadUser(provider: ProviderKey, code: string) {
+let oauthInFlight = false;
+
+const handledAuthCodes = new Set<string>();
+export function hasHandledCode(code: string) {
+    return handledAuthCodes.has(code);
+}
+export function markHandledCode(code: string) {
+    try { handledAuthCodes.add(code); } catch { /* noop */ }
+}
+
+async function getMe(): Promise<User | null> {
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            const r = await fetch(buildUrl(API_ENDPOINTS.AUTH.ME), { credentials: 'include' });
+            if (!r.ok) {
+                console.debug(`getMe attempt ${attempt}: HTTP ${r.status}`);
+            } else {
+                const user = await r.json();
+                return user || null;
+            }
+        } catch (err) {
+            console.debug(`getMe attempt ${attempt}: network error`, err);
+        }
+        if (attempt < maxAttempts) await new Promise((res) => setTimeout(res, 250 * attempt));
+    }
+    return null;
+}
+
+async function finalizeFromMe(msg: string): Promise<AuthResponse> {
+    const me = await getMe();
+    if (!me) throw new Error('Failed to load current user');
+    await saveUserData(JSON.stringify(me));
+    return { message: msg, user: me };
+}
+
+async function exchangeCodeAndLoadUser(provider: ProviderKey, code: string): Promise<AuthResponse> {
     const exchangePath =
         provider === 'github'
             ? API_ENDPOINTS.OAUTH.GITHUB_EXCHANGE
             : API_ENDPOINTS.OAUTH.GOOGLE_EXCHANGE;
-
     const body: Record<string, string> = { code };
     const pkceVerifier = await getPkceVerifier();
     if (pkceVerifier) body.code_verifier = pkceVerifier;
 
-    const res = await fetch(buildUrl(exchangePath), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(body),
-    });
-    assertOk(res, 'Failed to exchange authorization code');
-
-    await clearPkceVerifier();
-    await clearOAuthState();
-
-    const me = await getCurrentUser();
-    if (!me) throw new Error('Failed to load current user');
-    await saveUserData(JSON.stringify(me));
-    return { message: 'Login successful', user: me } as AuthResponse;
+    try {
+        if (handledAuthCodes.has(code)) {
+            console.warn(`Authorization code already handled for ${provider}, skipping exchange`);
+            const me = await getMe();
+            if (me) return { message: 'Login completed (already handled)', user: me };
+            throw new Error('Authorization code already used');
+        }
+        const res = await fetch(buildUrl(exchangePath), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(body),
+        });
+        console.debug(`OAuth exchange response for ${provider}: status=${res.status}`);
+        if (!res.ok) {
+            const me = await getMe();
+            console.warn(`OAuth exchange failed for ${provider}, trying /me fallback: me=${me ? 'found' : 'not_found'}`);
+            if (me) {
+                await clearPkceVerifier(); await clearOAuthState();
+                markHandledCode(code);
+                await saveUserData(JSON.stringify(me));
+                return { message: 'Login completed', user: me };
+            }
+            const txt = await res.text().catch(() => '');
+            throw new Error(txt || `Failed to exchange authorization code (HTTP ${res.status})`);
+        }
+        await clearPkceVerifier(); await clearOAuthState();
+        markHandledCode(code);
+        return await finalizeFromMe('Login successful');
+    } catch (e: any) {
+        console.error('OAuth exchange exception', e);
+        const me = await getMe();
+        console.warn(`Backend /me after exchange exception: me=${me ? 'found' : 'not_found'}`);
+        if (me) {
+            await clearPkceVerifier(); await clearOAuthState();
+            markHandledCode(code);
+            await saveUserData(JSON.stringify(me));
+            return { message: 'Login completed (fallback)', user: me };
+        }
+        throw new Error(e?.message || ERROR_MESSAGES.SERVER);
+    }
 }
 
 async function oauthLogin(provider: ProviderKey): Promise<AuthResponse> {
-    // const { challenge, state } = await createPkceAndState(); // prêt si back PKCE
+    if (oauthInFlight) throw new Error('Login already in progress');
+    oauthInFlight = true;
+    try {
+        const redirectUri = Linking.createURL('oauthredirect');
+        const authorizePath =
+            provider === 'github'
+                ? API_ENDPOINTS.OAUTH.GITHUB_AUTHORIZE
+                : API_ENDPOINTS.OAUTH.GOOGLE_AUTHORIZE;
+        const params = new URLSearchParams({
+            app_redirect_uri: redirectUri,
+            returnUrl: '/(tabs)',
+        });
+        const authorizeUrl = `${buildUrl(authorizePath)}?${params.toString()}`;
+        const result = await WebBrowser.openAuthSessionAsync(authorizeUrl, redirectUri);
 
-    // 1) deep link mobile qui recevra le code
-    const redirectUri = Linking.createURL('oauthredirect'); // areamobile://oauthredirect
-
-    // 2) URL d’autorisation côté backend + hints pour construire state
-    const authorizePath =
-        provider === 'github'
-            ? API_ENDPOINTS.OAUTH.GITHUB_AUTHORIZE
-            : API_ENDPOINTS.OAUTH.GOOGLE_AUTHORIZE;
-
-    // Hints : app_redirect_uri + returnUrl (optionnel)
-    const params = new URLSearchParams({
-        app_redirect_uri: redirectUri,
-        returnUrl: '/(tabs)', // change si tu veux une autre destination par défaut
-    });
-    const authorizeUrl = `${buildUrl(authorizePath)}?${params.toString()}`;
-
-    // 3) Lance la session OAuth
-    const result = await WebBrowser.openAuthSessionAsync(authorizeUrl, redirectUri);
-
-    if (result.type !== 'success' || !result.url) {
-        if (result.type === 'cancel' || result.type === 'dismiss') {
-            throw new Error(`${provider} login cancelled`);
+        if (result.type !== 'success' || !result.url) {
+            const me = await getMe();
+            const resultUrl = (result as any)?.url ?? null;
+            console.warn(`${provider} openAuthSession result: type=${result.type}, url=${resultUrl}; /me=${me ? 'found' : 'not_found'}`);
+            if (me) return { message: 'Login completed', user: me };
+            if (result.type === 'cancel' || result.type === 'dismiss') throw new Error(`${provider} login cancelled`);
+            throw new Error(`${provider} login failed`);
         }
-        throw new Error(`${provider} login failed`);
+
+        const parsed = Linking.parse(result.url);
+        console.debug(`OAuth callback parsed for ${provider}: ${JSON.stringify(parsed)}`);
+        const code = (parsed as any)?.queryParams?.code as string | undefined;
+        const error = (parsed as any)?.queryParams?.error as string | undefined;
+        if (error) throw new Error(`OAuth error: ${error}`);
+        if (!code) {
+            const me = await getMe();
+            if (me) return { message: 'Login completed', user: me };
+            throw new Error('Missing authorization code');
+        }
+        return await exchangeCodeAndLoadUser(provider, code);
+    } finally {
+        oauthInFlight = false;
     }
-
-    // 4) Parse callback (si le provider redirigeait direct vers app — ici normallement la page web le fait)
-    const parsed = Linking.parse(result.url);
-    const code = (parsed as any)?.queryParams?.code as string | undefined;
-    const error = (parsed as any)?.queryParams?.error as string | undefined;
-
-    if (error) throw new Error(`OAuth error: ${error}`);
-    if (!code) {
-        // Dans notre design, GitHub redirige vers la page Web, qui ensuite deep link l’app.
-        // Certains navigateurs in-app peuvent cependant “forwarder” vers l’app avec ?code, on le gère ici si présent.
-        // S’il n’y a pas de code → on attend que la page web ait fait l’exchange (côté browser),
-        // puis on récupère /me au prochain lancement. Pour plus de robustesse, on peut aussi écouter Linking.addEventListener dans l’app.
-    } else {
-        // Si on a reçu le code directement, on peut faire l’exchange côté mobile :
-        return exchangeCodeAndLoadUser(provider, code);
-    }
-
-    // Fallback : si pas de code, on tente de charger l’utilisateur (cookies déjà posés par le Web après exchange)
-    const me = await getCurrentUser();
-    if (!me) throw new Error('Authentication did not complete');
-    await saveUserData(JSON.stringify(me));
-    return { message: 'Login successful', user: me };
 }
 
 export async function loginWithGithub(): Promise<AuthResponse> {
