@@ -1,200 +1,138 @@
-import * as authService from '@/services/auth';
-import * as storage from '@/services/storage';
-import * as userService from '@/services/user';
-import { User } from '@/types/auth';
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
+import { loginWithGithub as svcLoginGithub, loginWithGoogle as svcLoginGoogle, getCurrentUser, logout as svcLogout, User } from '../services/auth';
+import { API_ENDPOINTS } from '../services/api.config';
+import { saveUserData, getUserData, clearAuthData } from '../services/storage';
 
-interface AuthContextType {
+type AuthError = { message: string; code?: string } | null;
+
+interface AuthCtx {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  error: AuthError;
   loginWithGithub: () => Promise<void>;
-  register: (email: string, password: string, name?: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
-  updateUser: (userData: Partial<User>) => Promise<void>;
   clearError: () => void;
+  refreshAuth: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthCtx | undefined>(undefined);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export function AuthProvider({ children }: AuthProviderProps) {
+export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AuthError>(null);
+
+  const loadUser = useCallback(async () => {
+    const me = await getCurrentUser();
+    if (me) {
+      setUser(me);
+      await saveUserData(JSON.stringify(me));
+      return true;
+    }
+    return false;
+  }, []);
+
+  const tryRefresh = useCallback(async () => {
+    try {
+      const res = await fetch(API_ENDPOINTS.AUTH.REFRESH.startsWith('/')
+
+        ? `${location.origin}${API_ENDPOINTS.AUTH.REFRESH}`
+        : API_ENDPOINTS.AUTH.REFRESH,
+        {
+          method: 'POST',
+          credentials: 'include',
+        });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const bootstrap = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const ok = await loadUser();
+      if (!ok) {
+        const refreshed = await tryRefresh();
+        if (refreshed) await loadUser();
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadUser, tryRefresh]);
 
   useEffect(() => {
     bootstrap();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const bootstrap = async () => {
-    try {
-      setIsLoading(true);
-      const current = await authService.getCurrentUser();
-      if (current) {
-        setUser(current);
-      } else {
-        setUser(null);
-        await storage.clearAuthData();
-      }
-    } catch (err) {
-      console.error('Failed to load user:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const login = async (email: string, password: string) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await authService.login({ email, password });
-
-      if (response.user) {
-        setUser(response.user);
-        await storage.saveUserData(JSON.stringify(response.user));
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Login failed';
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const register = async (email: string, password: string, name?: string) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await authService.register({ email, password, avatarUrl: undefined });
-      if (response.user) {
-        setUser(response.user);
-        await storage.saveUserData(JSON.stringify(response.user));
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Registration failed';
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loginWithGoogle = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await authService.loginWithGoogle();
-      if (response.user) {
-        setUser(response.user);
-        await storage.saveUserData(JSON.stringify(response.user));
-      } else {
-        throw new Error('Failed to authenticate with Google');
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Google login failed';
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loginWithGithub = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await authService.loginWithGithub();
-      if (response.user) {
-        setUser(response.user);
-        await storage.saveUserData(JSON.stringify(response.user));
-      } else {
-        throw new Error('Failed to authenticate with GitHub');
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'GitHub login failed';
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    try {
-      setIsLoading(true);
-      await authService.logout();
-
-      setUser(null);
-      setError(null);
-    } catch (err) {
-      console.error('Logout error:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updateUser = async (userData: Partial<User>) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      if (!user) {
-        throw new Error('No user to update');
-      }
-
-      const updatedUser = await userService.updateProfileWithAvatar({
-        ...user,
-        ...userData,
-      });
-
-      setUser(updatedUser);
-      await storage.saveUserData(JSON.stringify(updatedUser));
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Update failed';
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const clearError = () => {
+  const loginWithGithub = useCallback(async () => {
+    setIsLoading(true);
     setError(null);
-  };
+    try {
+      const res = await svcLoginGithub();
+      setUser(res.user);
+      await saveUserData(JSON.stringify(res.user));
+    } catch (e: any) {
+      setError({ message: e?.message || 'GitHub login failed' });
+      throw e;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  const value: AuthContextType = {
+  const loginWithGoogle = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await svcLoginGoogle();
+      setUser(res.user);
+      await saveUserData(JSON.stringify(res.user));
+    } catch (e: any) {
+      setError({ message: e?.message || 'Google login failed' });
+      throw e;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await svcLogout();
+      setUser(null);
+      await clearAuthData();
+    } catch (e: any) {
+      setError({ message: e?.message || 'Logout failed' });
+      throw e;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const clearError = useCallback(() => setError(null), []);
+
+  const value = useMemo<AuthCtx>(() => ({
     user,
     isAuthenticated: !!user,
     isLoading,
     error,
-    login,
-    loginWithGoogle,
     loginWithGithub,
-    register,
+    loginWithGoogle,
     logout,
-    updateUser,
     clearError,
-  };
+    refreshAuth: bootstrap,
+  }), [user, isLoading, error, loginWithGithub, loginWithGoogle, logout, clearError, bootstrap]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+};
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
+  return ctx;
 }

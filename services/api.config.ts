@@ -1,32 +1,31 @@
 import { Platform } from 'react-native';
-/**
- * API Configuration
- * Centralized configuration for backend API
- */
 
 /**
- * Environment variables
+ * API & OAuth endpoints
+ * - Cookies HttpOnly côté backend, donc withCredentials/credentials: 'include'
  */
+
 export const ENV = {
-    // Use Android emulator loopback by default; override via EXPO_PUBLIC_API_URL
-    API_URL: process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8080',
-    // Optional iOS specific API URL for testing on iPhone/simulator (use your machine LAN IP)
+    API_URL: process.env.EXPO_PUBLIC_API_URL || (Platform.OS === 'android' ? 'http://10.0.2.2:8080' : 'http://localhost:8080'),
     API_URL_IOS: process.env.EXPO_PUBLIC_API_URL_IOS,
-    USE_MOCK: process.env.EXPO_PUBLIC_USE_MOCK !== 'false', // Default to true for development
-    MOCK_DELAY: parseInt(process.env.EXPO_PUBLIC_MOCK_DELAY || '1000', 10),
-} as const;
+    USE_MOCK: process.env.EXPO_PUBLIC_USE_MOCK === 'true',
+    MOCK_DELAY: parseInt(process.env.EXPO_PUBLIC_MOCK_DELAY || '500', 10),
+    WEB_BASE_URL: process.env.EXPO_PUBLIC_WEB_BASE_URL || 'http://localhost:3000',
+};
 
-/**
- * API endpoints
- */
+export const API_CONFIG = {
+    BASE_URL: Platform.OS === 'ios' && ENV.API_URL_IOS ? ENV.API_URL_IOS : ENV.API_URL,
+};
+
 export const API_ENDPOINTS = {
-    // Authentication
-    LOGIN: '/api/auth/login',
-    REGISTER: '/api/auth/register',
-    LOGOUT: '/api/auth/logout',
-    REFRESH: '/api/auth/refresh',
-    ME: '/api/auth/me',
-    // OAuth
+    AUTH: {
+        LOGIN: '/api/auth/login',
+        REGISTER: '/api/auth/register',
+        LOGOUT: '/api/auth/logout',
+        REFRESH: '/api/auth/refresh',
+        ME: '/api/auth/me',
+        STATUS: '/api/auth/status',
+    },
     OAUTH: {
         GOOGLE_AUTHORIZE: '/api/oauth/google/authorize',
         GOOGLE_EXCHANGE: '/api/oauth/google/exchange',
@@ -35,51 +34,17 @@ export const API_ENDPOINTS = {
     },
 } as const;
 
-/**
- * API configuration
- */
-export const API_CONFIG = {
-    BASE_URL: Platform.OS === 'ios' ? (ENV.API_URL_IOS || ENV.API_URL) : ENV.API_URL,
-    ENDPOINTS: API_ENDPOINTS,
-    TIMEOUT: 10000,
-    HEADERS: {
-        'Content-Type': 'application/json',
-    },
-} as const;
-
-/**
- * HTTP methods
- */
-export const HTTP_METHODS = {
-    GET: 'GET',
-    POST: 'POST',
-    PUT: 'PUT',
-    PATCH: 'PATCH',
-    DELETE: 'DELETE',
-} as const;
-
-/**
- * API Response status codes
- */
-export const STATUS_CODES = {
-    OK: 200,
-    CREATED: 201,
-    NO_CONTENT: 204,
-    BAD_REQUEST: 400,
+export const HTTP_STATUS = {
     UNAUTHORIZED: 401,
     FORBIDDEN: 403,
-    NOT_FOUND: 404,
     CONFLICT: 409,
-    INTERNAL_SERVER_ERROR: 500,
+    INTERNAL: 500,
 } as const;
 
-/**
- * Error messages
- */
 export const ERROR_MESSAGES = {
-    NETWORK_ERROR: 'Network error. Please check your connection.',
+    NETWORK: 'Network error. Please check your connection.',
     TIMEOUT: 'Request timeout. Please try again.',
     UNAUTHORIZED: 'Unauthorized. Please login again.',
-    SERVER_ERROR: 'Server error. Please try again later.',
+    SERVER: 'Server error. Please try again later.',
     UNKNOWN: 'An unknown error occurred.',
 } as const;
