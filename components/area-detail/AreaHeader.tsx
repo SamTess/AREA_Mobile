@@ -2,9 +2,11 @@ import React from 'react';
 import { View, TextInput, TouchableOpacity } from 'react-native';
 import { Edit3, Trash2, ArrowLeft } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Box } from '@/components/ui/box';
 import { Text } from '@/components/ui/text';
+import { Icon } from '@/components/ui/icon';
 
 interface AreaHeaderProps {
   title: string;
@@ -28,11 +30,21 @@ export function AreaHeader({
   onBack,
 }: AreaHeaderProps) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  const containerStyle = React.useMemo(
+    () => ({
+      paddingTop: insets.top + 5,
+      marginTop: -insets.top,
+      zIndex: 40,
+      elevation: 40,
+    }),
+    [insets.top]
+  );
 
   return (
     <Box
-      className="bg-surface p-4 border-b border-outline-200 shadow-sm"
-      style={{ zIndex: 40, elevation: 40 }}
+      className="bg-surface px-4 pb-4 border-b border-outline-200 shadow-sm"
+      style={containerStyle}
     >
       <View className="flex-row items-center justify-between">
         {onBack && (
@@ -41,7 +53,7 @@ export function AreaHeader({
             className="p-2 mr-2"
             testID="back-button"
           >
-            <ArrowLeft size={24} color="#1f2937" />
+            <Icon as={ArrowLeft} size="xl" className="text-typography-900" />
           </TouchableOpacity>
         )}
 
@@ -65,7 +77,6 @@ export function AreaHeader({
           ) : (
             <View>
               <Text className="text-xl font-bold text-typography-900">{title}</Text>
-              <Text className="text-sm text-typography-600 mt-1">{description}</Text>
             </View>
           )}
         </View>

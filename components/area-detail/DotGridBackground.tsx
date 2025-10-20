@@ -31,8 +31,8 @@ export function DotGridBackground() {
     <Svg
       style={{
         position: 'absolute',
-        top: 0,
-        left: 0,
+        top: -screenHeight,
+        left: -screenWidth,
         width: screenWidth * 3,
         height: screenHeight * 3,
         zIndex: -1,

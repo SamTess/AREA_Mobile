@@ -320,8 +320,8 @@ export default function AreaDetailScreen() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-        <Box className="flex-1 bg-background-50">
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <Box className="flex-1 bg-surface top-0">
           <AreaHeader
             title={areaTitle}
             description={areaDescription}

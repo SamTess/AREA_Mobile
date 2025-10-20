@@ -42,7 +42,7 @@ describe('DotGridBackground', () => {
   it('renders svg container with correct styling', () => {
     const { getByTestId } = render(<DotGridBackground />);
     const svg = getByTestId('svg-container');
-    
+
     expect(svg).toBeTruthy();
     expect(svg.props.style).toBeDefined();
   });
@@ -50,38 +50,39 @@ describe('DotGridBackground', () => {
   it('has position absolute in style', () => {
     const { getByTestId } = render(<DotGridBackground />);
     const svg = getByTestId('svg-container');
-    
+
     expect(svg.props.style.position).toBe('absolute');
   });
 
   it('has correct z-index for background layer', () => {
     const { getByTestId } = render(<DotGridBackground />);
     const svg = getByTestId('svg-container');
-    
+
     expect(svg.props.style.zIndex).toBe(-1);
   });
 
   it('covers entire canvas area', () => {
     const { getByTestId } = render(<DotGridBackground />);
     const svg = getByTestId('svg-container');
-    
+
     // Should be 3x the screen size
     expect(svg.props.style.width).toBe(400 * 3);
     expect(svg.props.style.height).toBe(800 * 3);
   });
 
-  it('starts from top-left corner', () => {
+  it('starts from top-left corner with offset for scrollable canvas', () => {
     const { getByTestId } = render(<DotGridBackground />);
     const svg = getByTestId('svg-container');
-    
-    expect(svg.props.style.top).toBe(0);
-    expect(svg.props.style.left).toBe(0);
+
+    // Grid extends beyond viewport for pan/zoom functionality
+    expect(svg.props.style.top).toBe(-800);
+    expect(svg.props.style.left).toBe(-400);
   });
 
   it('renders grid dots as children', () => {
     const { getByTestId } = render(<DotGridBackground />);
     const svg = getByTestId('svg-container');
-    
+
     expect(svg.props.children).toBeDefined();
     expect(Array.isArray(svg.props.children)).toBe(true);
   });
@@ -112,7 +113,7 @@ describe('DotGridBackground', () => {
   it('creates a grid pattern with appropriate dot spacing', () => {
     const { getByTestId } = render(<DotGridBackground />);
     const svg = getByTestId('svg-container');
-    
+
     // Should have multiple dots
     expect(svg.props.children.length).toBeGreaterThan(1);
   });
@@ -120,24 +121,24 @@ describe('DotGridBackground', () => {
   it('renders at correct layer for background', () => {
     const { getByTestId } = render(<DotGridBackground />);
     const svg = getByTestId('svg-container');
-    
+
     // z-index of -1 ensures it's behind all other content
     expect(svg.props.style.zIndex).toBeLessThan(0);
   });
 
-  it('maintains fixed position', () => {
+  it('maintains fixed position with appropriate offsets', () => {
     const { getByTestId } = render(<DotGridBackground />);
     const svg = getByTestId('svg-container');
-    
+
     expect(svg.props.style.position).toBe('absolute');
-    expect(svg.props.style.top).toBe(0);
-    expect(svg.props.style.left).toBe(0);
+    expect(svg.props.style.top).toBe(-800);
+    expect(svg.props.style.left).toBe(-400);
   });
 
   it('has sufficient size for scrollable canvas', () => {
     const { getByTestId } = render(<DotGridBackground />);
     const svg = getByTestId('svg-container');
-    
+
     // 3x multiplier ensures enough space for panning
     expect(svg.props.style.width).toBeGreaterThan(400);
     expect(svg.props.style.height).toBeGreaterThan(800);

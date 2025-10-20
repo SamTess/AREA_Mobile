@@ -1,12 +1,10 @@
 import { apiClient } from './api';
 import type { ActionDto, AreaDto, ReactionDto } from '@/types/areas';
 import * as mockService from './__mocks__/areas.mock';
-import Constants from 'expo-constants';
+import { ENV } from './api.config';
 
-// Read env values from expo config (app.json/app.config.js) via `expo.extra`
-const _env = (Constants.expoConfig?.extra ?? (Constants.manifest as any)?.extra) as Record<string, any> | undefined;
-const USE_MOCK = _env?.EXPO_PUBLIC_USE_MOCK === 'true' || false;
-const MOCK_DELAY = _env?.EXPO_PUBLIC_MOCK_DELAY ? parseInt(String(_env.EXPO_PUBLIC_MOCK_DELAY), 10) : 1000;
+const USE_MOCK = ENV.USE_MOCK;
+const MOCK_DELAY = ENV.MOCK_DELAY;
 
 export interface CreateAreaPayload {
   name: string;

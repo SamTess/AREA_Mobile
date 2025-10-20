@@ -55,7 +55,7 @@
     "directions": "Itinéraire"
   },
   "areaDetail": {
-    "notFound": "Zone introuvable",
+    "notFound": "Area introuvable",
     "alerts": {
       "addCardTitle": "Ajouter une carte",
       "addCardMessage": "Quel type de carte souhaitez-vous ajouter ?",

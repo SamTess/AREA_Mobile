@@ -89,18 +89,15 @@ export const AreaListCard: React.FC<AreaListCardProps> = ({ area, onPress }) => 
                 {area.name}
               </Text>
             </HStack>
-            <Badge
-              size="sm"
-              variant="solid"
-              action="muted"
-              className="ml-2"
+            <Box
+              className="ml-2 rounded-md px-2 py-1"
               style={{ backgroundColor: statusColor }}
             >
               <HStack space="xs" className="items-center">
                 <Icon as={StatusIcon} size="xs" className="text-white" />
-                <BadgeText className="text-white text-xs">{statusLabel}</BadgeText>
+                <Text className="text-white text-xs font-medium">{statusLabel}</Text>
               </HStack>
-            </Badge>
+            </Box>
           </HStack>
 
           {/* Description */}
@@ -147,7 +144,9 @@ export const AreaListCard: React.FC<AreaListCardProps> = ({ area, onPress }) => 
             <HStack space="xs" className="items-center">
               <Box
                 className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: area.enabled ? '#10B981' : '#6B7280' }}
+                style={{
+                  backgroundColor: area.enabled ? '#10B981' : '#6B7280',
+                }}
               />
               <Text className="text-typography-600 text-xs">
                 {enabledLabel}

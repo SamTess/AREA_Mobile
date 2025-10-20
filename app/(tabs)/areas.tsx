@@ -38,13 +38,19 @@ export default function AreasTab() {
     refreshAreas,
     clearError,
   } = useArea();
+  const alreadyPressedRef = React.useRef(false);
 
   const handleRefresh = useCallback(() => {
     refreshAreas().catch(err => console.error(t('areas.error.refresh', 'Failed to refresh areas'), err));
   }, [refreshAreas, t]);
 
   const handleAreaPress = (areaId: string) => {
+    if (alreadyPressedRef.current) return;
+    alreadyPressedRef.current = true;
     router.push(`/area-detail?id=${areaId}`);
+    setTimeout(() => {
+      alreadyPressedRef.current = false;
+    }, 1000);
   };
 
   const handleCreateArea = () => {
@@ -107,7 +113,8 @@ export default function AreasTab() {
           />
         )}
         contentContainerStyle={{
-          paddingHorizontal: 16,
+          paddingLeft: 16,
+          paddingRight: 16,
           paddingTop: 8,
           paddingBottom: 16,
         }}

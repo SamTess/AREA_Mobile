@@ -78,8 +78,16 @@ jest.mock('react-native-svg', () => {
   const { View } = require('react-native');
 
   const Svg = React.forwardRef((props: any, ref: any) => <View ref={ref} {...props} />);
+  Svg.displayName = 'Svg';
+
   const Line = (props: any) => <View {...props} />;
+  Line.displayName = 'Line';
+
   const Circle = (props: any) => <View {...props} />;
+  Circle.displayName = 'Circle';
+
+  const Path = (props: any) => <View {...props} />;
+  Path.displayName = 'Path';
 
   return {
     __esModule: true,
@@ -87,6 +95,7 @@ jest.mock('react-native-svg', () => {
     Svg,
     Line,
     Circle,
+    Path,
   };
 });
 
@@ -174,7 +183,7 @@ describe('AreaDetailScreen', () => {
 
     if (actionButton?.onPress) {
       actionButton.onPress();
-      
+
       // Check that alert was called - new card creation happens in the actual component
       expect(alertSpy).toHaveBeenCalled();
     }
@@ -187,7 +196,7 @@ describe('AreaDetailScreen', () => {
 
     if (reactionButton?.onPress) {
       reactionButton.onPress();
-      
+
       // Check that alert was called
       expect(alertSpy).toHaveBeenCalledTimes(2);
     }
