@@ -54,6 +54,95 @@
     "call": "Call",
     "directions": "Directions"
   },
+  "areaDetail": {
+    "notFound": "Area not found",
+    "alerts": {
+      "addCardTitle": "Add Card",
+      "addCardMessage": "What type of card do you want to add?",
+      "addCardCancel": "Cancel",
+      "addCardAction": "Action",
+      "addCardReaction": "Reaction",
+      "deleteTitle": "Delete Area",
+      "deleteMessage": "Are you sure you want to delete this area?",
+      "deleteCancel": "Cancel",
+      "deleteConfirm": "Delete"
+    },
+    "cards": {
+      "newActionName": "New Action",
+      "newReactionName": "New Reaction",
+      "typeLabel": {
+        "action": "Action",
+        "reaction": "Reaction"
+      },
+      "dropRemove": "Drop here to remove"
+    },
+    "header": {
+      "titlePlaceholder": "Area title",
+      "descriptionPlaceholder": "Area description"
+    },
+    "detailsSheet": {
+      "title": "Edit Card Settings",
+      "cardType": {
+        "action": "⚡ Action (Trigger)",
+        "reaction": "⚙️ Reaction"
+      },
+      "nameLabel": "Name",
+      "namePlaceholder": "Enter card name",
+      "triggerType": "Trigger Type",
+      "triggerTypes": {
+        "manual": "Manual",
+        "webhook": "Webhook",
+        "cron": "Cron"
+      },
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://example.com/webhook",
+      "serviceOptionalLabel": "Service (Optional)",
+      "cronLabel": "Cron Expression",
+      "cronPlaceholder": "*/5 * * * *",
+      "cronHelper": "Example: */5 * * * * (every 5 minutes)",
+      "selectServiceLabel": "Select Service",
+      "selectedService": "Selected:",
+      "selectedServiceHelper": "Action selection will be available in the next step",
+      "authLabel": "Auth:",
+      "cancel": "Cancel",
+      "save": "Save Changes"
+    }
+  },
+  "areas": {
+    "loading": {
+      "title": "Loading Areas..."
+    },
+    "header": {
+      "subtitle": "Manage your automated workflows",
+      "newButton": "New"
+    },
+    "create": {
+      "defaultName": "New Area"
+    },
+    "error": {
+      "dismiss": "Dismiss",
+      "refresh": "Failed to refresh areas"
+    },
+    "empty": {
+      "title": "No Areas Yet",
+      "description": "Create your first automation area to get started",
+      "action": "Create Area"
+    },
+    "card": {
+      "status": {
+        "success": "Success",
+        "failed": "Failed",
+        "inProgress": "In Progress",
+        "notStarted": "Not Started"
+      },
+      "actions": "{{count}} Action",
+      "actions_plural": "{{count}} Actions",
+      "reactions": "{{count}} Reaction",
+      "reactions_plural": "{{count}} Reactions",
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    }
+  },
   "common": {
     "popularBadge": "Popular"
   },
@@ -61,7 +150,9 @@
     "home": "Home",
     "login": "Login",
     "register": "Register",
-    "profile": "Profile"
+    "profile": "Profile",
+    "areas": "Areas",
+    "settings": "Settings"
   },
   "profile": {
     "title": "Profile",
