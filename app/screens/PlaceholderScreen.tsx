@@ -82,7 +82,7 @@ export default function PlaceholderScreen() {
           <Box
             className="w-24 h-24 rounded-full items-center justify-center bg-warning-100"
           >
-            <Icon as={Construction} size="2xl" className="text-warning-600" />
+            <Icon as={Construction} size="xl" className="text-warning-600" />
           </Box>
 
           {/* Text Content */}

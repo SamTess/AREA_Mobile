@@ -1,4 +1,3 @@
-// HelpScreen.tsx — corrigé (plus de bloc blanc ni erreur de syntaxe)
 import { useRouter } from 'expo-router';
 import { Mail, Github, MessageCircle, Send, Clock, Phone, Globe, AlertCircle } from 'lucide-react-native';
 import React, { useState } from 'react';
