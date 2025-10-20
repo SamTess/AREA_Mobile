@@ -84,7 +84,7 @@ describe('Input', () => {
   it('InputIcon handles numeric size and explicit width/height props', () => {
     const { rerender } = render(
       <Input>
-        <InputIcon size={24} />
+        <InputIcon size="xl" />
       </Input>
     );
     rerender(

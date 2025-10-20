@@ -10,7 +10,7 @@ describe('Icon', () => {
   });
 
   it('renders with numeric size', () => {
-    const { toJSON } = render(<Icon size={24} />);
+  const { toJSON } = render(<Icon size="xl" />);
     expect(toJSON()).toBeTruthy();
   });
 
