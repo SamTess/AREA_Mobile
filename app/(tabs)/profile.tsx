@@ -153,7 +153,7 @@ export default function ProfileScreen() {
             icon={HelpCircle}
             title={t('profile.helpTitle')}
             subtitle={t('profile.helpSubtitle')}
-            onPress={() => router.push('/details')}
+            onPress={() => router.push('/help')}
           />
           <Divider className="my-2" />
           <MenuItem

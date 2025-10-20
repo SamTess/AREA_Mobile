@@ -22,7 +22,7 @@ describe('Button suite', () => {
         <ButtonIcon
           // render as a simple Text to observe it exists
           as={(props: any) => <Text {...props} testID="icon-numeric" />}
-          size={18}
+          size="md"
         />
       </Button>
     );

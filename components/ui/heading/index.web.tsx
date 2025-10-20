@@ -192,7 +192,7 @@ const MappedHeading = memo(
         return (
           <h4
             className={headingStyle({
-              size: size as
+              size: (size ?? 'xl') as
                 | 'xs'
                 | 'sm'
                 | 'md'
