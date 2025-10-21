@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { Github, Mail } from 'lucide-react-native';
 import React from 'react';
 
-import ActionReactionItem from '../ActionReactionItem';
+import ActionReactionItemComp from '../ActionReactionItem';
 import { GluestackUIProvider } from '../ui/gluestack-ui-provider';
 
 // Mock i18next
@@ -46,7 +46,7 @@ describe('ActionReactionItem', () => {
   });
 
   it('renders correctly with all props', () => {
-    renderWithProvider(<ActionReactionItem {...defaultProps} />);
+  renderWithProvider(<ActionReactionItemComp {...defaultProps} />);
 
     expect(screen.getByText('GitHub Push')).toBeTruthy();
     expect(screen.getByText('Send Email')).toBeTruthy();
@@ -54,21 +54,21 @@ describe('ActionReactionItem', () => {
   });
 
   it('displays connected status when isConnected is true', () => {
-    renderWithProvider(<ActionReactionItem {...defaultProps} isConnected={true} />);
+  renderWithProvider(<ActionReactionItemComp {...defaultProps} isConnected={true} />);
 
     expect(screen.getByText('Connected')).toBeTruthy();
     expect(screen.queryByText('Connect')).toBeNull();
   });
 
   it('displays connect button when not connected', () => {
-    renderWithProvider(<ActionReactionItem {...defaultProps} />);
+  renderWithProvider(<ActionReactionItemComp {...defaultProps} />);
 
     const connectButton = screen.getByText('Connect');
     expect(connectButton).toBeTruthy();
   });
 
   it('calls onConnect when connect button is pressed', () => {
-    renderWithProvider(<ActionReactionItem {...defaultProps} />);
+  renderWithProvider(<ActionReactionItemComp {...defaultProps} />);
 
     const connectButton = screen.getByTestId('connect-button');
     fireEvent.press(connectButton);
@@ -77,7 +77,7 @@ describe('ActionReactionItem', () => {
   });
 
   it('calls onPress when item is pressed', () => {
-    renderWithProvider(<ActionReactionItem {...defaultProps} />);
+  renderWithProvider(<ActionReactionItemComp {...defaultProps} />);
 
     const item = screen.getByTestId('action-reaction-item');
     fireEvent.press(item);
@@ -86,7 +86,7 @@ describe('ActionReactionItem', () => {
   });
 
   it('does not render connect button when isConnected is true', () => {
-    renderWithProvider(<ActionReactionItem {...defaultProps} isConnected={true} />);
+  renderWithProvider(<ActionReactionItemComp {...defaultProps} isConnected={true} />);
 
     expect(screen.queryByTestId('connect-button')).toBeNull();
   });
@@ -95,7 +95,7 @@ describe('ActionReactionItem', () => {
     const propsWithoutOnConnect = { ...defaultProps };
     delete (propsWithoutOnConnect as any).onConnect;
 
-    renderWithProvider(<ActionReactionItem {...propsWithoutOnConnect} />);
+  renderWithProvider(<ActionReactionItemComp {...propsWithoutOnConnect} />);
 
     expect(screen.queryByTestId('connect-button')).toBeNull();
   });
@@ -104,7 +104,7 @@ describe('ActionReactionItem', () => {
     const propsWithoutOnPress = { ...defaultProps };
     delete (propsWithoutOnPress as any).onPress;
 
-    renderWithProvider(<ActionReactionItem {...propsWithoutOnPress} />);
+  renderWithProvider(<ActionReactionItemComp {...propsWithoutOnPress} />);
 
     const item = screen.getByTestId('action-reaction-item');
     expect(() => fireEvent.press(item)).not.toThrow();

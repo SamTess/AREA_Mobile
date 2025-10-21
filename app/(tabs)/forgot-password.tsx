@@ -5,7 +5,7 @@ import { Heading } from '@/components/ui/heading';
 import { Input, InputField } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import * as authService from '@/services/auth';
+import { forgotPassword } from '@/services/auth';
 import { useRouter } from 'expo-router';
 import { KeyRound } from 'lucide-react-native';
 import React, { useState } from 'react';
@@ -40,7 +40,7 @@ export default function ForgotPasswordScreen() {
         setIsLoading(true);
 
         try {
-            await authService.forgotPassword(email);
+            await forgotPassword(email);
 
             setIsLoading(false);
 

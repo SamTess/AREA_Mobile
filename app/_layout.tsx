@@ -40,7 +40,7 @@ export default function RootLayout() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [colorScheme, setColorScheme]);
 
   useEffect(() => {
     if (!colorScheme) return;

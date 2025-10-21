@@ -1,33 +1,13 @@
-import { useEffect, useState, useRef } from 'react';
-import { View, ActivityIndicator, Text, Button } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { Box } from '@/components/ui/box';
+import { Button, ButtonText } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
+import { VStack } from '@/components/ui/vstack';
+import { completeOAuthRedirect, getCurrentUser, logout } from '@/services/auth';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 
-import { API_CONFIG, API_ENDPOINTS } from '../services/api.config';
-import { logout, markHandledCode } from '../services/auth';
-import { saveUserData } from '../services/storage';
-
-type Provider = 'github' | 'google';
-
-async function tryFetchMe() {
-  const maxAttempts = 3;
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      const meRes = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.AUTH.ME}`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-      if (meRes.ok) {
-        const me = await meRes.json();
-        return me ?? null;
-      }
-      console.debug(`tryFetchMe attempt ${attempt}: HTTP ${meRes.status}`);
-    } catch (err) {
-      console.debug(`tryFetchMe attempt ${attempt}: network error`, err);
-    }
-    if (attempt < maxAttempts) await new Promise((res) => setTimeout(res, 250 * attempt));
-  }
-  return null;
-}
+type RedirectStatus = 'processing' | 'success' | 'error';
 
 export default function OAuthRedirect() {
   const params = useLocalSearchParams<{
@@ -37,124 +17,130 @@ export default function OAuthRedirect() {
     error_description?: string;
   }>();
 
-  const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
-  const [message, setMessage] = useState('Completing authentication…');
+  const [status, setStatus] = useState<RedirectStatus>('processing');
+  const [message, setMessage] = useState<string>('Finalising authentication…');
   const [debug, setDebug] = useState<string | null>(null);
-
-  const hasHandledRef = useRef(false);
+  const handledRef = useRef(false);
 
   useEffect(() => {
+    if (handledRef.current) {
+      console.debug('[oauthredirect] duplicate invocation ignored');
+      return;
+    }
+    handledRef.current = true;
+
+    let cancelled = false;
+
     const run = async () => {
-      if (hasHandledRef.current) {
-        console.debug('OAuthRedirect: already handled, skipping duplicate callback');
-        return;
-      }
-      hasHandledRef.current = true;
-      const code = (params.code ?? '').toString();
-      const providerParam = (params.provider ?? 'github').toString().toLowerCase();
-      const provider: Provider = providerParam === 'google' ? 'google' : 'github';
+      console.debug('[oauthredirect] params', JSON.stringify(params));
+      setStatus('processing');
+      setMessage('Finalising authentication…');
+      setDebug(null);
 
-      const err = params.error?.toString();
-      const errDesc = params.error_description?.toString();
+      const MAX_ATTEMPTS = 3;
+      const buildRetryMessage = (attempt: number) =>
+        `Contacting server… (attempt ${attempt}/${MAX_ATTEMPTS})`;
 
-      // Provider-level error
-      if (err) {
-        setStatus('error');
-        setMessage(errDesc || err || 'OAuth authentication failed');
-        return;
-      }
-
-      // No code? Maybe cookies are already set → try /me
-      if (!code) {
-        const me = await tryFetchMe();
-        if (me) {
-          await saveUserData(JSON.stringify(me));
-          setStatus('success');
-          setMessage('Already authenticated. Redirecting…');
-          setTimeout(() => router.replace('/'), 600);
-          return;
+      for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+        if (cancelled) return;
+        if (attempt > 1) {
+          setMessage(buildRetryMessage(attempt));
         }
-        setStatus('error');
-        setMessage('No authorization code received.');
-        return;
-      }
 
-      // Attempt the exchange
-      try {
-        const exchangePath =
-          provider === 'github' ? API_ENDPOINTS.OAUTH.GITHUB_EXCHANGE : API_ENDPOINTS.OAUTH.GOOGLE_EXCHANGE;
+        try {
+          const result = await completeOAuthRedirect({
+            code: params.code,
+            provider: params.provider,
+            error: params.error,
+            error_description: params.error_description,
+          });
 
-        const res = await fetch(`${API_CONFIG.BASE_URL}${exchangePath}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ code }),
-        });
+          if (cancelled) return;
+          console.debug('[oauthredirect] success, redirecting to /(tabs)');
+          setStatus('success');
+          setMessage(result.message || 'Authentication successful');
+          setTimeout(() => router.replace('/(tabs)'), 600);
+          return;
+        } catch (err) {
+          if (cancelled) return;
+          const rawMessage = err instanceof Error ? err.message : 'Authentication failed';
+          console.debug('[oauthredirect] error during completion', err);
 
-        if (!res.ok) {
-          // Android sometimes shows 500 even though cookies are set server-side.
-          // Fallback: check /me right away; if authenticated, we proceed.
-          const text = await res.text().catch(() => '');
-          setDebug(`Exchange HTTP ${res.status} ${text || ''}`.trim());
+          const fallback = await getCurrentUser();
+          if (cancelled) return;
 
-          const me = await tryFetchMe();
-          if (me) {
-            await saveUserData(JSON.stringify(me));
+            if (fallback) {
             setStatus('success');
             setMessage('Authentication completed. Redirecting…');
-            if (code) markHandledCode(code);
-            setTimeout(() => router.replace('/'), 600);
+            setTimeout(() => router.replace('/(tabs)'), 600);
             return;
           }
 
-          throw new Error(text || `Exchange failed (HTTP ${res.status})`);
+          if (attempt < MAX_ATTEMPTS) {
+            setDebug(rawMessage);
+            await new Promise((resolve) => setTimeout(resolve, 750 * attempt));
+            continue;
+          }
+
+          setStatus('error');
+          setMessage('We could not complete authentication. Please try again.');
+          setDebug(rawMessage);
         }
-
-        // Normal path: exchange OK → load user
-        const me = await tryFetchMe();
-        if (!me) throw new Error('Failed to load current user after exchange');
-
-        await saveUserData(JSON.stringify(me));
-        if (code) markHandledCode(code);
-        setStatus('success');
-        setMessage('Authentication successful! Redirecting…');
-        setTimeout(() => router.replace('/'), 800);
-      } catch (e: any) {
-        setStatus('error');
-        setMessage(e?.message || 'Server error during authentication');
-        setDebug(String(e));
       }
     };
 
     run();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.code, params.provider, params.error]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [params.code, params.provider, params.error, params.error_description, params]);
 
   return (
-    <View style={{ flex: 1, padding: 24, alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-      {status === 'processing' && <ActivityIndicator size="large" />}
-      <Text style={{ fontSize: 20, fontWeight: '600', textAlign: 'center' }}>
-        {status === 'processing' && 'Authentication in progress…'}
-        {status === 'success' && 'Authentication successful'}
-        {status === 'error' && 'Authentication error'}
-      </Text>
-      <Text style={{ textAlign: 'center' }}>{message}</Text>
+    <Box className="flex-1 p-6 items-center justify-center">
+      <VStack space="lg" className="items-center">
+        {status === 'processing' && <ActivityIndicator size="large" color="#333" />}
+        
+        <Text size="xl" className="font-semibold text-center">
+          {status === 'processing' && 'Authentication in progress…'}
+          {status === 'success' && 'Authentication successful'}
+          {status === 'error' && 'Authentication error'}
+        </Text>
+        
+        <Text className="text-center">{message}</Text>
 
-      {status === 'error' && (
-        <>
-          <Button title="Try again" onPress={() => router.replace('/')} />
-          <Button
-            title="Logout & retry"
-            onPress={async () => {
-              try { await logout(); } catch {}
-              router.replace('/');
-            }}
-          />
-          {debug ? (
-            <Text style={{ marginTop: 8, fontSize: 12, color: '#666' }}>{debug}</Text>
-          ) : null}
-        </>
-      )}
-    </View>
+        {status === 'error' && (
+          <>
+            <Button 
+              onPress={() => router.replace('/(tabs)')}
+              className="mt-4"
+            >
+              <ButtonText>Try again</ButtonText>
+            </Button>
+            
+            <Button
+              onPress={async () => {
+                try {
+                  await logout();
+                } catch (err) {
+                  console.debug('[oauthredirect] logout error before retry', err);
+                }
+                router.replace('/(tabs)');
+              }}
+              variant="outline"
+              className="mt-2"
+            >
+              <ButtonText>Logout & retry</ButtonText>
+            </Button>
+            
+            {debug ? (
+              <Text size="sm" className="mt-2 text-gray-600 text-center">
+                {debug}
+              </Text>
+            ) : null}
+          </>
+        )}
+      </VStack>
+    </Box>
   );
 }

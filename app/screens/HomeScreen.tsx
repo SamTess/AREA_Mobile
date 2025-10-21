@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ActionReactionItem from '@/components/ActionReactionItem';
+import ActionReactionItemComp from '@/components/ActionReactionItem';
 import { Badge, BadgeText } from '@/components/ui/badge';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
@@ -242,7 +242,7 @@ export default function HomeScreen() {
           ) : (
             <VStack space="md">
               {actionReactionPairs.map((pair) => (
-                <ActionReactionItem
+                <ActionReactionItemComp
                   key={pair.id}
                   actionName={pair.actionName}
                   reactionName={pair.reactionName}
