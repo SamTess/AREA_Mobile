@@ -16,6 +16,12 @@
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select profile photos."
       }
     },
+    "extra": {
+      "EXPO_PUBLIC_USE_MOCK": "true",
+      "EXPO_PUBLIC_MOCK_DELAY": "1000",
+      "EXPO_PUBLIC_API_URL": "192.168.1.197:8080",
+      "EXPO_PUBLIC_APP_SCHEME": "areamobile"
+    },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",

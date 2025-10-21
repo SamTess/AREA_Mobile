@@ -13,10 +13,10 @@
     "ctaSubtitle": "Explorez toutes nos recommandations personnalisées",
     "statusActive": "Active",
     "statusInactive": "Inactive",
-    "toggleOn": "ON",
-    "toggleOff": "OFF",
+    "toggleOn": "ACTIVÉ",
+    "toggleOff": "DÉSACTIVÉ",
     "labelAction": "ACTION",
-    "labelReaction": "REACTION",
+    "labelReaction": "RÉACTION",
     "triggers": "déclenchements",
     "activesLabel": "ACTIVES",
     "totalLabel": "TOTAL",
@@ -54,6 +54,95 @@
     "call": "Appeler",
     "directions": "Itinéraire"
   },
+  "areaDetail": {
+    "notFound": "Area introuvable",
+    "alerts": {
+      "addCardTitle": "Ajouter une carte",
+      "addCardMessage": "Quel type de carte souhaitez-vous ajouter ?",
+      "addCardCancel": "Annuler",
+      "addCardAction": "Action",
+      "addCardReaction": "Réaction",
+      "deleteTitle": "Supprimer l'AREA",
+      "deleteMessage": "Êtes-vous sûr de vouloir supprimer cette AREA ?",
+      "deleteCancel": "Annuler",
+      "deleteConfirm": "Supprimer"
+    },
+    "cards": {
+      "newActionName": "Nouvelle action",
+      "newReactionName": "Nouvelle réaction",
+      "typeLabel": {
+        "action": "Action",
+        "reaction": "Réaction"
+      },
+      "dropRemove": "Déposez ici pour supprimer"
+    },
+    "header": {
+      "titlePlaceholder": "Titre de l'AREA",
+      "descriptionPlaceholder": "Description de l'AREA"
+    },
+    "detailsSheet": {
+      "title": "Modifier la carte",
+      "cardType": {
+        "action": "⚡ Action (Déclencheur)",
+        "reaction": "⚙️ Réaction"
+      },
+      "nameLabel": "Nom",
+      "namePlaceholder": "Entrez le nom de la carte",
+      "triggerType": "Type de déclencheur",
+      "triggerTypes": {
+        "manual": "Manuel",
+        "webhook": "Webhook",
+        "cron": "Cron"
+      },
+      "webhookUrlLabel": "URL du webhook",
+      "webhookUrlPlaceholder": "https://exemple.com/webhook",
+      "serviceOptionalLabel": "Service (optionnel)",
+      "cronLabel": "Expression cron",
+      "cronPlaceholder": "*/5 * * * *",
+      "cronHelper": "Exemple : */5 * * * * (toutes les 5 minutes)",
+      "selectServiceLabel": "Sélectionnez un service",
+      "selectedService": "Sélectionné :",
+      "selectedServiceHelper": "La sélection de l'action sera disponible à l'étape suivante",
+      "authLabel": "Auth :",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    }
+  },
+  "areas": {
+    "loading": {
+      "title": "Chargement des Areas..."
+    },
+    "header": {
+      "subtitle": "Gérez vos workflows automatisés",
+      "newButton": "Nouveau"
+    },
+    "create": {
+      "defaultName": "Nouvelle Area"
+    },
+    "error": {
+      "dismiss": "Ignorer",
+      "refresh": "Échec de l'actualisation des Areas"
+    },
+    "empty": {
+      "title": "Aucune Area pour le moment",
+      "description": "Créez votre première Area d'automatisation pour commencer",
+      "action": "Créer une Area"
+    },
+    "card": {
+      "status": {
+        "success": "Succès",
+        "failed": "Échec",
+        "inProgress": "En cours",
+        "notStarted": "Non démarré"
+      },
+      "actions": "{{count}} action",
+      "actions_plural": "{{count}} actions",
+      "reactions": "{{count}} réaction",
+      "reactions_plural": "{{count}} réactions",
+      "enabled": "Activée",
+      "disabled": "Désactivée"
+    }
+  },
   "common": {
     "popularBadge": "Populaire"
   },
@@ -61,7 +150,9 @@
     "home": "Accueil",
     "login": "Connexion",
     "register": "Inscription",
-    "profile": "Profil"
+    "profile": "Profil",
+    "areas": "Areas",
+    "settings": "Paramètres"
   },
   "profile": {
     "title": "Profil",
@@ -216,5 +307,37 @@
     "microsoftReaction": "Réaction Microsoft",
     "googleAction": "Action Google",
     "googleReaction": "Réaction Google"
+  },
+  "help": {
+    "title": "Nous Contacter",
+    "subtitle": "Des questions ou besoin d'aide ? Nous sommes là pour vous accompagner à chaque étape.",
+    "emailTitle": "Support Email",
+    "emailDescription": "Obtenez de l'aide de notre équipe",
+    "githubTitle": "GitHub Issues",
+    "githubDescription": "Signaler des bugs et contribuer",
+    "discordTitle": "Communauté Discord",
+    "discordDescription": "Rejoignez la conversation",
+    "discordValue": "Rejoindre notre serveur",
+    "formTitle": "Envoyez-nous un Message",
+    "formSubtitle": "Nous répondrons sous 24 heures",
+    "nameLabel": "Nom",
+    "namePlaceholder": "Jean Dupont",
+    "emailLabel": "Email",
+    "emailPlaceholder": "jean@example.com",
+    "subjectLabel": "Sujet",
+    "subjectPlaceholder": "Comment pouvons-nous vous aider ?",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Parlez-nous de votre demande...",
+    "sendButton": "Envoyer le Message",
+    "successTitle": "Message Envoyé !",
+    "successMessage": "Merci ! Nous vous répondrons bientôt.",
+    "errorTitle": "Erreur",
+    "errorMessage": "Veuillez remplir tous les champs obligatoires",
+    "responseTitle": "Temps de Réponse",
+    "responseTime": "Sous 24 heures",
+    "phoneTitle": "Support Téléphonique",
+    "phoneNumber": "+33 6 95 41 16 79",
+    "languagesTitle": "Langues",
+    "languagesSupported": "Anglais, Français"
   }
 }

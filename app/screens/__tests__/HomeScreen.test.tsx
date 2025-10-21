@@ -13,9 +13,9 @@ describe('HomeScreen', () => {
     render(<HomeScreen />, { wrapper: Providers });
 
     expect(screen.getByText('Hello!')).toBeTruthy();
-    expect(screen.getByText('Mes Automations')).toBeTruthy();
-    expect(screen.getByText('Services Disponibles')).toBeTruthy();
-    expect(screen.getByText('Templates Populaires')).toBeTruthy();
+    expect(screen.getByText('My Automations')).toBeTruthy();
+    expect(screen.getByText('Available Services')).toBeTruthy();
+    expect(screen.getByText('Popular Templates')).toBeTruthy();
   });
 
   it('navigates when pressing create button and a service card', () => {

@@ -1,7 +1,7 @@
 {
   "home": {
     "greeting": "Hello!",
-    "subtitle": "Automatisez vos tâches quotidiennes",
+    "subtitle": "Automate your daily tasks",
     "discover": "Discover our latest recommendations",
     "searchPlaceholder": "Search...",
     "recommended": "Recommended",
@@ -17,31 +17,31 @@
     "toggleOff": "OFF",
     "labelAction": "ACTION",
     "labelReaction": "REACTION",
-    "triggers": "déclenchements",
-    "activesLabel": "ACTIVES",
+    "triggers": "triggers",
+    "activesLabel": "ACTIVE",
     "totalLabel": "TOTAL",
-    "automationsInProgress": "automations en cours",
-    "myAutomationsTitle": "Mes Automations",
-    "noAutomationsTitle": "Aucune automation",
-    "noAutomationsDesc": "Créez votre première automation pour commencer",
-    "servicesTitle": "Services Disponibles",
-    "createAutomationTitle": "Créer une automation",
-    "createAutomationSubtitle": "Connectez vos services préférés et automatisez vos workflows en quelques clics",
-    "createAutomationButton": "Nouvelle AREA",
-    "popularTemplatesTitle": "Templates Populaires",
+    "automationsInProgress": "automations in progress",
+    "myAutomationsTitle": "My Automations",
+    "noAutomationsTitle": "No automations",
+    "noAutomationsDesc": "Create your first automation to get started",
+    "servicesTitle": "Available Services",
+    "createAutomationTitle": "Create an automation",
+    "createAutomationSubtitle": "Connect your favorite services and automate your workflows in just a few clicks",
+    "createAutomationButton": "New AREA",
+    "popularTemplatesTitle": "Popular Templates",
     "template1Title": "GitHub → Microsoft Teams",
-    "template1Desc": "Alertes de commits et PR",
+    "template1Desc": "Commit and PR alerts",
     "template2Title": "Google Calendar → Gmail",
-    "template2Desc": "Rappels d'événements",
+    "template2Desc": "Event reminders",
     "template3Title": "GitHub Issues → Microsoft Planner",
-    "template3Desc": "Création automatique de tâches",
+    "template3Desc": "Automatic task creation",
     "category": {
       "dev": "Dev",
       "productivity": "Productivity"
     }
   },
   "details": {
-    "title": "Restaurant Gastronomique",
+    "title": "Gourmet Restaurant",
     "address": "123 Peace Street, Paris",
     "reviews": "4.8 (245 reviews)",
     "description": "Enjoy an exceptional culinary experience in this renowned gourmet restaurant. Our executive chef offers refined cuisine combining tradition and innovation, with carefully selected seasonal ingredients.",
@@ -54,6 +54,95 @@
     "call": "Call",
     "directions": "Directions"
   },
+  "areaDetail": {
+    "notFound": "Area not found",
+    "alerts": {
+      "addCardTitle": "Add Card",
+      "addCardMessage": "What type of card do you want to add?",
+      "addCardCancel": "Cancel",
+      "addCardAction": "Action",
+      "addCardReaction": "Reaction",
+      "deleteTitle": "Delete Area",
+      "deleteMessage": "Are you sure you want to delete this area?",
+      "deleteCancel": "Cancel",
+      "deleteConfirm": "Delete"
+    },
+    "cards": {
+      "newActionName": "New Action",
+      "newReactionName": "New Reaction",
+      "typeLabel": {
+        "action": "Action",
+        "reaction": "Reaction"
+      },
+      "dropRemove": "Drop here to remove"
+    },
+    "header": {
+      "titlePlaceholder": "Area title",
+      "descriptionPlaceholder": "Area description"
+    },
+    "detailsSheet": {
+      "title": "Edit Card Settings",
+      "cardType": {
+        "action": "⚡ Action (Trigger)",
+        "reaction": "⚙️ Reaction"
+      },
+      "nameLabel": "Name",
+      "namePlaceholder": "Enter card name",
+      "triggerType": "Trigger Type",
+      "triggerTypes": {
+        "manual": "Manual",
+        "webhook": "Webhook",
+        "cron": "Cron"
+      },
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://example.com/webhook",
+      "serviceOptionalLabel": "Service (Optional)",
+      "cronLabel": "Cron Expression",
+      "cronPlaceholder": "*/5 * * * *",
+      "cronHelper": "Example: */5 * * * * (every 5 minutes)",
+      "selectServiceLabel": "Select Service",
+      "selectedService": "Selected:",
+      "selectedServiceHelper": "Action selection will be available in the next step",
+      "authLabel": "Auth:",
+      "cancel": "Cancel",
+      "save": "Save Changes"
+    }
+  },
+  "areas": {
+    "loading": {
+      "title": "Loading Areas..."
+    },
+    "header": {
+      "subtitle": "Manage your automated workflows",
+      "newButton": "New"
+    },
+    "create": {
+      "defaultName": "New Area"
+    },
+    "error": {
+      "dismiss": "Dismiss",
+      "refresh": "Failed to refresh areas"
+    },
+    "empty": {
+      "title": "No Areas Yet",
+      "description": "Create your first automation area to get started",
+      "action": "Create Area"
+    },
+    "card": {
+      "status": {
+        "success": "Success",
+        "failed": "Failed",
+        "inProgress": "In Progress",
+        "notStarted": "Not Started"
+      },
+      "actions": "{{count}} Action",
+      "actions_plural": "{{count}} Actions",
+      "reactions": "{{count}} Reaction",
+      "reactions_plural": "{{count}} Reactions",
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    }
+  },
   "common": {
     "popularBadge": "Popular"
   },
@@ -61,7 +150,9 @@
     "home": "Home",
     "login": "Login",
     "register": "Register",
-    "profile": "Profile"
+    "profile": "Profile",
+    "areas": "Areas",
+    "settings": "Settings"
   },
   "profile": {
     "title": "Profile",
@@ -216,5 +307,37 @@
     "microsoftReaction": "Microsoft Reaction",
     "googleAction": "Google Action",
     "googleReaction": "Google Reaction"
+  },
+  "help": {
+    "title": "Get in Touch",
+    "subtitle": "Questions or need help? We're here to assist you every step of the way.",
+    "emailTitle": "Email Support",
+    "emailDescription": "Get help from our team",
+    "githubTitle": "GitHub Issues",
+    "githubDescription": "Report bugs & contribute",
+    "discordTitle": "Discord Community",
+    "discordDescription": "Join the conversation",
+    "discordValue": "Join our server",
+    "formTitle": "Send us a Message",
+    "formSubtitle": "We'll respond within 24 hours",
+    "nameLabel": "Name",
+    "namePlaceholder": "John Doe",
+    "emailLabel": "Email",
+    "emailPlaceholder": "john@example.com",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "How can we help?",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Tell us more about your inquiry...",
+    "sendButton": "Send Message",
+    "successTitle": "Message Sent!",
+    "successMessage": "Thank you! We'll get back to you soon.",
+    "errorTitle": "Error",
+    "errorMessage": "Please fill in all required fields",
+    "responseTitle": "Response Time",
+    "responseTime": "Within 24 hours",
+    "phoneTitle": "Phone Support",
+    "phoneNumber": "+33 6 95 41 16 79",
+    "languagesTitle": "Languages",
+    "languagesSupported": "English, French"
   }
 }
