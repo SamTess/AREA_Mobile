@@ -106,6 +106,12 @@
       "authLabel": "Auth :",
       "cancel": "Annuler",
       "save": "Enregistrer"
+    },
+    "linkDetails": {
+      "title": "Détails du lien",
+      "orderLabel": "Ordre",
+      "save": "Enregistrer",
+      "remove": "Supprimer"
     }
   },
   "areas": {

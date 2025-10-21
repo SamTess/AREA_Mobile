@@ -19,6 +19,7 @@ export type { ActionDto, ReactionDto } from './areas';
 export interface Connection {
   from: string;
   to: string;
+  order?: number;
 }
 
 export interface ActiveConnection {

@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanima
 import { Box } from '@/components/ui/box';
 import { Text } from '@/components/ui/text';
 import { useTranslation } from 'react-i18next';
+import { useSelectedArea } from '@/contexts/SelectedAreaContext';
 
 import {
   AddCardButton,
@@ -17,14 +18,14 @@ import {
   CardDetailsSheet,
   ConnectionLayer,
   DotGridBackground,
+  LinkDetailsSheet,
   RemoveZone,
   CARD_HEIGHT,
   CARD_WIDTH,
   REMOVE_ZONE_HEIGHT,
   screenHeight,
 } from '@/components/area-detail';
-import areasData from '@/mocks/areas.json';
-import type { AreaDto, ActionDto, ReactionDto } from '@/types/areas';
+import type { ActionDto, ReactionDto } from '@/types/areas';
 import type {
   ActiveConnection,
   CardData,
@@ -103,37 +104,34 @@ export default function AreaDetailScreen() {
   const { t } = useTranslation();
   const areaId = params.id as string;
 
-  const area = areasData.areas.find((a) => a.id === areaId) as AreaDto | undefined;
+  const {
+    selectedArea,
+    cards,
+    connections,
+    isLoading,
+    error,
+    loadArea,
+    updateAreaDetails,
+    addAction,
+    addReaction,
+    updateCard,
+    removeCard,
+    addConnection,
+    removeConnection,
+    updateConnection,
+    clearError,
+  } = useSelectedArea();
 
-  const [cards, setCards] = useState<CardData[]>(() => {
-    if (!area) return [];
-
-    const actionCards: CardData[] = area.actions.map((action, index) => ({
-      id: action.id,
-      type: 'action',
-      data: action,
-      position: { x: 100, y: 150 + index * 200 },
-    }));
-
-    const reactionCards: CardData[] = area.reactions.map((reaction, index) => ({
-      id: reaction.id,
-      type: 'reaction',
-      data: reaction,
-      position: { x: 400, y: 150 + index * 200 },
-    }));
-
-    return [...actionCards, ...reactionCards];
-  });
-
-  const [connections, setConnections] = useState<Connection[]>([]);
   const [isDraggingCard, setIsDraggingCard] = useState(false);
   const [activeConnection, setActiveConnection] = useState<ActiveConnection | null>(null);
   const [isRemoveZoneActive, setIsRemoveZoneActive] = useState(false);
   const [sideMenuVisible, setSideMenuVisible] = useState(false);
   const [selectedCard, setSelectedCard] = useState<CardData | null>(null);
   const [editingArea, setEditingArea] = useState(false);
-  const [areaTitle, setAreaTitle] = useState(area?.name || '');
-  const [areaDescription, setAreaDescription] = useState(area?.description || '');
+  const [areaTitle, setAreaTitle] = useState('');
+  const [areaDescription, setAreaDescription] = useState('');
+  const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
+  const [linkModalVisible, setLinkModalVisible] = useState(false);
 
   const canvasTranslateX = useSharedValue(0);
   const canvasTranslateY = useSharedValue(0);
@@ -144,6 +142,19 @@ export default function AreaDetailScreen() {
   const isDraggingConnection = activeConnection !== null;
 
   const removeZoneTop = screenHeight - REMOVE_ZONE_HEIGHT;
+
+  useEffect(() => {
+    if (areaId) {
+      loadArea(areaId);
+    }
+  }, [areaId, loadArea]);
+
+  useEffect(() => {
+    if (selectedArea) {
+      setAreaTitle(selectedArea.name);
+      setAreaDescription(selectedArea.description);
+    }
+  }, [selectedArea]);
 
   const canvasPan = Gesture.Pan()
     .runOnJS(true)
@@ -231,9 +242,9 @@ export default function AreaDetailScreen() {
 
     if (target) {
         if (activeConnection.fromDirection === 'right' && target.side === 'left') {
-          setConnections((prev) => [...prev, { from: activeConnection.from, to: target.cardId }]);
+          addConnection({ from: activeConnection.from, to: target.cardId });
         } else if (activeConnection.fromDirection === 'left' && target.side === 'right') {
-          setConnections((prev) => [...prev, { from: target.cardId, to: activeConnection.from }]);
+          addConnection({ from: target.cardId, to: activeConnection.from });
         }
     }
 
@@ -247,44 +258,42 @@ export default function AreaDetailScreen() {
     setSideMenuVisible(true);
   };
 
+  const handleSelectConnection = (connection: Connection) => {
+    setSelectedConnection(connection);
+    setLinkModalVisible(true);
+  };
+
   const handleAddAction = () => {
-    const newId = `action_${Date.now()}`;
-    const newCard: CardData = {
-      id: newId,
-      type: 'action',
-      data: {
-        id: newId,
-        actionDefinitionId: '',
-        name: t('areaDetail.cards.newActionName'),
-        parameters: {},
-        activationConfig: { type: 'manual' },
-      } as ActionDto,
-      position: { x: 100, y: 100 },
-    };
-    setCards((prev) => [...prev, newCard]);
+    addAction({
+      actionDefinitionId: '',
+      name: t('areaDetail.cards.newActionName'),
+      parameters: {},
+      activationConfig: { type: 'manual' },
+    });
   };
 
   const handleAddReaction = () => {
-    const newId = `reaction_${Date.now()}`;
-    const newCard: CardData = {
-      id: newId,
-      type: 'reaction',
-      data: {
-        id: newId,
-        actionDefinitionId: '',
-        name: t('areaDetail.cards.newReactionName'),
-        parameters: {},
-        order: cards.filter((c) => c.type === 'reaction').length,
-        continue_on_error: false,
-      } as ReactionDto,
-      position: { x: 400, y: 100 },
-    };
-
-    setCards((prev) => [...prev, newCard]);
+    addReaction({
+      actionDefinitionId: '',
+      name: t('areaDetail.cards.newReactionName'),
+      parameters: {},
+      order: cards.filter((c) => c.type === 'reaction').length,
+      continue_on_error: false,
+    });
   };
 
   const handleToggleEditing = () => {
     setEditingArea((prev) => !prev);
+  };
+
+  const handleAreaTitleChange = (title: string) => {
+    setAreaTitle(title);
+    updateAreaDetails(title, areaDescription);
+  };
+
+  const handleAreaDescriptionChange = (description: string) => {
+    setAreaDescription(description);
+    updateAreaDetails(areaTitle, description);
   };
 
   const handleRequestDelete = () => {
@@ -299,20 +308,36 @@ export default function AreaDetailScreen() {
   };
 
   const handleCardEdit = (cardId: string, updatedCard: CardData) => {
-    setCards((prev) =>
-      prev.map((c) => (c.id === cardId ? updatedCard : c))
-    );
+    updateCard(cardId, updatedCard);
+  };
+
+  const handleConnectionSave = (updatedConnection: Connection) => {
+    updateConnection(selectedConnection!, updatedConnection);
+  };
+
+  const handleConnectionRemove = (connection: Connection) => {
+    removeConnection(connection);
   };
 
   const handleBack = () => {
     router.back();
   };
 
-  if (!area) {
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-background-0 items-center justify-center">
+        <Text size="lg" className="text-typography-600">
+          {t('areaDetail.loading', 'Loading area...')}
+        </Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (!selectedArea) {
     return (
       <Box className="flex-1 items-center justify-center bg-background-50">
         <Text size="lg" className="text-typography-600">
-          {t('areaDetail.notFound')}
+          {t('areaDetail.notFound', 'Area not found')}
         </Text>
       </Box>
     );
@@ -326,8 +351,8 @@ export default function AreaDetailScreen() {
             title={areaTitle}
             description={areaDescription}
             isEditing={editingArea}
-            onChangeTitle={setAreaTitle}
-            onChangeDescription={setAreaDescription}
+            onChangeTitle={handleAreaTitleChange}
+            onChangeDescription={handleAreaDescriptionChange}
             onToggleEditing={handleToggleEditing}
             onRequestDelete={handleRequestDelete}
             onBack={handleBack}
@@ -341,6 +366,7 @@ export default function AreaDetailScreen() {
                   cards={cards}
                   connections={connections}
                   activeConnection={activeConnection}
+                  onConnectionPress={handleSelectConnection}
                 />
 
                 {cards.map((card) => (
@@ -349,15 +375,10 @@ export default function AreaDetailScreen() {
                     card={card}
                     removeZoneTop={removeZoneTop}
                     onMove={(id, position) => {
-                      setCards((prev) =>
-                        prev.map((c) => (c.id === id ? { ...c, position } : c))
-                      );
+                      updateCard(id, { position });
                     }}
                     onRemove={(id) => {
-                      setCards((prev) => prev.filter((c) => c.id !== id));
-                      setConnections((prev) =>
-                        prev.filter((conn) => conn.from !== id && conn.to !== id)
-                      );
+                      removeCard(id);
                     }}
                     onSelect={handleSelectCard}
                     onStartConnection={handleStartConnection}
@@ -387,6 +408,14 @@ export default function AreaDetailScreen() {
             card={selectedCard}
             onClose={() => setSideMenuVisible(false)}
             onCardEdit={handleCardEdit}
+          />
+
+          <LinkDetailsSheet
+            visible={linkModalVisible}
+            connection={selectedConnection}
+            onClose={() => setLinkModalVisible(false)}
+            onSave={handleConnectionSave}
+            onRemove={handleConnectionRemove}
           />
         </Box>
       </SafeAreaView>

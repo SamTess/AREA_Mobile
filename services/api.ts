@@ -1,4 +1,5 @@
 import { API_CONFIG, HTTP_METHODS } from './api.config';
+import { getCookies, saveCookies } from './storage';
 
 interface QueryParams {
   [key: string]: string | number | boolean | null | undefined;
@@ -27,6 +28,58 @@ function buildUrl(path: string, params?: QueryParams): string {
   return url.toString();
 }
 
+/**
+ * Request interceptor: Adds stored cookies to outgoing requests
+ */
+async function requestInterceptor(headers: Record<string, string>): Promise<Record<string, string>> {
+  const storedCookies = await getCookies();
+
+  console.log('Adding stored cookies to request:', storedCookies);
+  if (storedCookies) {
+    return {
+      ...headers,
+      Cookie: storedCookies,
+    };
+  }
+
+  return headers;
+}
+
+/**
+ * Response interceptor: Extracts and stores cookies from responses
+ */
+async function responseInterceptor(response: Response): Promise<void> {
+  const setCookieHeader = response.headers.get('set-cookie');
+
+  console.log('Received Set-Cookie header from response:', setCookieHeader);
+  if (setCookieHeader) {
+    // Parse and store cookies
+    const cookies = parseCookies(setCookieHeader);
+    if (cookies) {
+      await saveCookies(cookies);
+    }
+  }
+}
+
+/**
+ * Parses Set-Cookie header and extracts cookie values
+ */
+function parseCookies(setCookieHeader: string): string {
+  // Split multiple cookies if present
+  const cookieStrings = setCookieHeader.split(',').map(cookie => cookie.trim());
+
+  // Extract just the cookie name=value pairs (before the first semicolon)
+  const cookies = cookieStrings
+    .map(cookie => {
+      const parts = cookie.split(';');
+      return parts[0].trim();
+    })
+    .filter(Boolean)
+    .join('; ');
+
+  return cookies;
+}
+
 async function parseJson<T>(response: Response): Promise<T | null> {
   if (response.status === 204) {
     return null;
@@ -45,19 +98,27 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
   const url = buildUrl(path, params);
 
   const hasBody = body !== undefined && body !== null;
+
+  // Apply request interceptor to add cookies
+  const interceptedHeaders = await requestInterceptor({
+    ...API_CONFIG.HEADERS,
+    ...(headers || {}),
+    ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
+  });
+
   const requestInit: RequestInit = {
     method,
     signal,
     credentials: 'include',
-    headers: {
-      ...API_CONFIG.HEADERS,
-      ...(headers || {}),
-      ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
-    },
+    headers: interceptedHeaders,
     body: hasBody ? JSON.stringify(body) : undefined,
   };
 
   const response = await fetch(url, requestInit);
+
+  // Apply response interceptor to extract and store cookies
+  await responseInterceptor(response);
+
   const data = await parseJson<T>(response);
 
   if (!response.ok) {

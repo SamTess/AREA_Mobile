@@ -57,9 +57,11 @@ describe('ConnectionLayer', () => {
     );
 
     const lines = UNSAFE_getAllByType(Line);
-    expect(lines).toHaveLength(1);
-    expect(lines[0].props.x1).toBeGreaterThan(0);
-    expect(lines[0].props.x2).toBeGreaterThan(0);
+    expect(lines).toHaveLength(2); // visible + touch
+    const visibleLines = lines.filter((line) => line.props.stroke !== 'transparent');
+    expect(visibleLines).toHaveLength(1);
+    expect(visibleLines[0].props.x1).toBeGreaterThan(0);
+    expect(visibleLines[0].props.x2).toBeGreaterThan(0);
   });
 
   it('renders active connection preview when provided', () => {
@@ -68,7 +70,7 @@ describe('ConnectionLayer', () => {
     );
 
     const lines = UNSAFE_getAllByType(Line);
-    expect(lines).toHaveLength(2);
+    expect(lines).toHaveLength(3); // 2 for connection + 1 for active
 
     const previewLine = lines.find((line) => line.props.strokeDasharray);
     expect(previewLine?.props.x2).toBe(activeConnection.point.x);

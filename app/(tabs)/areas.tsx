@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { FlatList, RefreshControl } from 'react-native';
 import { Zap, Plus } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -37,11 +38,13 @@ export default function AreasTab() {
     error,
     refreshAreas,
     clearError,
+    fetchAreas,
+    hasFetched,
   } = useArea();
   const alreadyPressedRef = React.useRef(false);
 
   const handleRefresh = useCallback(() => {
-    refreshAreas().catch(err => console.error(t('areas.error.refresh', 'Failed to refresh areas'), err));
+    refreshAreas().catch((err: unknown) => console.error(t('areas.error.refresh', 'Failed to refresh areas'), err));
   }, [refreshAreas, t]);
 
   const handleAreaPress = (areaId: string) => {
@@ -63,7 +66,18 @@ export default function AreasTab() {
     });
   };
 
-  if (isLoading) {
+  useFocusEffect(
+    useCallback(() => {
+      if (!hasFetched) {
+        fetchAreas().catch((err: unknown) => console.error(t('areas.error.fetch', 'Failed to load areas'), err));
+      }
+    }, [hasFetched, fetchAreas, t])
+  );
+
+  // Show the loading screen if a fetch is in progress or if we've never
+  // fetched areas yet — this keeps the first display of the Areas page
+  // showing the loading state while we perform the initial, lazy fetch.
+  if (isLoading || !hasFetched) {
     return <LoadingScreen />;
   }
 

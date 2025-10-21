@@ -1,6 +1,8 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { InteractionManager } from 'react-native';
+import { router } from 'expo-router';
 import type { AreaDto } from '@/types/areas';
-import * as areaService from '@/services/areas';
+import * as areaService from '@/services/area';
 import { useAuth } from './AuthContext';
 
 interface AreaContextValue {
@@ -8,6 +10,7 @@ interface AreaContextValue {
   isLoading: boolean;
   isRefreshing: boolean;
   error: string | null;
+  hasFetched: boolean;
   fetchAreas: () => Promise<void>;
   refreshAreas: () => Promise<void>;
   createArea: (payload: areaService.CreateAreaPayload) => Promise<AreaDto>;
@@ -25,10 +28,11 @@ interface AreaProviderProps {
 
 export function AreaProvider({ children }: AreaProviderProps) {
   const [areas, setAreas] = useState<AreaDto[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const handleError = useCallback((err: unknown) => {
     const message = err instanceof Error ? err.message : 'Something went wrong';
@@ -36,7 +40,23 @@ export function AreaProvider({ children }: AreaProviderProps) {
     console.error('AreaContext error:', err);
   }, []);
 
+  const checkAuthentication = useCallback(() => {
+    if (!isAuthenticated) {
+      InteractionManager.runAfterInteractions(() => {
+        try {
+          router.replace('/login');
+        } catch (err) {
+          console.error('Navigation error while redirecting to login:', err);
+        }
+      });
+      return false;
+    }
+    return true;
+  }, [isAuthenticated]);
+
   const loadAreas = useCallback(async (useRefreshingState: boolean) => {
+    if (!checkAuthentication()) return;
+
     if (useRefreshingState) {
       setIsRefreshing(true);
     } else {
@@ -48,6 +68,7 @@ export function AreaProvider({ children }: AreaProviderProps) {
     try {
       const result = await areaService.getUserAreas(user?.id || 'null');
       setAreas(result);
+      setHasFetched(true);
     } catch (err) {
       handleError(err);
     } finally {
@@ -57,7 +78,7 @@ export function AreaProvider({ children }: AreaProviderProps) {
         setIsLoading(false);
       }
     }
-  }, [handleError]);
+  }, [checkAuthentication, user?.id, handleError]);
 
   const fetchAreas = useCallback(async () => {
     await loadAreas(false);
@@ -67,11 +88,10 @@ export function AreaProvider({ children }: AreaProviderProps) {
     await loadAreas(true);
   }, [loadAreas]);
 
-  useEffect(() => {
-    fetchAreas();
-  }, [fetchAreas]);
 
   const createArea = useCallback(async (payload: areaService.CreateAreaPayload) => {
+    if (!checkAuthentication()) throw new Error('Not authenticated');
+
     setError(null);
     try {
       const created = await areaService.createArea(payload);
@@ -81,9 +101,11 @@ export function AreaProvider({ children }: AreaProviderProps) {
       handleError(err);
       throw err;
     }
-  }, [handleError]);
+  }, [checkAuthentication, handleError]);
 
   const updateArea = useCallback(async (id: string, updates: areaService.UpdateAreaPayload) => {
+    if (!checkAuthentication()) throw new Error('Not authenticated');
+
     setError(null);
     try {
       const updated = await areaService.updateArea(id, updates);
@@ -93,9 +115,11 @@ export function AreaProvider({ children }: AreaProviderProps) {
       handleError(err);
       throw err;
     }
-  }, [handleError]);
+  }, [checkAuthentication, handleError]);
 
   const deleteArea = useCallback(async (id: string) => {
+    if (!checkAuthentication()) throw new Error('Not authenticated');
+
     setError(null);
     try {
       await areaService.deleteArea(id);
@@ -104,9 +128,11 @@ export function AreaProvider({ children }: AreaProviderProps) {
       handleError(err);
       throw err;
     }
-  }, [handleError]);
+  }, [checkAuthentication, handleError]);
 
   const toggleArea = useCallback(async (id: string, enabled: boolean) => {
+    if (!checkAuthentication()) throw new Error('Not authenticated');
+
     setError(null);
     try {
       const updated = await areaService.toggleArea(id, enabled);
@@ -116,7 +142,7 @@ export function AreaProvider({ children }: AreaProviderProps) {
       handleError(err);
       throw err;
     }
-  }, [handleError]);
+  }, [checkAuthentication, handleError]);
 
   const clearError = useCallback(() => {
     setError(null);
@@ -128,13 +154,14 @@ export function AreaProvider({ children }: AreaProviderProps) {
     isRefreshing,
     error,
     fetchAreas,
+    hasFetched,
     refreshAreas,
     createArea,
     updateArea,
     deleteArea,
     toggleArea,
     clearError,
-  }), [areas, isLoading, isRefreshing, error, fetchAreas, refreshAreas, createArea, updateArea, deleteArea, toggleArea, clearError]);
+  }), [areas, isLoading, isRefreshing, error, fetchAreas, hasFetched, refreshAreas, createArea, updateArea, deleteArea, toggleArea, clearError]);
 
   return (
     <AreaContext.Provider value={value}>

@@ -7,6 +7,7 @@ const STORAGE_KEYS = {
     ACCESS_TOKEN: 'auth_access_token',
     REFRESH_TOKEN: 'auth_refresh_token',
     USER_DATA: 'auth_user_data',
+    COOKIES: 'auth_cookies',
 } as const;
 
 /**
@@ -52,6 +53,20 @@ export async function getUserData(): Promise<string | null> {
 }
 
 /**
+ * Saves cookies securely
+ */
+export async function saveCookies(cookies: string): Promise<void> {
+    await SecureStore.setItemAsync(STORAGE_KEYS.COOKIES, cookies);
+}
+
+/**
+ * Retrieves cookies
+ */
+export async function getCookies(): Promise<string | null> {
+    return await SecureStore.getItemAsync(STORAGE_KEYS.COOKIES);
+}
+
+/**
  * Deletes all authentication data
  */
 export async function clearAuthData(): Promise<void> {
@@ -59,5 +74,6 @@ export async function clearAuthData(): Promise<void> {
         SecureStore.deleteItemAsync(STORAGE_KEYS.ACCESS_TOKEN),
         SecureStore.deleteItemAsync(STORAGE_KEYS.REFRESH_TOKEN),
         SecureStore.deleteItemAsync(STORAGE_KEYS.USER_DATA),
+        SecureStore.deleteItemAsync(STORAGE_KEYS.COOKIES),
     ]);
 }
