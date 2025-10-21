@@ -34,7 +34,6 @@ function buildUrl(path: string, params?: QueryParams): string {
 async function requestInterceptor(headers: Record<string, string>): Promise<Record<string, string>> {
   const storedCookies = await getCookies();
 
-  console.log('Adding stored cookies to request:', storedCookies);
   if (storedCookies) {
     return {
       ...headers,
@@ -51,7 +50,6 @@ async function requestInterceptor(headers: Record<string, string>): Promise<Reco
 async function responseInterceptor(response: Response): Promise<void> {
   const setCookieHeader = response.headers.get('set-cookie');
 
-  console.log('Received Set-Cookie header from response:', setCookieHeader);
   if (setCookieHeader) {
     // Parse and store cookies
     const cookies = parseCookies(setCookieHeader);
