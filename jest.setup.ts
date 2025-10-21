@@ -40,13 +40,6 @@ jest.mock('expo-image', () => require('react-native'));
 
 // Initialize i18n for tests with default language 'en'
 import '@/i18n';
-// Provide a lightweight global fetch mock for Node/Jest environment
-if (typeof global.fetch === 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (global as any).fetch = jest.fn(() =>
-    Promise.resolve({ ok: true, status: 200, headers: {}, json: () => Promise.resolve({}) })
-  );
-}
 
 // Suppress specific console.error warnings that are expected in tests
 const originalError = console.error;

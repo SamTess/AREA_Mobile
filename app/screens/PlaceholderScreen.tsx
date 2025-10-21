@@ -16,7 +16,7 @@ import { VStack } from '@/components/ui/vstack';
 
 export default function PlaceholderScreen() {
   const { t } = useTranslation();
-  useDesignTokens();
+  const { getToken } = useDesignTokens();
 
   const routerHook = useRouter?.();
   const handleGoBack = () => {
@@ -25,7 +25,7 @@ export default function PlaceholderScreen() {
         router.back();
         return;
       }
-    } catch {
+    } catch (e) {
     }
     try {
       if (typeof jest !== 'undefined' && typeof jest.requireMock === 'function') {
@@ -36,11 +36,11 @@ export default function PlaceholderScreen() {
             maybeRouterMock.back();
             return;
           }
-  } catch {
-  }
+        } catch (e) {
+        }
       }
-  } catch {
-  }
+    } catch (err) {
+    }
 
     try {
       const exp = require('expo-router');
@@ -49,8 +49,8 @@ export default function PlaceholderScreen() {
         maybeRouter.back();
         return;
       }
-  } catch {
-  }
+    } catch (err) {
+    }
 
     if (routerHook && typeof routerHook.back === 'function') {
       routerHook.back();

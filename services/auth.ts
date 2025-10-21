@@ -1,262 +1,227 @@
-import { User } from '@/types/auth';
-import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 import { API_CONFIG, API_ENDPOINTS, ERROR_MESSAGES } from './api.config';
-import { clearAuthData, saveUserData } from './storage';
+import {
+    saveUserData, clearAuthData, saveOAuthState, clearOAuthState,
+    savePkceVerifier, getPkceVerifier, clearPkceVerifier,
+} from './storage';
 
 WebBrowser.maybeCompleteAuthSession();
 
-const OAUTH_ENDPOINTS = {
-	github: {
-		authorize: API_ENDPOINTS.OAUTH.GITHUB_AUTHORIZE,
-		exchange: API_ENDPOINTS.OAUTH.GITHUB_EXCHANGE,
-	},
-	google: {
-		authorize: API_ENDPOINTS.OAUTH.GOOGLE_AUTHORIZE,
-		exchange: API_ENDPOINTS.OAUTH.GOOGLE_EXCHANGE,
-	},
-	microsoft: {
-		authorize: API_ENDPOINTS.OAUTH.MICROSOFT_AUTHORIZE,
-		exchange: API_ENDPOINTS.OAUTH.MICROSOFT_EXCHANGE,
-	},
-} as const;
-
-export type OAuthProvider = keyof typeof OAUTH_ENDPOINTS;
-
-type OAuthSuccess = { message: string; user: User };
-
-const TAB_RETURN_URL = '/(tabs)';
-
-const handledCodes = new Set<string>();
-
-function markCodeHandled(code?: string | null) {
-	if (!code) return;
-	handledCodes.add(code);
+export interface User {
+    id: string;
+    email: string;
+    name?: string;
+    isActive?: boolean;
+    isAdmin?: boolean;
+    createdAt?: string;
+    lastLoginAt?: string;
+    avatarUrl?: string | null;
 }
 
-function isCodeHandled(code?: string | null) {
-	if (!code) return false;
-	return handledCodes.has(code);
+export interface AuthResponse {
+    message: string;
+    user: User | null;
 }
 
-function buildUrl(path: string): string {
-	const base = API_CONFIG.BASE_URL.replace(/\/+$/, '');
-	const finalPath = path.startsWith('/') ? path : `/${path}`;
-	return `${base}${finalPath}`;
+export type ProviderKey = 'github' | 'google';
+
+function assertOk(res: Response, fallbackMsg: string) {
+    if (!res.ok) {
+        throw new Error(`${fallbackMsg} (HTTP ${res.status})`);
+    }
 }
 
-function normaliseProvider(value?: string | null): OAuthProvider | null {
-	if (!value) return null;
-	const key = value.toLowerCase() as OAuthProvider;
-	return key in OAUTH_ENDPOINTS ? key : null;
+function buildUrl(path: string) {
+    const base = API_CONFIG.BASE_URL.replace(/\/+$/, '');
+    const p = path.startsWith('/') ? path : `/${path}`;
+    return `${base}${p}`;
 }
 
-function readParam(input?: string | string[] | null): string | undefined {
-	if (!input) return undefined;
-	if (Array.isArray(input)) return input[0];
-	return input;
+// (PKCE préparé mais désactivé tant que le back ne l’attend pas)
+function b64urlFromBytes(bytes: Uint8Array) {
+    let bin = '';
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
+export async function createPkceAndState() {
+    const verifierBytes = new Uint8Array(32);
+    crypto.getRandomValues(verifierBytes);
+    const verifier = b64urlFromBytes(verifierBytes);
 
-async function persistUser(user: User) {
-	await saveUserData(JSON.stringify(user));
-}
+    const encoder = new TextEncoder();
+    const hash = await crypto.subtle.digest('SHA-256', encoder.encode(verifier));
+    const challenge = b64urlFromBytes(new Uint8Array(hash));
 
-async function fetchMe(): Promise<User | null> {
-	try {
-		const response = await fetch(buildUrl(API_ENDPOINTS.AUTH.ME), {
-			credentials: 'include',
-		});
-		console.debug(`[oauth] GET ${API_ENDPOINTS.AUTH.ME} -> ${response.status}`);
-		if (!response.ok) return null;
-		const data = await response.json().catch(() => null);
-		if (!data) return null;
-		if (typeof (data as any)?.user === 'object' && (data as any).user) {
-			return (data as any).user as User;
-		}
-		return data as User;
-	} catch (error) {
-		console.debug('[oauth] getCurrentUser error', error);
-		return null;
-	}
-}
+    const stateBytes = new Uint8Array(16);
+    crypto.getRandomValues(stateBytes);
+    const state = b64urlFromBytes(stateBytes);
 
-async function ensureExistingSession(message: string): Promise<OAuthSuccess> {
-	const user = await fetchMe();
-	if (!user) {
-		throw new Error('Authentication session not found');
-	}
-	await persistUser(user);
-	return { message, user };
-}
-
-async function exchangeCode(provider: OAuthProvider, code: string): Promise<OAuthSuccess> {
-	const endpoint = OAUTH_ENDPOINTS[provider].exchange;
-	const MAX_ATTEMPTS = 3;
-	let lastErrorMessage: string | null = null;
-
-	for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
-		try {
-			const response = await fetch(buildUrl(endpoint), {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				credentials: 'include',
-				body: JSON.stringify({ code }),
-			});
-
-			console.debug(`[oauth] POST ${endpoint} -> ${response.status} (attempt ${attempt}/${MAX_ATTEMPTS})`);
-
-			if (!response.ok) {
-				const fallback = await fetchMe();
-				if (fallback) {
-					console.debug('[oauth] exchange failed but /me succeeded');
-					await persistUser(fallback);
-					markCodeHandled(code);
-					return { message: 'Authentication completed', user: fallback };
-				}
-
-				lastErrorMessage = await response.text().catch(() => '')
-					|| `Failed to exchange authorization code (HTTP ${response.status})`;
-			} else {
-				const user = await fetchMe();
-				console.debug(`[oauth] /me after exchange -> ${user ? 'user' : 'null'}`);
-				if (user) {
-					await persistUser(user);
-					markCodeHandled(code);
-					return { message: 'Authentication successful', user };
-				}
-				lastErrorMessage = 'Failed to load current user after exchange';
-			}
-		} catch (error) {
-			console.debug(`[oauth] exchange network error for ${provider} (attempt ${attempt}/${MAX_ATTEMPTS})`, error);
-			const fallback = await fetchMe();
-			if (fallback) {
-				await persistUser(fallback);
-				markCodeHandled(code);
-				return { message: 'Authentication completed (fallback)', user: fallback };
-			}
-			lastErrorMessage = ERROR_MESSAGES.SERVER;
-		}
-
-		if (attempt < MAX_ATTEMPTS) {
-			await new Promise((resolve) => setTimeout(resolve, 750 * attempt));
-			continue;
-		}
-	}
-
-	throw new Error(lastErrorMessage ?? ERROR_MESSAGES.UNKNOWN);
+    await savePkceVerifier(verifier);
+    await saveOAuthState(state);
+    return { verifier, challenge, state };
 }
 
 export async function getCurrentUser(): Promise<User | null> {
-	return fetchMe();
-}
-
-export async function loginWithOAuth(provider: OAuthProvider): Promise<OAuthSuccess> {
-	const providerConfig = OAUTH_ENDPOINTS[provider];
-	const redirectUri = Linking.createURL('oauthredirect');
-	const authorizeUrl = new URL(buildUrl(providerConfig.authorize));
-	authorizeUrl.searchParams.set('app_redirect_uri', redirectUri);
-	authorizeUrl.searchParams.set('returnUrl', TAB_RETURN_URL);
-
-	console.debug(`[oauth] authorize ${provider}: ${authorizeUrl.toString()}`);
-
-	const result = await WebBrowser.openAuthSessionAsync(authorizeUrl.toString(), redirectUri);
-	const resultUrl = 'url' in result ? (result as any).url : null;
-	console.debug(`[oauth] openAuthSession result type=${result.type} url=${resultUrl ?? 'n/a'}`);
-
-	if (result.type !== 'success' || !result.url) {
-		const fallback = await fetchMe();
-		if (fallback) {
-			await persistUser(fallback);
-			return { message: 'Authentication completed', user: fallback };
-		}
-
-		if (result.type === 'cancel' || result.type === 'dismiss') {
-			throw new Error(`${provider} login cancelled`);
-		}
-
-		throw new Error(`${provider} login failed`);
-	}
-
-	console.debug(`[oauth] callback url ${result.url}`);
-	const parsed = Linking.parse(result.url);
-	const query = parsed?.queryParams ?? {};
-
-	const paramProvider = normaliseProvider(readParam(query.provider));
-	const providerToUse = paramProvider ?? provider;
-	const code = readParam(query.code);
-	const error = readParam(query.error);
-	const errorDescription = readParam((query as any).error_description);
-
-	if (error) {
-		throw new Error(errorDescription || error || 'OAuth authorization failed');
-	}
-
-	if (!code) {
-		return ensureExistingSession('Authentication already completed');
-	}
-
-	if (isCodeHandled(code)) {
-		console.debug('[oauth] authorization code already handled, skipping re-exchange');
-		return ensureExistingSession('Authentication already completed');
-	}
-
-	return exchangeCode(providerToUse, code);
-}
-
-export async function completeOAuthRedirect(params: {
-	provider?: string | string[];
-	code?: string | string[];
-	error?: string | string[];
-	error_description?: string | string[];
-}): Promise<OAuthSuccess> {
-	const providerParam = normaliseProvider(readParam(params.provider)) ?? 'github';
-	const code = readParam(params.code);
-	const error = readParam(params.error);
-	const errorDescription = readParam(params.error_description);
-
-	console.debug(
-		`[oauth] redirect handler provider=${providerParam} code=${code ? 'present' : 'missing'} error=${error ?? 'none'}`,
-	);
-
-	if (error) {
-		throw new Error(errorDescription || error || 'OAuth authentication failed');
-	}
-
-	if (!code) {
-		return ensureExistingSession('Authentication already completed');
-	}
-
-	if (isCodeHandled(code)) {
-		console.debug('[oauth] redirect received handled code, skipping exchange');
-		return ensureExistingSession('Authentication already completed');
-	}
-
-	return exchangeCode(providerParam, code);
+    try {
+        const res = await fetch(buildUrl(API_ENDPOINTS.AUTH.ME), { credentials: 'include' });
+        if (!res.ok) return null;
+        const user = (await res.json()) as User;
+        return user || null;
+    } catch {
+        return null;
+    }
 }
 
 export async function logout(): Promise<void> {
-	try {
-		await fetch(buildUrl(API_ENDPOINTS.AUTH.LOGOUT), {
-			method: 'POST',
-			credentials: 'include',
-		});
-	} finally {
-		await clearAuthData();
-	}
+    try {
+        await fetch(buildUrl(API_ENDPOINTS.AUTH.LOGOUT), { method: 'POST', credentials: 'include' });
+    } finally {
+        await clearAuthData();
+    }
 }
 
-export async function forgotPassword(email: string): Promise<{ message: string }>
-{
-	const response = await fetch(buildUrl(API_ENDPOINTS.AUTH.FORGOT_PASSWORD), {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ email }),
-	});
-	if (!response.ok) {
-		const txt = await response.text().catch(() => '');
-		throw new Error(txt || 'Failed to send password reset');
-	}
-	const data = await response.json().catch(() => ({ message: 'OK' }));
-	return data as { message: string };
+let oauthInFlight = false;
+
+const handledAuthCodes = new Set<string>();
+export function hasHandledCode(code: string) {
+    return handledAuthCodes.has(code);
+}
+export function markHandledCode(code: string) {
+    try { handledAuthCodes.add(code); } catch { /* noop */ }
 }
 
+async function getMe(): Promise<User | null> {
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            const r = await fetch(buildUrl(API_ENDPOINTS.AUTH.ME), { credentials: 'include' });
+            if (!r.ok) {
+                console.debug(`getMe attempt ${attempt}: HTTP ${r.status}`);
+            } else {
+                const user = await r.json();
+                return user || null;
+            }
+        } catch (err) {
+            console.debug(`getMe attempt ${attempt}: network error`, err);
+        }
+        if (attempt < maxAttempts) await new Promise((res) => setTimeout(res, 250 * attempt));
+    }
+    return null;
+}
+
+async function finalizeFromMe(msg: string): Promise<AuthResponse> {
+    const me = await getMe();
+    if (!me) throw new Error('Failed to load current user');
+    await saveUserData(JSON.stringify(me));
+    return { message: msg, user: me };
+}
+
+async function exchangeCodeAndLoadUser(provider: ProviderKey, code: string): Promise<AuthResponse> {
+    const exchangePath =
+        provider === 'github'
+            ? API_ENDPOINTS.OAUTH.GITHUB_EXCHANGE
+            : API_ENDPOINTS.OAUTH.GOOGLE_EXCHANGE;
+    const body: Record<string, string> = { code };
+    const pkceVerifier = await getPkceVerifier();
+    if (pkceVerifier) body.code_verifier = pkceVerifier;
+
+    try {
+        if (handledAuthCodes.has(code)) {
+            console.warn(`Authorization code already handled for ${provider}, skipping exchange`);
+            const me = await getMe();
+            if (me) return { message: 'Login completed (already handled)', user: me };
+            throw new Error('Authorization code already used');
+        }
+        const res = await fetch(buildUrl(exchangePath), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(body),
+        });
+        console.debug(`OAuth exchange response for ${provider}: status=${res.status}`);
+        if (!res.ok) {
+            const me = await getMe();
+            console.warn(`OAuth exchange failed for ${provider}, trying /me fallback: me=${me ? 'found' : 'not_found'}`);
+            if (me) {
+                await clearPkceVerifier(); await clearOAuthState();
+                markHandledCode(code);
+                await saveUserData(JSON.stringify(me));
+                return { message: 'Login completed', user: me };
+            }
+            const txt = await res.text().catch(() => '');
+            throw new Error(txt || `Failed to exchange authorization code (HTTP ${res.status})`);
+        }
+        await clearPkceVerifier(); await clearOAuthState();
+        markHandledCode(code);
+        return await finalizeFromMe('Login successful');
+    } catch (e: any) {
+        console.error('OAuth exchange exception', e);
+        const me = await getMe();
+        console.warn(`Backend /me after exchange exception: me=${me ? 'found' : 'not_found'}`);
+        if (me) {
+            await clearPkceVerifier(); await clearOAuthState();
+            markHandledCode(code);
+            await saveUserData(JSON.stringify(me));
+            return { message: 'Login completed (fallback)', user: me };
+        }
+        throw new Error(e?.message || ERROR_MESSAGES.SERVER);
+    }
+}
+
+async function oauthLogin(provider: ProviderKey): Promise<AuthResponse> {
+    if (oauthInFlight) throw new Error('Login already in progress');
+    oauthInFlight = true;
+    try {
+        const redirectUri = Linking.createURL('oauthredirect');
+        const authorizePath =
+            provider === 'github'
+                ? API_ENDPOINTS.OAUTH.GITHUB_AUTHORIZE
+                : API_ENDPOINTS.OAUTH.GOOGLE_AUTHORIZE;
+        const params = new URLSearchParams({
+            app_redirect_uri: redirectUri,
+            returnUrl: '/(tabs)',
+        });
+        const authorizeUrl = `${buildUrl(authorizePath)}?${params.toString()}`;
+        const result = await WebBrowser.openAuthSessionAsync(authorizeUrl, redirectUri);
+
+        if (result.type !== 'success' || !result.url) {
+            const me = await getMe();
+            const resultUrl = (result as any)?.url ?? null;
+            console.warn(`${provider} openAuthSession result: type=${result.type}, url=${resultUrl}; /me=${me ? 'found' : 'not_found'}`);
+            if (me) return { message: 'Login completed', user: me };
+            if (result.type === 'cancel' || result.type === 'dismiss') throw new Error(`${provider} login cancelled`);
+            throw new Error(`${provider} login failed`);
+        }
+
+        const parsed = Linking.parse(result.url);
+        console.debug(`OAuth callback parsed for ${provider}: ${JSON.stringify(parsed)}`);
+        const code = (parsed as any)?.queryParams?.code as string | undefined;
+        const error = (parsed as any)?.queryParams?.error as string | undefined;
+        if (error) throw new Error(`OAuth error: ${error}`);
+        if (!code) {
+            const me = await getMe();
+            if (me) return { message: 'Login completed', user: me };
+            throw new Error('Missing authorization code');
+        }
+        return await exchangeCodeAndLoadUser(provider, code);
+    } finally {
+        oauthInFlight = false;
+    }
+}
+
+export async function loginWithGithub(): Promise<AuthResponse> {
+    try {
+        return await oauthLogin('github');
+    } catch (e: any) {
+        throw new Error(e?.message || ERROR_MESSAGES.UNKNOWN);
+    }
+}
+
+export async function loginWithGoogle(): Promise<AuthResponse> {
+    try {
+        return await oauthLogin('google');
+    } catch (e: any) {
+        throw new Error(e?.message || ERROR_MESSAGES.UNKNOWN);
+    }
+}

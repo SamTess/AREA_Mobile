@@ -61,8 +61,7 @@ export function resetMockUsers(): void {
 /**
  * Simulate network delay
  */
-export const delay = (ms: number) =>
-    new Promise(resolve => setTimeout(resolve, ms + (ms > 0 ? 1 : 0)));
+export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * Generate a mock JWT token
@@ -218,62 +217,6 @@ export async function mockRefreshToken() {
 }
 
 /**
- * Mock OAuth login
- * Simulates OAuth flow for testing
- */
-export async function mockLoginWithOAuth(
-    provider: 'github' | 'google' | 'microsoft',
-    options: { delay: number } = { delay: 1000 }
-): Promise<User> {
-    await delay(options.delay);
-    
-    // Simulate successful OAuth login
-    const mockUser: User = {
-        id: `oauth_${provider}_${Date.now()}`,
-        email: `user-${provider}@example.com`,
-        name: `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`,
-        avatarUrl: `https://i.pravatar.cc/150?img=${provider === 'github' ? 10 : provider === 'google' ? 11 : 12}`,
-        createdAt: new Date().toISOString(),
-    };
-
-    return mockUser;
-}
-
-/**
- * Mock complete OAuth redirect
- * Simulates API POST /oauth/{provider}/exchange
- */
-export async function mockCompleteOAuthRedirect(
-    params: Record<string, string | undefined>,
-    options: { delay: number } = { delay: 1000 }
-): Promise<{ message: string; user: User }> {
-    await delay(options.delay);
-
-    // Validate authorization code
-    if (!params.code) {
-        throw new MockAPIError('Authorization code required', 400, 'MISSING_CODE');
-    }
-
-    // Check for OAuth error
-    if (params.error) {
-        throw new MockAPIError(
-            params.error_description || 'OAuth authentication failed',
-            400,
-            params.error.toUpperCase()
-        );
-    }
-
-    // Simulate successful exchange
-    const provider = (params.provider || 'github') as 'github' | 'google' | 'microsoft';
-    const user = await mockLoginWithOAuth(provider, { delay: 0 });
-
-    return {
-        message: 'OAuth authentication successful',
-        user,
-    };
-}
-
-/**
  * Mock configuration
  */
 export const mockConfig = {
@@ -284,7 +227,5 @@ export const mockConfig = {
         logout: 500,
         getCurrentUser: 500,
         refreshToken: 500,
-        loginWithOAuth: 1000,
-        completeOAuthRedirect: 1000,
     },
 };

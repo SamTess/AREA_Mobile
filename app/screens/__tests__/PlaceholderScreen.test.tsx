@@ -1,7 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import React from 'react';
-import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
-import PlaceholderScreen from '../PlaceholderScreen';
 
 // Mock expo-router
 const mockBack = jest.fn();
@@ -10,6 +8,9 @@ jest.mock('expo-router', () => ({
     back: mockBack,
   },
 }));
+
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import PlaceholderScreen from '../PlaceholderScreen';
 
 // Mock i18next
 jest.mock('react-i18next', () => ({

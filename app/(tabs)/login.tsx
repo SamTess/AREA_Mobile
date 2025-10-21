@@ -10,78 +10,63 @@ import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { EyeIcon, EyeOffIcon, LockKeyhole } from 'lucide-react-native';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert } from 'react-native';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
-  const auth = useAuth();
+  const { login, loginWithGoogle, loginWithGithub, isLoading, clearError } = useAuth();
   const router = useRouter();
-
-  const {
-    loginWithGoogle,
-    loginWithGithub,
-    loginWithMicrosoft,
-    isLoading,
-    clearError,
-  } = auth as any;
-
-  const loginFn = useMemo(() => {
-    const maybe = (auth as any)?.login;
-    return typeof maybe === 'function' ? (maybe as (email: string, password: string) => Promise<void>) : undefined;
-  }, [auth]);
-
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
-  const handleShowPassword = () => setShowPassword((prev) => !prev);
+  const handleShowPassword = () => {
+    setShowPassword((prev) => !prev);
+  };
 
-  const handleOAuthLogin = useCallback(
-    async (provider: 'github' | 'google' | 'microsoft') => {
-      clearError?.();
-
-      try {
-        if (provider === 'google') {
-          if (!loginWithGoogle) throw new Error('Google OAuth not available in AuthContext');
-          await loginWithGoogle();
-        } else if (provider === 'github') {
-          if (!loginWithGithub) throw new Error('GitHub OAuth not available in AuthContext');
-          await loginWithGithub();
-        } else {
-          if (!loginWithMicrosoft) {
-            Alert.alert(
-              t('login.errorTitle') || 'Info',
-              `OAuth login with ${provider} is not yet implemented`,
-              [{ text: 'OK' }],
-            );
-            return;
-          }
-          await loginWithMicrosoft();
-        }
-
+  const handleOAuthLogin = async (provider: 'github' | 'google' | 'microsoft') => {
+    try {
+      if (provider === 'google') {
+        await loginWithGoogle();
+      } else if (provider === 'github') {
+        await loginWithGithub();
+      } else {
         Alert.alert(
-          t('login.successTitle') || 'Connexion réussie',
-          t('login.successMessage') || 'Vous êtes maintenant connecté',
-          [{ text: 'OK', onPress: () => router.replace('/(tabs)') }],
+          t('login.errorTitle') || 'Info',
+          `OAuth login with ${provider} is not yet implemented`,
+          [{ text: 'OK' }]
         );
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : (t('login.errorMessage') || 'La connexion a échoué');
-        Alert.alert(t('login.errorTitle') || 'Erreur', msg);
+        return;
       }
-    },
-    [clearError, loginWithGithub, loginWithGoogle, loginWithMicrosoft, router, t],
-  );
+      Alert.alert(
+        t('login.successTitle') || 'Connexion réussie',
+        t('login.successMessage') || 'Vous êtes maintenant connecté',
+        [
+          {
+            text: 'OK',
+            onPress: () => router.replace('/(tabs)'),
+          },
+        ]
+      );
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : (t('login.errorMessage') || 'La connexion a échoué');
+      Alert.alert(t('login.errorTitle') || 'Erreur', msg);
+    }
+  };
 
-  const validateEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
-  const handleLogin = useCallback(async () => {
+  const handleLogin = async () => {
     setEmailError('');
     setPasswordError('');
-    clearError?.();
+    clearError();
 
     let hasError = false;
 
@@ -101,28 +86,30 @@ export default function LoginScreen() {
       hasError = true;
     }
 
-    if (hasError) return;
-
-    if (!loginFn) {
-      Alert.alert(
-        t('login.errorTitle') || 'Erreur',
-        t('login.passwordLoginUnavailable') || 'La connexion par mot de passe n\'est pas disponible dans cette build.',
-      );
+    if (hasError) {
       return;
     }
 
     try {
-      await loginFn(email, password);
+      await login(email, password);
       Alert.alert(
         t('login.successTitle') || 'Connexion réussie',
         t('login.successMessage') || 'Vous êtes maintenant connecté',
-        [{ text: 'OK', onPress: () => router.replace('/(tabs)') }],
+        [
+          {
+            text: 'OK',
+            onPress: () => router.replace('/(tabs)'),
+          },
+        ]
       );
     } catch (err) {
       const msg = err instanceof Error ? err.message : (t('login.errorMessage') || 'La connexion a échoué');
-      Alert.alert(t('login.errorTitle') || 'Erreur', msg);
+      Alert.alert(
+        t('login.errorTitle') || 'Erreur',
+        msg
+      );
     }
-  }, [clearError, email, password, loginFn, router, t]);
+  };
 
   return (
     <Box className="flex-1 bg-background-50 justify-center">
@@ -153,8 +140,8 @@ export default function LoginScreen() {
               <Text size="sm" bold className="text-typography-900 mb-1">
                 {t('login.emailLabel')}
               </Text>
-              <Input
-                variant="outline"
+              <Input 
+                variant="outline" 
                 size="lg"
                 isInvalid={!!emailError}
                 className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
@@ -189,8 +176,8 @@ export default function LoginScreen() {
               <Text size="sm" bold className="text-typography-900 mb-1">
                 {t('login.passwordLabel')}
               </Text>
-              <Input
-                variant="outline"
+              <Input 
+                variant="outline" 
                 size="lg"
                 isInvalid={!!passwordError}
                 className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
@@ -207,7 +194,10 @@ export default function LoginScreen() {
                   autoCorrect={false}
                 />
                 <InputSlot className="pr-3" onPress={handleShowPassword}>
-                  <InputIcon as={showPassword ? EyeIcon : EyeOffIcon} className="text-typography-500" />
+                  <InputIcon 
+                    as={showPassword ? EyeIcon : EyeOffIcon} 
+                    className="text-typography-500"
+                  />
                 </InputSlot>
               </Input>
               {passwordError ? (
@@ -241,7 +231,11 @@ export default function LoginScreen() {
 
             {/* Lien mot de passe oublié */}
             <Box className="items-center mt-2">
-              <Text size="sm" className="text-primary-500" onPress={() => router.push('/(tabs)/forgot-password')}>
+              <Text 
+                size="sm" 
+                className="text-primary-500"
+                onPress={() => router.push('/(tabs)/forgot-password')}
+              >
                 {t('login.forgotPassword')}
               </Text>
             </Box>
@@ -263,10 +257,9 @@ export default function LoginScreen() {
                 variant="outline"
                 action="default"
                 onPress={() => handleOAuthLogin('github')}
-                isDisabled={isLoading}
                 className="border-outline-300 bg-background-0 hover:bg-background-50 rounded-lg flex-1"
               >
-                {isLoading ? <ActivityIndicator /> : <GithubIcon size={24} />}
+                <GithubIcon size={24} />
               </Button>
 
               {/* Google */}
@@ -275,10 +268,9 @@ export default function LoginScreen() {
                 variant="outline"
                 action="default"
                 onPress={() => handleOAuthLogin('google')}
-                isDisabled={isLoading}
                 className="border-outline-300 bg-background-0 hover:bg-background-50 rounded-lg flex-1"
               >
-                {isLoading ? <ActivityIndicator /> : <GoogleIcon size={24} />}
+                <GoogleIcon size={24} />
               </Button>
 
               {/* Microsoft */}
@@ -287,10 +279,9 @@ export default function LoginScreen() {
                 variant="outline"
                 action="default"
                 onPress={() => handleOAuthLogin('microsoft')}
-                isDisabled={isLoading}
                 className="border-outline-300 bg-background-0 hover:bg-background-50 rounded-lg flex-1"
               >
-                {isLoading ? <ActivityIndicator /> : <MicrosoftIcon size={24} />}
+                <MicrosoftIcon size={24} />
               </Button>
             </HStack>
           </VStack>
@@ -300,7 +291,12 @@ export default function LoginScreen() {
         <Box className="items-center mt-4">
           <Text size="sm" className="text-typography-600">
             {t('login.noAccount')}{' '}
-            <Text size="sm" bold className="text-primary-500" onPress={() => router.push('/(tabs)/register')}>
+            <Text 
+              size="sm" 
+              bold 
+              className="text-primary-500"
+              onPress={() => router.push('/(tabs)/register')}
+            >
               {t('login.signUp')}
             </Text>
           </Text>
