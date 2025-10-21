@@ -28,9 +28,6 @@ function buildUrl(path: string, params?: QueryParams): string {
   return url.toString();
 }
 
-/**
- * Request interceptor: Adds stored cookies to outgoing requests
- */
 async function requestInterceptor(headers: Record<string, string>): Promise<Record<string, string>> {
   const storedCookies = await getCookies();
 
@@ -44,14 +41,10 @@ async function requestInterceptor(headers: Record<string, string>): Promise<Reco
   return headers;
 }
 
-/**
- * Response interceptor: Extracts and stores cookies from responses
- */
 async function responseInterceptor(response: Response): Promise<void> {
   const setCookieHeader = response.headers.get('set-cookie');
 
   if (setCookieHeader) {
-    // Parse and store cookies
     const cookies = parseCookies(setCookieHeader);
     if (cookies) {
       await saveCookies(cookies);
@@ -59,14 +52,9 @@ async function responseInterceptor(response: Response): Promise<void> {
   }
 }
 
-/**
- * Parses Set-Cookie header and extracts cookie values
- */
 function parseCookies(setCookieHeader: string): string {
-  // Split multiple cookies if present
   const cookieStrings = setCookieHeader.split(',').map(cookie => cookie.trim());
 
-  // Extract just the cookie name=value pairs (before the first semicolon)
   const cookies = cookieStrings
     .map(cookie => {
       const parts = cookie.split(';');
@@ -97,7 +85,6 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
 
   const hasBody = body !== undefined && body !== null;
 
-  // Apply request interceptor to add cookies
   const interceptedHeaders = await requestInterceptor({
     ...API_CONFIG.HEADERS,
     ...(headers || {}),
@@ -114,7 +101,6 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
 
   const response = await fetch(url, requestInit);
 
-  // Apply response interceptor to extract and store cookies
   await responseInterceptor(response);
 
   const data = await parseJson<T>(response);
