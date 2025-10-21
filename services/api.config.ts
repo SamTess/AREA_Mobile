@@ -22,6 +22,7 @@ export const API_ENDPOINTS = {
         LOGIN: '/api/auth/login',
         REGISTER: '/api/auth/register',
         LOGOUT: '/api/auth/logout',
+        FORGOT_PASSWORD: '/api/auth/forgot-password',
         REFRESH: '/api/auth/refresh',
         ME: '/api/auth/me',
         STATUS: '/api/auth/status',
@@ -31,6 +32,8 @@ export const API_ENDPOINTS = {
         GOOGLE_EXCHANGE: '/api/oauth/google/exchange',
         GITHUB_AUTHORIZE: '/api/oauth/github/authorize',
         GITHUB_EXCHANGE: '/api/oauth/github/exchange',
+        MICROSOFT_AUTHORIZE: '/api/oauth/microsoft/authorize',
+        MICROSOFT_EXCHANGE: '/api/oauth/microsoft/exchange',
     },
 } as const;
 

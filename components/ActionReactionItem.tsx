@@ -45,8 +45,8 @@ export const ActionReactionItem: React.FC<ActionReactionItemProps> = ({
   const handleConnectPress = (e?: any) => {
     try {
       e?.stopPropagation?.();
-    } catch (err) {
-    }
+  } catch {
+  }
     if (onConnect) {
       onConnect();
     }

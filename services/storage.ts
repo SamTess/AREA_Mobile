@@ -1,4 +1,31 @@
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStoreModule from 'expo-secure-store';
+
+const SecureStore: {
+    getItemAsync(key: string): Promise<string | null>;
+    setItemAsync(key: string, value: string): Promise<void>;
+    deleteItemAsync(key: string): Promise<void>;
+} = (() => {
+    const mod: any = SecureStoreModule as any;
+    const candidate = mod.default ?? mod;
+
+    const getItem = candidate.getItemAsync ?? candidate.getValueWithKeyAsync;
+    const setItem = candidate.setItemAsync ?? candidate.setValueWithKeyAsync;
+    const deleteItem = candidate.deleteItemAsync ?? candidate.deleteValueWithKeyAsync ?? candidate.removeItemAsync;
+
+    if (!getItem || !setItem || !deleteItem) {
+        return {
+            getItemAsync: async () => null,
+            setItemAsync: async () => {},
+            deleteItemAsync: async () => {},
+        };
+    }
+
+    return {
+        getItemAsync: (key: string) => getItem.call(candidate, key),
+        setItemAsync: (key: string, value: string) => setItem.call(candidate, key, value),
+        deleteItemAsync: (key: string) => deleteItem.call(candidate, key),
+    };
+})();
 
 export const STORAGE_KEYS = {
     ACCESS_TOKEN: 'auth_access_token',
@@ -8,55 +35,184 @@ export const STORAGE_KEYS = {
     PKCE_VERIFIER: 'oauth_pkce_verifier',
 } as const;
 
-// User data (non sensible)
 export async function saveUserData(userJSON: string) {
-    await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, userJSON);
+    try {
+        await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, userJSON);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                window.localStorage.setItem(STORAGE_KEYS.USER_DATA, userJSON);
+                return;
+            }
+        } catch (e) {
+        }
+        throw err;
+    }
 }
 export async function getUserData(): Promise<string | null> {
-    return SecureStore.getItemAsync(STORAGE_KEYS.USER_DATA);
+    try {
+        return await SecureStore.getItemAsync(STORAGE_KEYS.USER_DATA);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                return window.localStorage.getItem(STORAGE_KEYS.USER_DATA);
+            }
+        } catch (e) {
+        }
+        return null;
+    }
 }
 
 // Optional tokens (non utilisés avec cookies HttpOnly, mais gardés pour futur)
 export async function saveAccessToken(token: string) {
-    await SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_TOKEN, token);
+    try {
+        await SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_TOKEN, token);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                window.localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
+                return;
+            }
+        } catch (e) {}
+        throw err;
+    }
 }
 export async function getAccessToken() {
-    return SecureStore.getItemAsync(STORAGE_KEYS.ACCESS_TOKEN);
+    try {
+        return await SecureStore.getItemAsync(STORAGE_KEYS.ACCESS_TOKEN);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                return window.localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+            }
+        } catch (e) {}
+        return null;
+    }
 }
 export async function saveRefreshToken(token: string) {
-    await SecureStore.setItemAsync(STORAGE_KEYS.REFRESH_TOKEN, token);
+    try {
+        await SecureStore.setItemAsync(STORAGE_KEYS.REFRESH_TOKEN, token);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                window.localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, token);
+                return;
+            }
+        } catch (e) {}
+        throw err;
+    }
 }
 export async function getRefreshToken() {
-    return SecureStore.getItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
+    try {
+        return await SecureStore.getItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                return window.localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+            }
+        } catch (e) {}
+        return null;
+    }
 }
 
-// OAuth temp (state / pkce)
 export async function saveOAuthState(value: string) {
-    await SecureStore.setItemAsync(STORAGE_KEYS.OAUTH_STATE, value);
+    try {
+        await SecureStore.setItemAsync(STORAGE_KEYS.OAUTH_STATE, value);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                window.localStorage.setItem(STORAGE_KEYS.OAUTH_STATE, value);
+                return;
+            }
+        } catch (e) {}
+        throw err;
+    }
 }
 export async function getOAuthState() {
-    return SecureStore.getItemAsync(STORAGE_KEYS.OAUTH_STATE);
+    try {
+        return await SecureStore.getItemAsync(STORAGE_KEYS.OAUTH_STATE);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                return window.localStorage.getItem(STORAGE_KEYS.OAUTH_STATE);
+            }
+        } catch (e) {}
+        return null;
+    }
 }
 export async function clearOAuthState() {
-    await SecureStore.deleteItemAsync(STORAGE_KEYS.OAUTH_STATE);
+    try {
+        await SecureStore.deleteItemAsync(STORAGE_KEYS.OAUTH_STATE);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                window.localStorage.removeItem(STORAGE_KEYS.OAUTH_STATE);
+                return;
+            }
+        } catch (e) {}
+        throw err;
+    }
 }
 
 export async function savePkceVerifier(value: string) {
-    await SecureStore.setItemAsync(STORAGE_KEYS.PKCE_VERIFIER, value);
+    try {
+        await SecureStore.setItemAsync(STORAGE_KEYS.PKCE_VERIFIER, value);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                window.localStorage.setItem(STORAGE_KEYS.PKCE_VERIFIER, value);
+                return;
+            }
+        } catch (e) {}
+        throw err;
+    }
 }
 export async function getPkceVerifier() {
-    return SecureStore.getItemAsync(STORAGE_KEYS.PKCE_VERIFIER);
+    try {
+        return await SecureStore.getItemAsync(STORAGE_KEYS.PKCE_VERIFIER);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                return window.localStorage.getItem(STORAGE_KEYS.PKCE_VERIFIER);
+            }
+        } catch (e) {}
+        return null;
+    }
 }
 export async function clearPkceVerifier() {
-    await SecureStore.deleteItemAsync(STORAGE_KEYS.PKCE_VERIFIER);
+    try {
+        await SecureStore.deleteItemAsync(STORAGE_KEYS.PKCE_VERIFIER);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                window.localStorage.removeItem(STORAGE_KEYS.PKCE_VERIFIER);
+                return;
+            }
+        } catch (e) {}
+        throw err;
+    }
 }
 
 export async function clearAuthData() {
-    await Promise.all([
-        SecureStore.deleteItemAsync(STORAGE_KEYS.ACCESS_TOKEN),
-        SecureStore.deleteItemAsync(STORAGE_KEYS.REFRESH_TOKEN),
-        SecureStore.deleteItemAsync(STORAGE_KEYS.USER_DATA),
-        SecureStore.deleteItemAsync(STORAGE_KEYS.OAUTH_STATE),
-        SecureStore.deleteItemAsync(STORAGE_KEYS.PKCE_VERIFIER),
-    ]);
+    try {
+        await Promise.all([
+            SecureStore.deleteItemAsync(STORAGE_KEYS.ACCESS_TOKEN),
+            SecureStore.deleteItemAsync(STORAGE_KEYS.REFRESH_TOKEN),
+            SecureStore.deleteItemAsync(STORAGE_KEYS.USER_DATA),
+            SecureStore.deleteItemAsync(STORAGE_KEYS.OAUTH_STATE),
+            SecureStore.deleteItemAsync(STORAGE_KEYS.PKCE_VERIFIER),
+        ]);
+    } catch (err) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                window.localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+                window.localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+                window.localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+                window.localStorage.removeItem(STORAGE_KEYS.OAUTH_STATE);
+                window.localStorage.removeItem(STORAGE_KEYS.PKCE_VERIFIER);
+                return;
+            }
+        } catch (e) {}
+        throw err;
+    }
 }
