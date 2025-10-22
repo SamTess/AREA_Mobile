@@ -24,7 +24,6 @@ export default function OAuthRedirect() {
 
   useEffect(() => {
     if (handledRef.current) {
-      console.debug('[oauthredirect] duplicate invocation ignored');
       return;
     }
     handledRef.current = true;
@@ -32,7 +31,6 @@ export default function OAuthRedirect() {
     let cancelled = false;
 
     const run = async () => {
-      console.debug('[oauthredirect] params', JSON.stringify(params));
       setStatus('processing');
       setMessage('Finalising authentication…');
       setDebug(null);
@@ -56,7 +54,6 @@ export default function OAuthRedirect() {
           });
 
           if (cancelled) return;
-          console.debug('[oauthredirect] success, redirecting to /(tabs)');
           setStatus('success');
           setMessage(result.message || 'Authentication successful');
           setTimeout(() => router.replace('/(tabs)'), 600);
@@ -64,7 +61,6 @@ export default function OAuthRedirect() {
         } catch (err) {
           if (cancelled) return;
           const rawMessage = err instanceof Error ? err.message : 'Authentication failed';
-          console.debug('[oauthredirect] error during completion', err);
 
           const fallback = await getCurrentUser();
           if (cancelled) return;
@@ -123,7 +119,6 @@ export default function OAuthRedirect() {
                 try {
                   await logout();
                 } catch (err) {
-                  console.debug('[oauthredirect] logout error before retry', err);
                 }
                 router.replace('/(tabs)');
               }}

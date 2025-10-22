@@ -66,7 +66,6 @@ async function fetchMe(): Promise<User | null> {
 		const response = await fetch(buildUrl(API_ENDPOINTS.AUTH.ME), {
 			credentials: 'include',
 		});
-		console.debug(`[oauth] GET ${API_ENDPOINTS.AUTH.ME} -> ${response.status}`);
 		if (!response.ok) return null;
 		const data = await response.json().catch(() => null);
 		if (!data) return null;
@@ -75,7 +74,6 @@ async function fetchMe(): Promise<User | null> {
 		}
 		return data as User;
 	} catch (error) {
-		console.debug('[oauth] getCurrentUser error', error);
 		return null;
 	}
 }
@@ -103,12 +101,9 @@ async function exchangeCode(provider: OAuthProvider, code: string): Promise<OAut
 				body: JSON.stringify({ code }),
 			});
 
-			console.debug(`[oauth] POST ${endpoint} -> ${response.status} (attempt ${attempt}/${MAX_ATTEMPTS})`);
-
 			if (!response.ok) {
 				const fallback = await fetchMe();
 				if (fallback) {
-					console.debug('[oauth] exchange failed but /me succeeded');
 					await persistUser(fallback);
 					markCodeHandled(code);
 					return { message: 'Authentication completed', user: fallback };
@@ -118,7 +113,6 @@ async function exchangeCode(provider: OAuthProvider, code: string): Promise<OAut
 					|| `Failed to exchange authorization code (HTTP ${response.status})`;
 			} else {
 				const user = await fetchMe();
-				console.debug(`[oauth] /me after exchange -> ${user ? 'user' : 'null'}`);
 				if (user) {
 					await persistUser(user);
 					markCodeHandled(code);
@@ -127,7 +121,6 @@ async function exchangeCode(provider: OAuthProvider, code: string): Promise<OAut
 				lastErrorMessage = 'Failed to load current user after exchange';
 			}
 		} catch (error) {
-			console.debug(`[oauth] exchange network error for ${provider} (attempt ${attempt}/${MAX_ATTEMPTS})`, error);
 			const fallback = await fetchMe();
 			if (fallback) {
 				await persistUser(fallback);
@@ -157,11 +150,8 @@ export async function loginWithOAuth(provider: OAuthProvider): Promise<OAuthSucc
 	authorizeUrl.searchParams.set('app_redirect_uri', redirectUri);
 	authorizeUrl.searchParams.set('returnUrl', TAB_RETURN_URL);
 
-	console.debug(`[oauth] authorize ${provider}: ${authorizeUrl.toString()}`);
-
 	const result = await WebBrowser.openAuthSessionAsync(authorizeUrl.toString(), redirectUri);
 	const resultUrl = 'url' in result ? (result as any).url : null;
-	console.debug(`[oauth] openAuthSession result type=${result.type} url=${resultUrl ?? 'n/a'}`);
 
 	if (result.type !== 'success' || !result.url) {
 		const fallback = await fetchMe();
@@ -177,7 +167,6 @@ export async function loginWithOAuth(provider: OAuthProvider): Promise<OAuthSucc
 		throw new Error(`${provider} login failed`);
 	}
 
-	console.debug(`[oauth] callback url ${result.url}`);
 	const parsed = Linking.parse(result.url);
 	const query = parsed?.queryParams ?? {};
 
@@ -196,7 +185,6 @@ export async function loginWithOAuth(provider: OAuthProvider): Promise<OAuthSucc
 	}
 
 	if (isCodeHandled(code)) {
-		console.debug('[oauth] authorization code already handled, skipping re-exchange');
 		return ensureExistingSession('Authentication already completed');
 	}
 
@@ -214,10 +202,6 @@ export async function completeOAuthRedirect(params: {
 	const error = readParam(params.error);
 	const errorDescription = readParam(params.error_description);
 
-	console.debug(
-		`[oauth] redirect handler provider=${providerParam} code=${code ? 'present' : 'missing'} error=${error ?? 'none'}`,
-	);
-
 	if (error) {
 		throw new Error(errorDescription || error || 'OAuth authentication failed');
 	}
@@ -227,7 +211,6 @@ export async function completeOAuthRedirect(params: {
 	}
 
 	if (isCodeHandled(code)) {
-		console.debug('[oauth] redirect received handled code, skipping exchange');
 		return ensureExistingSession('Authentication already completed');
 	}
 

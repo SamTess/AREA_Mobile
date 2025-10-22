@@ -58,7 +58,6 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       const parsed = JSON.parse(stored) as User;
       setUser(parsed);
     } catch (err) {
-      console.debug('[auth] Failed to parse stored user', err);
     }
   }, []);
 
