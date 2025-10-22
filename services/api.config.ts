@@ -15,7 +15,18 @@ export const ENV = {
 
 export const API_CONFIG = {
     BASE_URL: Platform.OS === 'ios' && ENV.API_URL_IOS ? ENV.API_URL_IOS : ENV.API_URL,
+    HEADERS: {
+        Accept: 'application/json',
+    },
 };
+
+export const HTTP_METHODS = {
+    GET: 'GET',
+    POST: 'POST',
+    PUT: 'PUT',
+    PATCH: 'PATCH',
+    DELETE: 'DELETE',
+} as const;
 
 export const API_ENDPOINTS = {
     AUTH: {
