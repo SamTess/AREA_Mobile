@@ -63,7 +63,6 @@ export async function getUserData(): Promise<string | null> {
     }
 }
 
-// Optional tokens (non utilisés avec cookies HttpOnly, mais gardés pour futur)
 export async function saveAccessToken(token: string) {
     try {
         await SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_TOKEN, token);
