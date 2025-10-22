@@ -19,8 +19,8 @@ jest.mock('@/contexts/AuthContext', () => ({
   }),
 }));
 
-jest.mock('@/services/areas', () => {
-  const actual = jest.requireActual('@/services/areas');
+jest.mock('@/services/area', () => {
+  const actual = jest.requireActual('@/services/area');
   return {
     ...actual,
     getUserAreas: jest.fn(),
