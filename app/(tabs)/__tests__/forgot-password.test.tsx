@@ -34,11 +34,11 @@ describe('ForgotPasswordScreen', () => {
     it('renders correctly', () => {
         render(<ForgotPasswordScreen />);
         
-        expect(screen.getByText('forgotPassword.title')).toBeTruthy();
-        expect(screen.getByText('forgotPassword.subtitle')).toBeTruthy();
-        expect(screen.getByPlaceholderText('forgotPassword.emailPlaceholder')).toBeTruthy();
-        expect(screen.getByText('forgotPassword.sendButton')).toBeTruthy();
-        expect(screen.getByText('forgotPassword.backToLogin')).toBeTruthy();
+        (expect(screen.getByText('forgotPassword.title')) as any).toBeTruthy();
+        (expect(screen.getByText('forgotPassword.subtitle')) as any).toBeTruthy();
+        (expect(screen.getByPlaceholderText('forgotPassword.emailPlaceholder')) as any).toBeTruthy();
+        (expect(screen.getByText('forgotPassword.sendButton')) as any).toBeTruthy();
+        (expect(screen.getByText('forgotPassword.backToLogin')) as any).toBeTruthy();
     });
 
     it('validates email is required', async () => {
@@ -48,7 +48,7 @@ describe('ForgotPasswordScreen', () => {
         fireEvent.press(sendButton);
         
         await waitFor(() => {
-            expect(screen.getByText('⚠️ forgotPassword.emailRequired')).toBeTruthy();
+            (expect(screen.getByText('forgotPassword.emailRequired')) as any).toBeTruthy();
         });
     });
 
@@ -62,7 +62,7 @@ describe('ForgotPasswordScreen', () => {
         fireEvent.press(sendButton);
         
         await waitFor(() => {
-            expect(screen.getByText('⚠️ forgotPassword.emailInvalid')).toBeTruthy();
+            (expect(screen.getByText('forgotPassword.emailInvalid')) as any).toBeTruthy();
         });
     });
 
@@ -78,11 +78,11 @@ describe('ForgotPasswordScreen', () => {
         fireEvent.press(sendButton);
         
         await waitFor(() => {
-            expect(mockForgotPassword).toHaveBeenCalledWith('test@example.com');
-            expect(require('react-native').Alert.alert).toHaveBeenCalledWith(
+            (expect(mockForgotPassword) as any).toHaveBeenCalledWith('test@example.com');
+            (expect(require('react-native').Alert.alert) as any).toHaveBeenCalledWith(
                 'forgotPassword.successTitle',
                 'forgotPassword.successMessage',
-                expect.any(Array)
+                (expect as any).any(Array)
             );
         });
     });
@@ -99,8 +99,8 @@ describe('ForgotPasswordScreen', () => {
         fireEvent.press(sendButton);
         
         await waitFor(() => {
-            expect(mockForgotPassword).toHaveBeenCalledWith('test@example.com');
-            expect(require('react-native').Alert.alert).toHaveBeenCalledWith(
+            (expect(mockForgotPassword) as any).toHaveBeenCalledWith('test@example.com');
+            (expect(require('react-native').Alert.alert) as any).toHaveBeenCalledWith(
                 'forgotPassword.errorTitle',
                 'forgotPassword.failedToSendEmail'
             );
@@ -113,7 +113,7 @@ describe('ForgotPasswordScreen', () => {
         const backButton = screen.getByText('forgotPassword.backToLogin');
         fireEvent.press(backButton);
         
-        expect(mockPush).toHaveBeenCalledWith('/(tabs)/login');
+        (expect(mockPush) as any).toHaveBeenCalledWith('/(tabs)/login');
     });
 
     it('clears email error when user types', async () => {
@@ -126,14 +126,14 @@ describe('ForgotPasswordScreen', () => {
         fireEvent.press(sendButton);
         
         await waitFor(() => {
-            expect(screen.getByText('⚠️ forgotPassword.emailRequired')).toBeTruthy();
+            (expect(screen.getByText('forgotPassword.emailRequired')) as any).toBeTruthy();
         });
         
         // Clear error by typing
         fireEvent.changeText(emailInput, 'test@example.com');
         
         await waitFor(() => {
-            expect(screen.queryByText('⚠️ forgotPassword.emailRequired')).toBeNull();
+            (expect(screen.queryByText('forgotPassword.emailRequired')) as any).toBeNull();
         });
     });
 
@@ -150,7 +150,7 @@ describe('ForgotPasswordScreen', () => {
         
         // Should show ActivityIndicator during loading
         await waitFor(() => {
-            expect(screen.getByTestId('activity-indicator')).toBeTruthy();
+            (expect(screen.getByTestId('activity-indicator')) as any).toBeTruthy();
         });
     });
 });

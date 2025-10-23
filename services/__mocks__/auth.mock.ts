@@ -169,7 +169,7 @@ export async function mockRegister(
         user: {
             id: newUser.id,
             email: newUser.email,
-            name: 'New User',
+            name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'New User',
             avatarUrl: newUser.avatarUrl || `https://i.pravatar.cc/150?img=${registeredUsers.length + 1}`,
             createdAt: newUser.createdAt || new Date().toISOString(),
             isAdmin: false,

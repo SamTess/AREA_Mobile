@@ -94,12 +94,6 @@ export default function TabLayout() {
           href: null,
         }}
       />
-      <Tabs.Screen
-        name="admin-dashboard"
-        options={{
-          href: null,
-        }}
-      />
     </Tabs>
   );
 }

@@ -85,7 +85,8 @@ describe('Mock Authentication Service', () => {
             const data = {
                 email: 'newuser@example.com',
                 password: 'password123',
-                name: 'New User',
+                firstName: 'New',
+                lastName: 'User',
             };
 
             const response = await mockRegister(data, { delay: 0 });
@@ -98,7 +99,8 @@ describe('Mock Authentication Service', () => {
             const data = {
                 email: 'user@example.com', // Already exists
                 password: 'password123',
-                name: 'Test',
+                firstName: 'Test',
+                lastName: 'User',
             };
 
             await expect(mockRegister(data, { delay: 0 })).rejects.toThrow(
@@ -110,7 +112,8 @@ describe('Mock Authentication Service', () => {
             const data = {
                 email: 'new@example.com',
                 password: '123', // Too short
-                name: 'Test',
+                firstName: 'Test',
+                lastName: 'User',
             };
 
             await expect(mockRegister(data, { delay: 0 })).rejects.toThrow(
@@ -122,7 +125,8 @@ describe('Mock Authentication Service', () => {
             const data = {
                 email: '',
                 password: 'password123',
-                name: 'Test',
+                firstName: 'Test',
+                lastName: 'User',
             };
 
             await expect(mockRegister(data, { delay: 0 })).rejects.toThrow(
@@ -146,7 +150,8 @@ describe('Mock Authentication Service', () => {
             const registerData = {
                 email: 'newuser@example.com',
                 password: 'password123',
-                name: 'New User',
+                firstName: 'New',
+                lastName: 'User',
             };
             await mockRegister(registerData, { delay: 0 });
 
@@ -198,6 +203,8 @@ describe('Mock Authentication Service', () => {
                 {
                     email: 'temp@example.com',
                     password: 'password123',
+                    firstName: 'Temp',
+                    lastName: 'User',
                 },
                 { delay: 0 }
             );
