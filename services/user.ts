@@ -30,16 +30,13 @@ export async function uploadAvatar(_fileUri: string): Promise<string> {
 export async function updateProfile(userData: Partial<User>): Promise<User> {
   if (USE_MOCK) {
     await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY));
-    
     const existingDataStr = await getUserData();
     const existingData = existingDataStr ? JSON.parse(existingDataStr) : {};
-    
     const updatedUser = {
       ...existingData,
       ...userData,
       lastLoginAt: existingData?.lastLoginAt,
     };
-    
     await saveUserData(JSON.stringify(updatedUser));
     return updatedUser;
   }
@@ -61,9 +58,7 @@ export async function updateProfile(userData: Partial<User>): Promise<User> {
     }
 
     const updatedUser: User = await response.json();
-    
     await saveUserData(JSON.stringify(updatedUser));
-    
     return updatedUser;
   } catch (error) {
     console.error('Update profile error:', error);
@@ -107,6 +102,39 @@ export async function deleteAvatar(): Promise<void> {
     throw new Error('Avatar deletion is not supported by the current backend.');
   } catch (error) {
     console.error('Delete avatar error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get user by ID
+ * @param userId - User ID to fetch
+ * @returns User object
+ */
+export async function getUserById(userId: string): Promise<User> {
+  if (USE_MOCK) {
+    await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY));
+    const existingDataStr = await getUserData();
+    const existingData = existingDataStr ? JSON.parse(existingDataStr) : {};
+    return existingData;
+  }
+
+  try {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/users/${encodeURIComponent(userId)}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || 'Failed to fetch user');
+    }
+
+    const user: User = await response.json();
+    return user;
+  } catch (error) {
+    console.error('Get user by ID error:', error);
     throw error;
   }
 }
