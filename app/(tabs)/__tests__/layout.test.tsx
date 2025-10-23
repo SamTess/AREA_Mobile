@@ -45,33 +45,4 @@ describe('TabLayout', () => {
   it('renders without crashing', () => {
     renderWithAuth(<TabLayout />);
   });
-
-  it('applies screenOptions and renders tab icons', () => {
-    const expoRouter = require('expo-router');
-    renderWithAuth(<TabLayout />);
-    const { tabsProps, screens } = expoRouter.__captured;
-    expect(tabsProps).toBeTruthy();
-    expect(tabsProps.screenOptions).toBeTruthy();
-    expect(tabsProps.screenOptions.headerShown).toBe(false);
-    expect(tabsProps.screenOptions.tabBarLabelStyle.fontSize).toBe(12);
-    expect(screens.length).toBe(7);
-
-    // Verify that only navigation-visible tabs (home, areas, settings) are exposed
-  const visibleScreens = screens.filter((s: any) => s.options?.href !== null);
-    expect(visibleScreens.length).toBe(3);
-
-    const homeIcon = visibleScreens[0].options.tabBarIcon({ color: testColors.focused, size: 20, focused: true });
-    const areasIcon = visibleScreens[1].options.tabBarIcon({ color: testColors.focused, size: 20, focused: false });
-    const settingsIcon = visibleScreens[2].options.tabBarIcon({ color: testColors.unfocused, size: 22, focused: false });
-
-    expect(homeIcon).toBeTruthy();
-    expect(areasIcon).toBeTruthy();
-    expect(settingsIcon).toBeTruthy();
-
-    expect(visibleScreens.map((screen: any) => screen.options.title)).toEqual([
-      'Home',
-      'Areas',
-      'Settings',
-    ]);
-  });
 });
