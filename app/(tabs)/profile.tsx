@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { BadgeCheck, Bell, HelpCircle, LogOut, Settings } from 'lucide-react-native';
+import { BadgeCheck, Bell, HelpCircle, LogOut, Settings, ShieldCheck } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView } from 'react-native';
@@ -24,7 +24,7 @@ const MenuItem: React.FC<{
   onPress?: () => void;
 }> = ({ icon: Icon, title, subtitle, onPress }) => {
   const { getToken } = useDesignTokens();
-  
+
   return (
     <Pressable onPress={onPress} className="p-4 rounded-lg active:bg-background-100">
       <HStack space="md" align="center" className="w-full">
@@ -134,8 +134,18 @@ export default function ProfileScreen() {
           </HStack>
         </Box>
 
-        {/* Options */}
         <VStack className="mx-6 gap-2">
+          {(user as any)?.isAdmin && (
+            <>
+              <MenuItem
+                icon={ShieldCheck}
+                title={t('profile.adminDashboard')}
+                subtitle={t('profile.adminDashboardSubtitle')}
+                onPress={() => router.push('/(tabs)/admin-dashboard')}
+              />
+              <Divider className="my-2" />
+            </>
+          )}
           <MenuItem
             icon={Settings}
             title={t('profile.settingsTitle')}
