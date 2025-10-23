@@ -30,7 +30,10 @@ RUN sed -i '/defaultConfig {/a\        ndk {\n            abiFilters "x86_64"\n 
 
 RUN echo "android.useDeprecatedNdk=true" >> android/gradle.properties
 
-RUN cd android && ./gradlew assembleRelease
+RUN mkdir -p /root/.gradle/init.d && \
+    cp gradle-init-repos.gradle /root/.gradle/init.d/gradle-init-repos.gradle || true
+
+RUN cd android && ./gradlew assembleRelease --no-daemon
 
 RUN mkdir -p /output
 
