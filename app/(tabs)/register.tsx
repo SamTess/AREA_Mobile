@@ -16,15 +16,15 @@ export default function RegisterScreen() {
     const { t } = useTranslation();
     const { register, isLoading, clearError } = useAuth();
     const router = useRouter();
-    
-    const [name, setName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    
-    const [nameError, setNameError] = useState('');
+    const [firstNameError, setFirstNameError] = useState('');
+    const [lastNameError, setLastNameError] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
@@ -43,7 +43,8 @@ export default function RegisterScreen() {
     };
 
     const handleRegister = async () => {
-        setNameError('');
+        setFirstNameError('');
+        setLastNameError('');
         setEmailError('');
         setPasswordError('');
         setConfirmPasswordError('');
@@ -51,11 +52,19 @@ export default function RegisterScreen() {
 
         let hasError = false;
 
-        if (!name) {
-            setNameError(t('register.nameRequired'));
+        if (!firstName) {
+            setFirstNameError(t('register.firstNameRequired') || 'First name is required');
             hasError = true;
-        } else if (name.length < 2) {
-            setNameError(t('register.nameTooShort'));
+        } else if (firstName.length < 2) {
+            setFirstNameError(t('register.firstNameTooShort') || 'First name is too short');
+            hasError = true;
+        }
+
+        if (!lastName) {
+            setLastNameError(t('register.lastNameRequired') || 'Last name is required');
+            hasError = true;
+        } else if (lastName.length < 2) {
+            setLastNameError(t('register.lastNameTooShort') || 'Last name is too short');
             hasError = true;
         }
 
@@ -88,7 +97,7 @@ export default function RegisterScreen() {
         }
 
         try {
-            await register(email, password, name);
+            await register(email, password, firstName, lastName);
             Alert.alert(
                 t('register.successTitle') || 'Inscription réussie',
                 t('register.successMessage') || 'Votre compte a été créé avec succès',
@@ -131,39 +140,70 @@ export default function RegisterScreen() {
                             </Text>
                         </VStack>
 
-                        {/* Form */}
                         <VStack space="xl">
-                            {/* Name Field */}
                             <VStack space="xs">
                                 <Text size="sm" bold className="text-typography-900 mb-1">
-                                    {t('register.nameLabel')}
+                                    {t('register.firstNameLabel') || 'First Name'}
                                 </Text>
-                                <Input 
-                                    variant="outline" 
+                                <Input
+                                    variant="outline"
                                     size="lg"
-                                    isInvalid={!!nameError}
+                                    isInvalid={!!firstNameError}
                                     className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
                                 >
                                     <InputField
-                                        placeholder={t('register.namePlaceholder')}
-                                        value={name}
+                                        placeholder={t('register.firstNamePlaceholder') || 'Enter your first name'}
+                                        value={firstName}
                                         onChangeText={(text) => {
-                                            setName(text);
-                                            setNameError('');
+                                            setFirstName(text);
+                                            setFirstNameError('');
                                         }}
                                         autoCapitalize="words"
                                         autoCorrect={false}
                                     />
                                 </Input>
-                                {nameError ? (
+                                {firstNameError ? (
                                     <Box className="flex-row items-center mt-1">
                                         <Text size="xs" className="text-error-600 ml-1">
-                                            ⚠️ {nameError}
+                                            {firstNameError}
                                         </Text>
                                     </Box>
                                 ) : (
                                     <Text size="xs" className="text-typography-500 ml-1 mt-1">
-                                        {t('register.nameHelper')}
+                                        {t('register.firstNameHelper') || 'Your first name'}
+                                    </Text>
+                                )}
+                            </VStack>
+                            <VStack space="xs">
+                                <Text size="sm" bold className="text-typography-900 mb-1">
+                                    {t('register.lastNameLabel') || 'Last Name'}
+                                </Text>
+                                <Input
+                                    variant="outline"
+                                    size="lg"
+                                    isInvalid={!!lastNameError}
+                                    className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
+                                >
+                                    <InputField
+                                        placeholder={t('register.lastNamePlaceholder') || 'Enter your last name'}
+                                        value={lastName}
+                                        onChangeText={(text) => {
+                                            setLastName(text);
+                                            setLastNameError('');
+                                        }}
+                                        autoCapitalize="words"
+                                        autoCorrect={false}
+                                    />
+                                </Input>
+                                {lastNameError ? (
+                                    <Box className="flex-row items-center mt-1">
+                                        <Text size="xs" className="text-error-600 ml-1">
+                                            {lastNameError}
+                                        </Text>
+                                    </Box>
+                                ) : (
+                                    <Text size="xs" className="text-typography-500 ml-1 mt-1">
+                                        {t('register.lastNameHelper') || 'Your last name'}
                                     </Text>
                                 )}
                             </VStack>
@@ -173,8 +213,8 @@ export default function RegisterScreen() {
                                 <Text size="sm" bold className="text-typography-900 mb-1">
                                     {t('register.emailLabel')}
                                 </Text>
-                                <Input 
-                                    variant="outline" 
+                                <Input
+                                    variant="outline"
                                     size="lg"
                                     isInvalid={!!emailError}
                                     className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
@@ -194,7 +234,7 @@ export default function RegisterScreen() {
                                 {emailError ? (
                                     <Box className="flex-row items-center mt-1">
                                         <Text size="xs" className="text-error-600 ml-1">
-                                            ⚠️ {emailError}
+                                            {emailError}
                                         </Text>
                                     </Box>
                                 ) : (
@@ -204,13 +244,12 @@ export default function RegisterScreen() {
                                 )}
                             </VStack>
 
-                            {/* Password Field */}
                             <VStack space="xs">
                                 <Text size="sm" bold className="text-typography-900 mb-1">
                                     {t('register.passwordLabel')}
                                 </Text>
-                                <Input 
-                                    variant="outline" 
+                                <Input
+                                    variant="outline"
                                     size="lg"
                                     isInvalid={!!passwordError}
                                     className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
@@ -227,8 +266,8 @@ export default function RegisterScreen() {
                                         autoCorrect={false}
                                     />
                                     <InputSlot className="pr-3" onPress={handleShowPassword}>
-                                        <InputIcon 
-                                            as={showPassword ? EyeIcon : EyeOffIcon} 
+                                        <InputIcon
+                                            as={showPassword ? EyeIcon : EyeOffIcon}
                                             className="text-typography-500"
                                         />
                                     </InputSlot>
@@ -236,7 +275,7 @@ export default function RegisterScreen() {
                                 {passwordError ? (
                                     <Box className="flex-row items-center mt-1">
                                         <Text size="xs" className="text-error-600 ml-1">
-                                            ⚠️ {passwordError}
+                                            {passwordError}
                                         </Text>
                                     </Box>
                                 ) : (
@@ -246,13 +285,12 @@ export default function RegisterScreen() {
                                 )}
                             </VStack>
 
-                            {/* Confirm Password Field */}
                             <VStack space="xs">
                                 <Text size="sm" bold className="text-typography-900 mb-1">
                                     {t('register.confirmPasswordLabel')}
                                 </Text>
-                                <Input 
-                                    variant="outline" 
+                                <Input
+                                    variant="outline"
                                     size="lg"
                                     isInvalid={!!confirmPasswordError}
                                     className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
@@ -269,8 +307,8 @@ export default function RegisterScreen() {
                                         autoCorrect={false}
                                     />
                                     <InputSlot className="pr-3" onPress={handleShowConfirmPassword}>
-                                        <InputIcon 
-                                            as={showConfirmPassword ? EyeIcon : EyeOffIcon} 
+                                        <InputIcon
+                                            as={showConfirmPassword ? EyeIcon : EyeOffIcon}
                                             className="text-typography-500"
                                         />
                                     </InputSlot>
@@ -278,7 +316,7 @@ export default function RegisterScreen() {
                                 {confirmPasswordError ? (
                                     <Box className="flex-row items-center mt-1">
                                         <Text size="xs" className="text-error-600 ml-1">
-                                            ⚠️ {confirmPasswordError}
+                                            {confirmPasswordError}
                                         </Text>
                                     </Box>
                                 ) : (
@@ -288,7 +326,6 @@ export default function RegisterScreen() {
                                 )}
                             </VStack>
 
-                            {/* Register Button */}
                             <Button
                                 size="lg"
                                 onPress={handleRegister}
@@ -306,13 +343,12 @@ export default function RegisterScreen() {
                         </VStack>
                     </Box>
 
-                    {/* Login section */}
                     <Box className="items-center mt-4">
                         <Text size="sm" className="text-typography-600">
                             {t('register.hasAccount')}{' '}
-                            <Text 
-                                size="sm" 
-                                bold 
+                            <Text
+                                size="sm"
+                                bold
                                 className="text-primary-500"
                                 onPress={() => router.push('/(tabs)/login')}
                             >

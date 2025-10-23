@@ -1,5 +1,6 @@
 import { API_CONFIG, HTTP_METHODS } from './api.config';
 import { getCookies, saveCookies } from './storage';
+import { parseErrorMessage } from './errors';
 
 interface QueryParams {
   [key: string]: string | number | boolean | null | undefined;
@@ -107,7 +108,8 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
 
   if (!response.ok) {
     const message = (data as unknown as { message?: string })?.message;
-    throw new Error(message || `Request failed with status ${response.status}`);
+    const errorMessage = message || `Request failed with status ${response.status}`;
+    throw parseErrorMessage(errorMessage);
   }
 
   if (data === null || data === undefined) {
