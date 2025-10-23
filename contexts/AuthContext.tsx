@@ -10,7 +10,7 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name?: string) => Promise<void>;
+  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
   clearError: () => void;
@@ -68,12 +68,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const register = async (email: string, password: string, name?: string) => {
+  const register = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await authService.register({ email, password, avatarUrl: undefined });
+      const response = await authService.register({
+        email,
+        password,
+        firstName,
+        lastName,
+        avatarUrl: undefined
+      });
       if (response.user) {
         setUser(response.user);
         await storage.saveUserData(JSON.stringify(response.user));
@@ -91,7 +97,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);
       await authService.logout();
-      
       setUser(null);
       setError(null);
     } catch (err) {
