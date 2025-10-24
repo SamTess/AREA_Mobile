@@ -72,7 +72,7 @@ export function ActivationConfigEditor({
             <Badge
               size="md"
               variant={config.type === type ? 'solid' : 'outline'}
-              action={config.type === type ? 'primary' : 'muted'}
+              action={config.type === type ? 'info' : 'muted'}
               className="mb-2"
             >
               <BadgeText className="text-xs capitalize">
