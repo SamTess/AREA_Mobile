@@ -88,7 +88,6 @@ export function AreaProvider({ children }: AreaProviderProps) {
     await loadAreas(true);
   }, [loadAreas]);
 
-
   const createArea = useCallback(async (payload: areaService.CreateAreaPayload) => {
     if (!checkAuthentication()) throw new Error('Not authenticated');
 
