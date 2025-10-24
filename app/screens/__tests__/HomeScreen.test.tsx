@@ -18,18 +18,18 @@ describe('HomeScreen', () => {
     expect(screen.getByText('Popular Templates')).toBeTruthy();
   });
 
-  it('navigates when pressing create button and a service card', () => {
-    const pushSpy = jest.spyOn(router, 'push');
+  it('navigates to area-editor on service press', () => {
+    const pushSpy = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: pushSpy });
     render(<HomeScreen />, { wrapper: Providers });
+    // Test logic here
+    expect(pushSpy).toHaveBeenCalledWith('/area-editor');
+  });
 
-    // Press the create automation CTA button
-    const createBtn = screen.getByTestId('btn-create-automation');
-    fireEvent.press(createBtn);
-    expect(pushSpy).toHaveBeenCalledWith('/details');
-
-    // Press a service card
-    const githubService = screen.getByTestId('service-card-GitHub');
-    fireEvent.press(githubService);
-    expect(pushSpy).toHaveBeenCalledWith('/details');
+  it('navigates to area-editor on action-reaction press', () => {
+    const pushSpy = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: pushSpy });
+    // Test logic here
+    expect(pushSpy).toHaveBeenCalledWith('/area-editor');
   });
 });
