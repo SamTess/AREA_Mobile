@@ -16,9 +16,9 @@
       }
     },
     "extra": {
-      "EXPO_PUBLIC_USE_MOCK": "true",
+      "EXPO_PUBLIC_USE_MOCK": "false",
       "EXPO_PUBLIC_MOCK_DELAY": "1000",
-      "EXPO_PUBLIC_API_URL": "192.168.1.197:8080",
+      "EXPO_PUBLIC_API_URL": "http://10.0.2.2:8080",
       "EXPO_PUBLIC_APP_SCHEME": "areamobile"
     },
     "android": {

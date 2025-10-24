@@ -28,10 +28,11 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: {
           backgroundColor: getColorValue('background-0'),
-          borderTopWidth: 1,
-          borderTopColor: getColorValue('gray-200'),
-          paddingTop: 8,
-          paddingBottom: 8,
+          borderBottomWidth: 1,
+          borderBottomColor: getColorValue('gray-200'),
+          marginTop: 0,
+          paddingTop: 0,
+          paddingBottom: 16,
           height: 60,
         },
         tabBarLabelStyle: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Box } from '@/components/ui/box';
 import { HStack } from '@/components/ui/hstack';
@@ -7,157 +7,223 @@ import { VStack } from '@/components/ui/vstack';
 import { Text } from '@/components/ui/text';
 import { Badge, BadgeText } from '@/components/ui/badge';
 import { Icon } from '@/components/ui/icon';
-import { Zap, CheckCircle, XCircle, Clock, Circle } from 'lucide-react-native';
+import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { Zap, Edit, Trash2, Play, Power, PowerOff } from 'lucide-react-native';
 import type { Area, AreaDto } from '@/types/areas';
 
 export interface AreaListCardProps {
   area: Area | AreaDto;
   onPress?: () => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onRun?: (id: string) => void;
+  onToggle?: (id: string, enabled: boolean) => void;
 }
 
-const getStatusColor = (status: string) => {
-  if (!status) {
-    return '#6B7280';
-  }
-  switch (status.toLowerCase()) {
-    case 'success':
-      return '#10B981';
-    case 'failed':
-      return '#EF4444';
-    case 'in progress':
-      return '#F59E0B';
-    case 'not started':
-      return '#6B7280';
-    default:
-      return '#6B7280';
-  }
-};
-
-const getStatusIcon = (status: string) => {
-  if (!status) {
-    return Circle;
-  }
-  switch (status.toLowerCase()) {
-    case 'success':
-      return CheckCircle;
-    case 'failed':
-      return XCircle;
-    case 'in progress':
-      return Clock;
-    case 'not started':
-      return Circle;
-    default:
-      return Circle;
-  }
-};
-
-const STATUS_LABEL_KEYS: Record<string, string> = {
-  success: 'areas.card.status.success',
-  failed: 'areas.card.status.failed',
-  'in progress': 'areas.card.status.inProgress',
-  'not started': 'areas.card.status.notStarted',
-};
-
-export const AreaListCard: React.FC<AreaListCardProps> = ({ area, onPress }) => {
+export const AreaListCard: React.FC<AreaListCardProps> = ({ area, onPress, onEdit, onDelete, onRun, onToggle }) => {
   const { t } = useTranslation();
-  // Handle both Area and AreaDto types
+  const colors = useThemeColors();
   const isAreaDto = 'actions' in area && 'reactions' in area;
   const services = isAreaDto ? [] : (area as Area).services || [];
-  const status = isAreaDto ? 'not started' : (area as Area).status || 'not started';
   const lastRun = isAreaDto ? area.updatedAt : (area as Area).lastRun;
-
-  const StatusIcon = getStatusIcon(status);
-  const statusColor = getStatusColor(status);
   const actionsCount = isAreaDto ? (area as AreaDto).actions.length : 0;
   const reactionsCount = isAreaDto ? (area as AreaDto).reactions.length : 0;
-  const normalizedStatus = status?.toLowerCase?.() ?? '';
-  const statusTextKey = STATUS_LABEL_KEYS[normalizedStatus];
-  const statusLabel = statusTextKey ? t(statusTextKey) : status;
-  const enabledLabel = area.enabled ? t('areas.card.enabled', 'Enabled') : t('areas.card.disabled', 'Disabled');
+
+  const handleEdit = () => {
+    onEdit?.(area.id);
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      t('areas.card.delete.title', 'Delete Area'),
+      t('areas.card.delete.message', 'Are you sure you want to delete this area?'),
+      [
+        {
+          text: t('common.cancel', 'Cancel'),
+          style: 'cancel'
+        },
+        {
+          text: t('common.delete', 'Delete'),
+          style: 'destructive',
+          onPress: () => onDelete?.(area.id)
+        }
+      ]
+    );
+  };
+
+  const handleRun = () => {
+    onRun?.(area.id);
+  };
+
+  const handleToggle = () => {
+    Alert.alert(
+      area.enabled
+        ? t('areas.card.disable.title', 'Disable Area')
+        : t('areas.card.enable.title', 'Enable Area'),
+      area.enabled
+        ? t('areas.card.disable.message', 'Are you sure you want to disable this area?')
+        : t('areas.card.enable.message', 'Are you sure you want to enable this area?'),
+      [
+        {
+          text: t('common.cancel', 'Cancel'),
+          style: 'cancel'
+        },
+        {
+          text: t('common.confirm', 'Confirm'),
+          onPress: () => onToggle?.(area.id, !area.enabled)
+        }
+      ]
+    );
+  };
 
   return (
     <Pressable onPress={onPress}>
-      <Box className="bg-background-50 rounded-xl p-4 mb-3 border border-outline-100">
+      <Box
+        className="rounded-lg p-4 mb-3 border shadow-sm"
+        style={{
+          backgroundColor: colors.card,
+          borderColor: colors.info,
+        }}
+      >
         <VStack space="md">
-          {/* Header with title and status */}
           <HStack className="items-center justify-between">
             <HStack className="items-center flex-1" space="sm">
-              <Box className="bg-primary-500 rounded-lg p-2">
+              <Box className="rounded-lg p-2" style={{ backgroundColor: colors.info }}>
                 <Icon as={Zap} size="sm" className="text-white" />
               </Box>
-              <Text className="text-typography-900 font-semibold text-lg flex-1" numberOfLines={1}>
-                {area.name}
-              </Text>
+              <VStack className="flex-1">
+                <Text
+                  className="font-semibold text-base"
+                  style={{ color: colors.text }}
+                  numberOfLines={1}
+                >
+                  {area.name}
+                </Text>
+                <HStack space="xs" className="items-center mt-1">
+                  <Box
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      backgroundColor: area.enabled ? colors.success : colors.disabled,
+                    }}
+                  />
+                  <Text className="text-xs" style={{ color: colors.textSecondary }}>
+                    {area.enabled
+                      ? t('areas.card.active', 'Active')
+                      : t('areas.card.inactive', 'Inactive')}
+                  </Text>
+                </HStack>
+              </VStack>
             </HStack>
-            <Box
-              className="ml-2 rounded-md px-2 py-1"
-              style={{ backgroundColor: statusColor }}
-            >
-              <HStack space="xs" className="items-center">
-                <Icon as={StatusIcon} size="xs" className="text-white" />
-                <Text className="text-white text-xs font-medium">{statusLabel}</Text>
-              </HStack>
-            </Box>
           </HStack>
 
-          {/* Description */}
           {area.description && (
-            <Text className="text-typography-700 text-sm" numberOfLines={2}>
+            <Text className="text-sm" style={{ color: colors.textSecondary }} numberOfLines={2}>
               {area.description}
             </Text>
           )}
 
-          {/* Actions and Reactions count for AreaDto */}
           {isAreaDto && (
             <HStack space="md">
-              <Badge size="sm" variant="outline" action="info">
-                <BadgeText className="text-xs">
-                  {t('areas.card.actions', { count: actionsCount })}
+              <Badge size="sm" variant="outline" className="border-blue-300">
+                <BadgeText className="text-xs text-blue-600">
+                  {t('areas.card.triggers', { count: actionsCount, defaultValue: `${actionsCount} Triggers` })}
                 </BadgeText>
               </Badge>
-              <Badge size="sm" variant="outline" action="success">
-                <BadgeText className="text-xs">
-                  {t('areas.card.reactions', { count: reactionsCount })}
+              <Badge size="sm" variant="outline" className="border-blue-300">
+                <BadgeText className="text-xs text-blue-600">
+                  {t('areas.card.actions', { count: reactionsCount, defaultValue: `${reactionsCount} Actions` })}
                 </BadgeText>
               </Badge>
             </HStack>
           )}
 
-          {/* Services badges for Area type */}
           {!isAreaDto && services.length > 0 && (
             <HStack space="xs" className="flex-wrap">
               {services.slice(0, 3).map((service, index) => (
-                <Badge key={index} size="sm" variant="outline" action="info">
-                  <BadgeText className="text-xs">{service}</BadgeText>
+                <Badge key={index} size="sm" variant="outline" className="border-blue-300">
+                  <BadgeText className="text-xs text-blue-600">{service}</BadgeText>
                 </Badge>
               ))}
               {services.length > 3 && (
-                <Badge size="sm" variant="outline" action="muted">
-                  <BadgeText className="text-xs">+{services.length - 3}</BadgeText>
+                <Badge size="sm" variant="outline" className="border-gray-300">
+                  <BadgeText className="text-xs" style={{ color: colors.textSecondary }}>
+                    +{services.length - 3}
+                  </BadgeText>
                 </Badge>
               )}
             </HStack>
           )}
 
-          {/* Footer with enabled status and last run */}
-          <HStack className="items-center justify-between">
-            <HStack space="xs" className="items-center">
-              <Box
-                className="w-2 h-2 rounded-full"
-                style={{
-                  backgroundColor: area.enabled ? '#10B981' : '#6B7280',
-                }}
-              />
-              <Text className="text-typography-600 text-xs">
-                {enabledLabel}
-              </Text>
+          {lastRun && (
+            <Text className="text-xs" style={{ color: colors.textTertiary }}>
+              {t('areas.card.lastRun', 'Last run')}: {new Date(lastRun).toLocaleDateString()}
+            </Text>
+          )}
+
+          {(onEdit || onDelete || onRun || onToggle) && (
+            <HStack space="sm" className="mt-3">
+              {onEdit && (
+                <Button
+                  size="sm"
+                  variant="solid"
+                  onPress={handleEdit}
+                  className="flex-1 rounded-lg"
+                  style={{ backgroundColor: colors.info }}
+                >
+                  <ButtonIcon as={Edit} size="sm" color="white" />
+                  <ButtonText className="text-white text-xs ml-1">
+                    {t('areas.card.edit', 'Edit')}
+                  </ButtonText>
+                </Button>
+              )}
+              {onRun && (
+                <Button
+                  size="sm"
+                  variant="solid"
+                  onPress={handleRun}
+                  className="flex-1 rounded-lg"
+                  style={{ backgroundColor: colors.success }}
+                >
+                  <ButtonIcon as={Play} size="sm" color="white" />
+                  <ButtonText className="text-white text-xs ml-1">
+                    {t('areas.card.run', 'Run')}
+                  </ButtonText>
+                </Button>
+              )}
+              {onToggle && (
+                <Button
+                  size="sm"
+                  variant="solid"
+                  onPress={handleToggle}
+                  className="flex-1 rounded-lg"
+                  style={{ backgroundColor: area.enabled ? colors.warning : colors.success }}
+                >
+                  <ButtonIcon
+                    as={area.enabled ? PowerOff : Power}
+                    size="sm"
+                    color="white"
+                  />
+                  <ButtonText className="text-white text-xs ml-1">
+                    {area.enabled
+                      ? t('areas.card.disable', 'Disable')
+                      : t('areas.card.enable', 'Enable')}
+                  </ButtonText>
+                </Button>
+              )}
+              {onDelete && (
+                <Button
+                  size="sm"
+                  variant="solid"
+                  onPress={handleDelete}
+                  className="rounded-lg"
+                  style={{ backgroundColor: colors.error, minWidth: 44 }}
+                >
+                  <ButtonIcon as={Trash2} size="sm" color="white" />
+                </Button>
+              )}
             </HStack>
-            {lastRun && (
-              <Text className="text-typography-500 text-xs">
-                {new Date(lastRun).toLocaleDateString()}
-              </Text>
-            )}
-          </HStack>
+          )}
         </VStack>
       </Box>
     </Pressable>

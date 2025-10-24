@@ -7,6 +7,7 @@ import {
     mockRegister,
 } from './__mocks__/auth.mock';
 import { API_CONFIG, ENV } from './api.config';
+import { get, post } from './api';
 import { clearAuthData, saveUserData } from './storage';
 
 /**
@@ -15,27 +16,6 @@ import { clearAuthData, saveUserData } from './storage';
  */
 const USE_MOCK = ENV.USE_MOCK;
 const MOCK_DELAY = ENV.MOCK_DELAY;
-
-/**
- * Helpers
- */
-async function safeJson<T = any>(res: Response): Promise<T | null> {
-    try {
-        return (await res.json()) as T;
-    } catch (_) {
-        return null;
-    }
-}
-
-async function apiFetch(input: string, init: RequestInit = {}): Promise<Response> {
-    const url = `${API_CONFIG.BASE_URL}${input}`;
-    const resp = await fetch(url, {
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json', ...(init.headers || {}) },
-        ...init,
-    });
-    return resp;
-}
 
 /**
  * Login
@@ -50,17 +30,7 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
     }
 
     try {
-        const response = await apiFetch(API_CONFIG.ENDPOINTS.LOGIN, {
-            method: 'POST',
-            body: JSON.stringify(credentials),
-        });
-
-        if (!response.ok) {
-            const error = (await safeJson<{ message?: string }>(response)) || {};
-            throw new Error(error.message || 'Login failed');
-        }
-
-        const data = (await safeJson<AuthResponse>(response)) || { message: 'OK', user: null };
+        const data = await post<AuthResponse>(API_CONFIG.ENDPOINTS.LOGIN, credentials);
         if (data.user) {
             await saveUserData(JSON.stringify(data.user));
         }
@@ -84,17 +54,7 @@ export async function register(data: RegisterData): Promise<AuthResponse> {
     }
 
     try {
-        const response = await apiFetch(API_CONFIG.ENDPOINTS.REGISTER, {
-            method: 'POST',
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            const error = (await safeJson<{ message?: string }>(response)) || {};
-            throw new Error(error.message || 'Registration failed');
-        }
-
-        const responseData = (await safeJson<AuthResponse>(response)) || { message: 'OK', user: null };
+        const responseData = await post<AuthResponse>(API_CONFIG.ENDPOINTS.REGISTER, data);
         if (responseData.user) {
             await saveUserData(JSON.stringify(responseData.user));
         }
@@ -116,9 +76,7 @@ export async function logout(): Promise<void> {
     }
 
     try {
-        await apiFetch(API_CONFIG.ENDPOINTS.LOGOUT, {
-            method: 'POST',
-        });
+        await post<void>(API_CONFIG.ENDPOINTS.LOGOUT);
     } catch (error) {
         console.error('Logout error:', error);
     } finally {
@@ -135,14 +93,8 @@ export async function getCurrentUser(): Promise<User | null> {
     }
 
     try {
-        const response = await apiFetch(API_CONFIG.ENDPOINTS.ME, { method: 'GET' });
-
-        if (!response.ok) {
-            return null;
-        }
-
         // Backend returns { message, user }
-        const data = (await safeJson<AuthResponse | User>(response));
+        const data = await get<AuthResponse | User>(API_CONFIG.ENDPOINTS.ME);
         let user: User | null = null;
         if (data && 'message' in (data as any)) {
             user = (data as AuthResponse).user;

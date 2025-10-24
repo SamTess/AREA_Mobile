@@ -47,21 +47,21 @@ describe('AreaListCard', () => {
   it('displays enabled status correctly', () => {
     const { getByText } = render(<AreaListCard area={mockAreaDto} />);
 
-    expect(getByText('Enabled')).toBeTruthy();
+    expect(getByText('Active')).toBeTruthy();
   });
 
   it('displays disabled status correctly', () => {
     const disabledArea = { ...mockAreaDto, enabled: false };
     const { getByText } = render(<AreaListCard area={disabledArea} />);
 
-    expect(getByText('Disabled')).toBeTruthy();
+    expect(getByText('Inactive')).toBeTruthy();
   });
 
   it('shows action and reaction count for AreaDto', () => {
     const { getByText } = render(<AreaListCard area={mockAreaDto} />);
 
+    expect(getByText('1 Trigger')).toBeTruthy();
     expect(getByText('1 Action')).toBeTruthy();
-    expect(getByText('1 Reaction')).toBeTruthy();
   });
 
   it('calls onPress when card is pressed', () => {
@@ -78,6 +78,7 @@ describe('AreaListCard', () => {
     const { getByText } = render(<AreaListCard area={mockAreaDto} />);
 
     const dateText = new Date('2025-10-13T08:30:00Z').toLocaleDateString();
-    expect(getByText(dateText)).toBeTruthy();
+    // Le composant affiche "Last run: <date>" maintenant
+    expect(getByText(`Last run: ${dateText}`)).toBeTruthy();
   });
 });

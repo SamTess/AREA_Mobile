@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { Github, Mail } from 'lucide-react-native';
 import React from 'react';
 
-import ActionReactionItem from '../ActionReactionItem';
+import { ActionReactionItem } from '../ActionReactionItem';
 import { GluestackUIProvider } from '../ui/gluestack-ui-provider';
 
 // Mock i18next

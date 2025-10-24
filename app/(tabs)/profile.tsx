@@ -152,12 +152,18 @@ export default function ProfileScreen() {
             subtitle={t('profile.settingsSubtitle')}
             onPress={() => router.push('/(tabs)/edit-profile')}
           />
+          <MenuItem
+            icon={Settings}
+            title={t('profile.connectedServices', 'Connected Services')}
+            subtitle={t('profile.connectedServicesSubtitle', 'Manage service connections')}
+            onPress={() => router.push('/connected-services')}
+          />
           <Divider className="my-2" />
           <MenuItem
             icon={Bell}
             title={t('profile.notificationsTitle')}
             subtitle={t('profile.notificationsSubtitle')}
-            onPress={() => router.push('/details')}
+            onPress={() => router.push('/connected-services')}
           />
           <MenuItem
             icon={HelpCircle}

@@ -1,8 +1,9 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 import AreasTab from '../areas';
+import { NavigationContainer } from '@react-navigation/native';
 import { AreaProvider } from '@/contexts/AreaContext';
-import * as areaService from '@/services/areas';
+import * as areaService from '@/services/area';
 
 jest.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
@@ -18,8 +19,8 @@ jest.mock('@/contexts/AuthContext', () => ({
   }),
 }));
 
-jest.mock('@/services/areas', () => {
-  const actual = jest.requireActual('@/services/areas');
+jest.mock('@/services/area', () => {
+  const actual = jest.requireActual('@/services/area');
   return {
     ...actual,
     getUserAreas: jest.fn(),
@@ -57,12 +58,15 @@ const mockAreas = [
   },
 ];
 
-const renderWithProviders = () =>
-  render(
+function Providers({ children }: { children: React.ReactNode }) {
+  return (
     <AreaProvider>
-      <AreasTab />
+      <NavigationContainer>{children}</NavigationContainer>
     </AreaProvider>
   );
+}
+
+const renderWithProviders = () => render(<AreasTab />, { wrapper: Providers });
 
 beforeEach(() => {
   jest.clearAllMocks();
