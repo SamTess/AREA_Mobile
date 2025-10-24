@@ -20,6 +20,8 @@ export const MOCK_USERS_DB = [
             name: 'John Doe',
             avatarUrl: 'https://i.pravatar.cc/150?img=1',
             createdAt: '2024-01-01T00:00:00.000Z',
+            isAdmin: true,
+            isActive: true,
         },
     },
     {
@@ -31,6 +33,8 @@ export const MOCK_USERS_DB = [
             name: 'Jane Smith',
             avatarUrl: 'https://i.pravatar.cc/150?img=2',
             createdAt: '2024-01-02T00:00:00.000Z',
+            isAdmin: false,
+            isActive: true,
         },
     },
     {
@@ -42,6 +46,8 @@ export const MOCK_USERS_DB = [
             name: 'Admin User',
             avatarUrl: 'https://i.pravatar.cc/150?img=3',
             createdAt: '2024-01-03T00:00:00.000Z',
+            isAdmin: true,
+            isActive: true,
         },
     },
 ];
@@ -163,14 +169,14 @@ export async function mockRegister(
         user: {
             id: newUser.id,
             email: newUser.email,
-            name: 'New User',
+            name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'New User',
             avatarUrl: newUser.avatarUrl || `https://i.pravatar.cc/150?img=${registeredUsers.length + 1}`,
             createdAt: newUser.createdAt || new Date().toISOString(),
+            isAdmin: false,
+            isActive: true,
         },
     });
 
-    // Return auth response
-    // Emulate cookie set (internal only)
     generateMockToken('access');
     generateMockToken('refresh');
 
@@ -210,7 +216,6 @@ export async function mockGetCurrentUser(
  * Mock refresh token
  * Simulates API POST /auth/refresh
  */
-// Left for backward compatibility in tests; not used by app code anymore
 export async function mockRefreshToken() {
     await delay(0);
     return { accessToken: '', refreshToken: '', expiresIn: 0 };

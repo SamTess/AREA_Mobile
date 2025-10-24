@@ -1,5 +1,4 @@
 import { AuthProvider } from '@/contexts/AuthContext';
-import '@testing-library/jest-native/extend-expect';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import React from 'react';
 import RegisterScreen from '../register';
@@ -34,21 +33,31 @@ describe('RegisterScreen', () => {
         renderWithAuth(<RegisterScreen />);
 
         // Tests use English by default (default i18n language)
-        expect(screen.getAllByText('Sign Up')[0]).toBeTruthy();
-        expect(screen.getByText('Create your account to get started')).toBeTruthy();
-        expect(screen.getByPlaceholderText('John Doe')).toBeTruthy();
-        expect(screen.getByPlaceholderText('example@email.com')).toBeTruthy();
-        expect(screen.getAllByPlaceholderText('••••••••')[0]).toBeTruthy();
-        expect(screen.getAllByPlaceholderText('••••••••')[1]).toBeTruthy();
+        (expect(screen.getAllByText('Sign Up')[0]) as any).toBeTruthy();
+        (expect(screen.getByText('Create your account to get started')) as any).toBeTruthy();
+        (expect(screen.getByPlaceholderText('John')) as any).toBeTruthy();
+        (expect(screen.getByPlaceholderText('Doe')) as any).toBeTruthy();
+        (expect(screen.getByPlaceholderText('example@email.com')) as any).toBeTruthy();
+        (expect(screen.getAllByPlaceholderText('••••••••')[0]) as any).toBeTruthy();
+        (expect(screen.getAllByPlaceholderText('••••••••')[1]) as any).toBeTruthy();
     });
 
-    it('allows typing in name field', () => {
+    it('allows typing in first name field', () => {
         renderWithAuth(<RegisterScreen />);
 
-        const nameInput = screen.getByPlaceholderText('John Doe');
-        fireEvent.changeText(nameInput, 'John Doe');
+        const firstNameInput = screen.getByPlaceholderText('John');
+        fireEvent.changeText(firstNameInput, 'John');
 
-        expect(nameInput.props.value).toBe('John Doe');
+        (expect(firstNameInput.props.value) as any).toBe('John');
+    });
+
+    it('allows typing in last name field', () => {
+        renderWithAuth(<RegisterScreen />);
+
+        const lastNameInput = screen.getByPlaceholderText('Doe');
+        fireEvent.changeText(lastNameInput, 'Doe');
+
+        (expect(lastNameInput.props.value) as any).toBe('Doe');
     });
 
     it('allows typing in email field', () => {
@@ -75,10 +84,11 @@ describe('RegisterScreen', () => {
     it('displays helper texts for all fields', () => {
         renderWithAuth(<RegisterScreen />);
 
-        expect(screen.getByText('Enter your full name')).toBeTruthy();
-        expect(screen.getByText('Enter your email address')).toBeTruthy();
-        expect(screen.getByText('At least 8 characters')).toBeTruthy();
-        expect(screen.getByText('Confirm your password')).toBeTruthy();
+        (expect(screen.getByText('Enter your first name')) as any).toBeTruthy();
+        (expect(screen.getByText('Enter your last name')) as any).toBeTruthy();
+        (expect(screen.getByText('Enter your email address')) as any).toBeTruthy();
+        (expect(screen.getByText('At least 8 characters')) as any).toBeTruthy();
+        (expect(screen.getByText('Confirm your password')) as any).toBeTruthy();
     });
 
     it('shows sign in link text', () => {
@@ -116,11 +126,13 @@ describe('RegisterScreen', () => {
     it('shows password mismatch error', async () => {
         renderWithAuth(<RegisterScreen />);
 
-        const nameInput = screen.getByPlaceholderText('John Doe');
+        const firstNameInput = screen.getByPlaceholderText('John');
+        const lastNameInput = screen.getByPlaceholderText('Doe');
         const emailInput = screen.getByPlaceholderText('example@email.com');
         const passwordInputs = screen.getAllByPlaceholderText('••••••••');
 
-        fireEvent.changeText(nameInput, 'John Doe');
+        fireEvent.changeText(firstNameInput, 'John');
+        fireEvent.changeText(lastNameInput, 'Doe');
         fireEvent.changeText(emailInput, 'test@example.com');
         fireEvent.changeText(passwordInputs[0], 'password123');
         fireEvent.changeText(passwordInputs[1], 'differentpassword');
@@ -130,8 +142,9 @@ describe('RegisterScreen', () => {
         fireEvent.press(signUpButton);
 
         // Just verify the inputs have values
-        expect(nameInput.props.value).toBe('John Doe');
-        expect(emailInput.props.value).toBe('test@example.com');
+        (expect(firstNameInput.props.value) as any).toBe('John');
+        (expect(lastNameInput.props.value) as any).toBe('Doe');
+        (expect(emailInput.props.value) as any).toBe('test@example.com');
     });
 
     it('shows password too short error', async () => {

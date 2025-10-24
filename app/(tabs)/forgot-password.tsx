@@ -112,7 +112,7 @@ export default function ForgotPasswordScreen() {
                             {emailError ? (
                                 <Box className="flex-row items-center mt-1">
                                     <Text size="xs" className="text-error-600 ml-1">
-                                        ⚠️ {emailError}
+                                        {emailError}
                                     </Text>
                                 </Box>
                             ) : (
