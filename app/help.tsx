@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { Mail, Github, MessageCircle, Send, Clock, Phone, Globe, AlertCircle } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -84,7 +83,6 @@ const InfoCard: React.FC<{
 
 export default function HelpScreen() {
   const { t } = useTranslation();
-  const router = useRouter();
   const headerHeight = useHeaderHeight();
 
   const [formData, setFormData] = useState({

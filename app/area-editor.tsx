@@ -134,7 +134,7 @@ export default function AreaEditorScreen() {
     initializeWithData
   } = useAreaEditor();
 
-  const { links, clearLinks, removeLinkByIndex } = useLinks();
+  const { links, removeLinkByIndex } = useLinks();
   const [areaName, setAreaName] = useState('');
   const [areaDescription, setAreaDescription] = useState('');
   const [enabled, setEnabled] = useState(true);
@@ -142,16 +142,8 @@ export default function AreaEditorScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [isViewMode, setIsViewMode] = useState(isEditMode);
-  useEffect(() => {
-    if (isEditMode && areaId && !dataLoaded) {
-      loadAreaData(areaId);
-    } else if (!isEditMode && !dataLoaded) {
-      clearAll();
-      setDataLoaded(true);
-    }
-  }, []);
 
-  const loadAreaData = async (id: string) => {
+  const loadAreaData = React.useCallback(async (id: string) => {
     if (dataLoaded)
       return;
     setIsLoading(true);
@@ -170,7 +162,7 @@ export default function AreaEditorScreen() {
             if (service) {
               loadedActions.push({ action, service, definition: def });
             }
-          } catch (err) {
+          } catch {
           }
         }
         for (const reaction of area.reactions) {
@@ -180,13 +172,13 @@ export default function AreaEditorScreen() {
             if (service) {
               loadedReactions.push({ reaction, service, definition: def });
             }
-          } catch (err) {
+          } catch {
           }
         }
         initializeWithData(loadedActions, loadedReactions);
         setDataLoaded(true);
       }
-    } catch (error) {
+    } catch {
       Alert.alert(
         t('editor.error.loadFailed', 'Load Failed'),
         t('editor.error.loadFailedMessage', 'Failed to load area data'),
@@ -195,7 +187,16 @@ export default function AreaEditorScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dataLoaded, initializeWithData, t]);
+
+  useEffect(() => {
+    if (isEditMode && areaId && !dataLoaded) {
+      loadAreaData(areaId);
+    } else if (!isEditMode && !dataLoaded) {
+      clearAll();
+      setDataLoaded(true);
+    }
+  }, [isEditMode, areaId, dataLoaded, loadAreaData, clearAll]);
 
   const handleSave = async () => {
     if (!areaName.trim()) {
@@ -216,13 +217,13 @@ export default function AreaEditorScreen() {
 
     setIsSaving(true);
     try {
-      const linksPayload: Array<{
+      const linksPayload: {
         sourceActionDefinitionId?: string;
         targetActionDefinitionId?: string;
         mapping?: Record<string, string>;
         condition?: Record<string, unknown>;
         order?: number;
-      }> = [];
+      }[] = [];
 
       if (links.length > 0) {
         links.forEach(link => {
@@ -304,7 +305,7 @@ export default function AreaEditorScreen() {
           t('editor.success.updatedMessage', 'Area updated successfully')
         );
       } else {
-        const newArea = await areaService.createAreaWithActions(payload);
+        await areaService.createAreaWithActions(payload);
         Alert.alert(
           t('editor.success.created', 'Success'),
           t('editor.success.createdMessage', 'Area created successfully'),
@@ -353,7 +354,7 @@ export default function AreaEditorScreen() {
     setEnabled(newEnabled);
     try {
       await areaService.toggleArea(areaId, newEnabled);
-    } catch (error) {
+    } catch {
       setEnabled(!newEnabled);
       Alert.alert(
         t('editor.error.toggleFailed', 'Toggle Failed'),

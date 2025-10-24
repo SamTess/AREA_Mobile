@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextInput, Switch, Pressable } from 'react-native';
+import { TextInput, Pressable } from 'react-native';
 import { Box } from '@/components/ui/box';
 import { VStack } from '@/components/ui/vstack';
 import { HStack } from '@/components/ui/hstack';

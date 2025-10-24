@@ -71,7 +71,7 @@ export default function UserModal({ visible, onClose, onSubmit, user }: UserModa
     if (visible) {
       loadUserData();
     }
-  }, [user, visible]);
+  }, [user, visible, t, onClose]);
 
   const handleSubmit = async () => {
     if (!formData.firstName.trim())

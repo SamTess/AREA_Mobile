@@ -11,7 +11,6 @@ import { Text } from '@/components/ui/text';
 import { Heading } from '@/components/ui/heading';
 import { Input, InputField } from '@/components/ui/input';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
-import { Badge, BadgeText, BadgeIcon } from '@/components/ui/badge';
 import { DynamicField } from '@/components/area-editor/DynamicField';
 import { useAreaEditor } from '@/contexts/AreaEditorContext';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -44,12 +43,7 @@ export default function ActionConfiguratorScreen() {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadActionDefinition();
-    checkServiceConnection();
-  }, [params.actionDefinitionId, params.serviceKey, params.existingParameters]);
-
-  const checkServiceConnection = async () => {
+  const checkServiceConnection = React.useCallback(async () => {
     try {
       const status = await serviceConnection.getServiceConnectionStatus(params.serviceKey);
       setIsConnected(status.isConnected);
@@ -58,9 +52,9 @@ export default function ActionConfiguratorScreen() {
       console.error('Failed to check service connection:', error);
       setIsConnected(false);
     }
-  };
+  }, [params.serviceKey]);
 
-  const handleConnectService = async () => {
+  const openOAuthFlow = React.useCallback(async () => {
     try {
       const provider = serviceConnection.mapServiceKeyToOAuthProvider(params.serviceKey);
       const oauthUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/oauth/${provider}/authorize`;
@@ -89,9 +83,9 @@ export default function ActionConfiguratorScreen() {
     } catch (error) {
       console.error('Failed to open OAuth:', error);
     }
-  };
+  }, [params.serviceKey, params.serviceName, t, checkServiceConnection]);
 
-  const loadActionDefinition = async () => {
+  const loadActionDefinition = React.useCallback(async () => {
     setIsLoading(true);
     try {
       const def = await serviceCatalog.getActionDefinitionById(params.actionDefinitionId);
@@ -136,7 +130,12 @@ export default function ActionConfiguratorScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.actionDefinitionId, params.existingCardName, params.actionName, params.existingParameters, isEditMode, t]);
+
+  useEffect(() => {
+    loadActionDefinition();
+    checkServiceConnection();
+  }, [loadActionDefinition, checkServiceConnection]);
 
   const handleFieldChange = (name: string, value: unknown) => {
     setParameters(prev => ({
@@ -319,7 +318,7 @@ export default function ActionConfiguratorScreen() {
                     <Button
                       size="sm"
                       variant="solid"
-                      onPress={handleConnectService}
+                      onPress={openOAuthFlow}
                       style={{ backgroundColor: colors.info }}
                     >
                       <ButtonIcon as={LinkIcon} size="sm" />

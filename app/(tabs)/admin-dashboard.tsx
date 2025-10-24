@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
-  RefreshControl,
   Alert,
   ActivityIndicator,
 } from 'react-native';
@@ -27,16 +25,11 @@ export default function AdminDashboard() {
   const colors = useThemeColors();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('users');
-  const [refreshing, setRefreshing] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isVerified, setIsVerified] = useState(true);
 
-  useEffect(() => {
-    checkAdminAccess();
-  }, []);
-
-  const checkAdminAccess = async () => {
+  const checkAdminAccess = React.useCallback(async () => {
     try {
       setLoading(true);
       const user = await getCurrentUser();
@@ -58,20 +51,17 @@ export default function AdminDashboard() {
         setIsVerified(true);
       }
       setIsAdmin(true);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to verify admin access');
       router.replace('/(tabs)');
     } finally {
       setLoading(false);
     }
-  };
+  }, [t, router]);
 
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
-  }, []);
+  useEffect(() => {
+    checkAdminAccess();
+  }, [checkAdminAccess]);
 
   const tabs = [
     { key: 'users' as TabType, label: t('admin.tabs.users'), icon: 'people' },
@@ -82,11 +72,11 @@ export default function AdminDashboard() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'users':
-        return <UsersTab key={refreshing ? 'refreshing' : 'normal'} />;
+        return <UsersTab />;
       case 'areas':
-        return <AreasTab key={refreshing ? 'refreshing' : 'normal'} />;
+        return <AreasTab />;
       case 'services':
-        return <ServicesTab key={refreshing ? 'refreshing' : 'normal'} />;
+        return <ServicesTab />;
       default:
         return null;
     }

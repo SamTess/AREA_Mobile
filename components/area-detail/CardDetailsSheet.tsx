@@ -29,7 +29,7 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
   const [triggerType, setTriggerType] = useState<TriggerType>('manual');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState('');
   const [cronExpression, setCronExpression] = useState('');
 

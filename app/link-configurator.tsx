@@ -3,14 +3,12 @@ import { ScrollView, Alert, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Save, Link as LinkIcon, ArrowRight, Info, CheckCircle, Circle, X } from 'lucide-react-native';
+import { ArrowLeft, Save, ArrowRight, Info, CheckCircle, Circle } from 'lucide-react-native';
 import { Box } from '@/components/ui/box';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
 import { Text } from '@/components/ui/text';
 import { Heading } from '@/components/ui/heading';
-import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
-import { Badge, BadgeText } from '@/components/ui/badge';
 import { Input, InputField } from '@/components/ui/input';
 import { useLinks } from '@/contexts/LinkContext';
 import { useAreaEditor } from '@/contexts/AreaEditorContext';
@@ -61,11 +59,11 @@ export default function LinkConfiguratorScreen() {
         setSelectedSourceType(existingData.sourceType);
         setSelectedTargetIndex(existingData.targetIndex);
         setSelectedTargetType(existingData.targetType);
-      } catch (error) {
-        console.error('Failed to parse existing link data:', error);
+      } catch {
+        console.error('Failed to parse existing link data');
       }
     }
-  }, [params.existingLink]);
+  }, [isEditMode, params.existingLink]);
 
   const handleSave = () => {
     if (selectedSourceIndex === -1 || selectedTargetIndex === -1) {
@@ -79,7 +77,7 @@ export default function LinkConfiguratorScreen() {
     if (linkType === 'conditional') {
       try {
         parsedCondition = JSON.parse(condition);
-      } catch (error) {
+      } catch {
         Alert.alert(
           t('linkConfigurator.error', 'Error'),
           t('linkConfigurator.invalidCondition', 'Invalid condition JSON format')
@@ -130,24 +128,6 @@ export default function LinkConfiguratorScreen() {
       default:
         return '';
     }
-  };
-
-  const getCardName = (type: 'action' | 'reaction', index: number) => {
-    if (type === 'action' && configuredActions[index]) {
-      return configuredActions[index].action.name || configuredActions[index].definition.name;
-    } else if (type === 'reaction' && configuredReactions[index]) {
-      return configuredReactions[index].reaction.name || configuredReactions[index].definition.name;
-    }
-    return t('linkConfigurator.selectCard', 'Select a card');
-  };
-
-  const getServiceName = (type: 'action' | 'reaction', index: number) => {
-    if (type === 'action' && configuredActions[index]) {
-      return configuredActions[index].service.name;
-    } else if (type === 'reaction' && configuredReactions[index]) {
-      return configuredReactions[index].service.name;
-    }
-    return '';
   };
 
   return (

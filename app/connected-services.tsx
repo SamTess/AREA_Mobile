@@ -3,7 +3,7 @@ import { FlatList, Alert, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Link as LinkIcon, Unlink, ExternalLink } from 'lucide-react-native';
+import { ArrowLeft, Link as LinkIcon, Unlink } from 'lucide-react-native';
 import { Box } from '@/components/ui/box';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
@@ -11,7 +11,6 @@ import { Text } from '@/components/ui/text';
 import { Heading } from '@/components/ui/heading';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { Badge, BadgeText } from '@/components/ui/badge';
-import { Pressable } from '@/components/ui/pressable';
 import * as serviceCatalog from '@/services/serviceCatalog';
 import * as serviceConnection from '@/services/serviceConnection';
 import type { BackendService } from '@/types/areas';
@@ -26,9 +25,7 @@ interface ServiceCardProps {
 function ServiceCard({ service, onConnect, onDisconnect }: ServiceCardProps) {
   const { t } = useTranslation();
   const isConnected = !!service.connectionStatus?.isConnected;
-  const iconUrl = service.connectionStatus?.iconUrl || service.iconLightUrl;
   const userName = service.connectionStatus?.userName;
-  const userEmail = service.connectionStatus?.userEmail;
   return (
     <Box className="bg-background-50 rounded-lg p-4 mb-3 border border-outline-100">
       <VStack space="sm">
@@ -94,14 +91,10 @@ function ServiceCard({ service, onConnect, onDisconnect }: ServiceCardProps) {
 
 export default function ConnectedServicesScreen() {
   const { t } = useTranslation();
-  const [services, setServices] = useState<Array<BackendService & { connectionStatus?: ServiceConnectionStatus }>>([]);
+  const [services, setServices] = useState<(BackendService & { connectionStatus?: ServiceConnectionStatus })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadServices();
-  }, []);
-
-  const loadServices = async () => {
+  const loadServices = React.useCallback(async () => {
     setIsLoading(true);
     try {
       const catalog = await serviceCatalog.getServicesCatalog();
@@ -123,7 +116,11 @@ export default function ConnectedServicesScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    loadServices();
+  }, [loadServices]);
 
   const handleConnect = async (service: BackendService) => {
     try {

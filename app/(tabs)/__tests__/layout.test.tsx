@@ -1,5 +1,4 @@
 import { AuthProvider } from '@/contexts/AuthContext';
-import { testColors } from '@/test-utils/testColors';
 import { render } from '@testing-library/react-native';
 import React from 'react';
 import TabLayout from '../_layout';

@@ -9,7 +9,7 @@ import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
 import { Text } from '@/components/ui/text';
 import { Heading } from '@/components/ui/heading';
-import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
+import { Button, ButtonText } from '@/components/ui/button';
 import { Badge, BadgeText } from '@/components/ui/badge';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import * as serviceCatalog from '@/services/serviceCatalog';
