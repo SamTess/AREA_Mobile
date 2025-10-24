@@ -145,8 +145,21 @@
       "actions_plural": "{{count}} Actions",
       "reactions": "{{count}} Reaction",
       "reactions_plural": "{{count}} Reactions",
+      "triggers": "{{count}} Trigger",
+      "triggers_plural": "{{count}} Triggers",
       "enabled": "Enabled",
-      "disabled": "Disabled"
+      "disabled": "Disabled",
+      "active": "Active",
+      "inactive": "Inactive",
+      "lastRun": "Last run",
+      "edit": "Edit",
+      "run": "Run",
+      "enable": "Enable",
+      "disable": "Disable",
+      "delete": {
+        "title": "Delete Area",
+        "message": "Are you sure you want to delete this area?"
+      }
     }
   },
   "common": {

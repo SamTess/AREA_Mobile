@@ -145,8 +145,21 @@
       "actions_plural": "{{count}} actions",
       "reactions": "{{count}} réaction",
       "reactions_plural": "{{count}} réactions",
+      "triggers": "{{count}} déclencheur",
+      "triggers_plural": "{{count}} déclencheurs",
       "enabled": "Activée",
-      "disabled": "Désactivée"
+      "disabled": "Désactivée",
+      "active": "Active",
+      "inactive": "Inactive",
+      "lastRun": "Dernière exécution",
+      "edit": "Modifier",
+      "run": "Lancer",
+      "enable": "Activer",
+      "disable": "Désactiver",
+      "delete": {
+        "title": "Supprimer l'Area",
+        "message": "Êtes-vous sûr de vouloir supprimer cette area ?"
+      }
     }
   },
   "common": {
