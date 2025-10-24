@@ -129,15 +129,11 @@ export function Card({
         }
       });
   };
-
-
   let leftConnection;
   if (card.type === 'reaction') {
       leftConnection = createConnectionGesture('left');
   }
-
   const rightConnection = createConnectionGesture('right');
-
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
       { translateX: translateX.value },
@@ -169,16 +165,12 @@ export function Card({
         <TouchableOpacity
           onPress={() => onSelect(card)}
           activeOpacity={0.9}
-          className={`flex-1 rounded-xl border-2 p-3 shadow-hard-1 ${
-            card.type === 'action'
-              ? 'bg-success-50 border-success-200'
-              : 'bg-primary-50 border-primary-200'
-          }`}
+          className="flex-1 rounded-lg border bg-white shadow-sm p-3 border-blue-300"
         >
-          <Text className="font-medium text-sm text-typography-900 mb-1">
+          <Text className="font-semibold text-base text-gray-900 mb-1">
             {card.data.name}
           </Text>
-          <Text className="text-xs text-typography-600 uppercase">
+          <Text className="text-xs text-blue-600 font-medium uppercase">
             {card.type === 'action'
               ? t('areaDetail.cards.typeLabel.action')
               : t('areaDetail.cards.typeLabel.reaction')}
@@ -187,7 +179,7 @@ export function Card({
           {leftConnection &&
             <GestureDetector gesture={leftConnection}>
                 <View
-                className="absolute left-[-10] w-6 h-6 bg-background-0 rounded-full border-2 border-primary-500 shadow-md"
+                className="absolute left-[-10] w-6 h-6 bg-white rounded-full border-2 border-blue-500 shadow-md"
                 style={{ top: '50%' }}
                 />
             </GestureDetector>
@@ -195,7 +187,7 @@ export function Card({
 
           <GestureDetector gesture={rightConnection}>
             <View
-              className="absolute right-[-10] w-6 h-6 bg-background-0 rounded-full border-2 border-primary-500 shadow-md"
+              className="absolute right-[-10] w-6 h-6 bg-white rounded-full border-2 border-blue-500 shadow-md"
               style={{ top: '50%' }}
             />
           </GestureDetector>

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import Svg, { Line } from 'react-native-svg';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 import type { ActiveConnection, CardData, Connection } from '@/types/area-detail';
 import { CARD_WIDTH, CARD_HEIGHT, screenWidth, screenHeight } from './constants';
@@ -26,6 +27,7 @@ interface ConnectionLayerProps {
 }
 
 export function ConnectionLayer({ cards, connections, activeConnection, onConnectionPress }: ConnectionLayerProps) {
+  const colors = useThemeColors();
   const connectorLines = useMemo(
     () =>
       connections
@@ -54,7 +56,7 @@ export function ConnectionLayer({ cards, connections, activeConnection, onConnec
                 y1={fromPoint.y}
                 x2={toPoint.x}
                 y2={toPoint.y}
-                stroke="#6366f1"
+                stroke={colors.info}
                 strokeWidth={3}
                 strokeLinecap="round"
               />
@@ -62,7 +64,7 @@ export function ConnectionLayer({ cards, connections, activeConnection, onConnec
           );
         })
         .filter(Boolean),
-    [cards, connections, onConnectionPress]
+    [cards, connections, onConnectionPress, colors]
   );
 
   return (
@@ -83,7 +85,7 @@ export function ConnectionLayer({ cards, connections, activeConnection, onConnec
           y1={activeConnection.start.y}
           x2={activeConnection.point.x}
           y2={activeConnection.point.y}
-          stroke="#6366f1"
+          stroke={colors.info}
           strokeWidth={3}
           strokeDasharray="6,6"
           strokeLinecap="round"
