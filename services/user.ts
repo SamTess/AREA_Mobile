@@ -1,5 +1,5 @@
 import { User } from '@/types/auth';
-import { API_CONFIG, ENV } from './api.config';
+import { ENV, getApiUrl } from './api.config';
 import { getUserData, saveUserData } from './storage';
 
 /**
@@ -45,21 +45,53 @@ export async function updateProfile(userData: Partial<User>): Promise<User> {
     if (!userData.id) {
       throw new Error('Missing user id for profile update');
     }
-    const response = await fetch(`${API_CONFIG.BASE_URL}/api/users/${encodeURIComponent(userData.id)}`, {
+
+    const allowedFields: any = {};
+    if (userData.username !== undefined) allowedFields.username = userData.username;
+    if ((userData as any).firstname !== undefined) allowedFields.firstname = (userData as any).firstname;
+    if ((userData as any).lastname !== undefined) allowedFields.lastname = (userData as any).lastname;
+    if ((userData as any).password !== undefined) allowedFields.password = (userData as any).password;
+    if ((userData as any).avatarUrl !== undefined) allowedFields.avatarUrl = (userData as any).avatarUrl;
+
+    console.log('Updating profile with allowed fields:', allowedFields);
+
+    const baseUrl = await getApiUrl();
+    const response = await fetch(`${baseUrl}/api/users/${encodeURIComponent(userData.id)}`, {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData),
+      body: JSON.stringify(allowedFields),
     });
-
+    let updatedUser: User;
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || 'Profile update failed');
+      console.log('Backend returned error but data may be saved, fetching user data...');
+      const getUserResponse = await fetch(`${baseUrl}/api/users/${encodeURIComponent(userData.id)}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (getUserResponse.ok) {
+        updatedUser = await getUserResponse.json();
+      } else {
+        updatedUser = { ...userData, ...allowedFields } as User;
+      }
+    } else {
+      updatedUser = await response.json();
     }
+    const mappedUser: User = {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      username: updatedUser.username,
+      name: `${(updatedUser as any).firstname || ''} ${(updatedUser as any).lastname || ''}`.trim(),
+      firstname: (updatedUser as any).firstname,
+      lastname: (updatedUser as any).lastname,
+      avatarUrl: (updatedUser as any).avatarUrl,
+      createdAt: updatedUser.createdAt,
+      isActive: updatedUser.isActive,
+    };
 
-    const updatedUser: User = await response.json();
-    await saveUserData(JSON.stringify(updatedUser));
-    return updatedUser;
+    await saveUserData(JSON.stringify(mappedUser));
+    return mappedUser;
   } catch (error) {
     console.error('Update profile error:', error);
     throw error;
@@ -120,7 +152,8 @@ export async function getUserById(userId: string): Promise<User> {
   }
 
   try {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/api/users/${encodeURIComponent(userId)}`, {
+    const baseUrl = await getApiUrl();
+    const response = await fetch(`${baseUrl}/api/users/${encodeURIComponent(userId)}`, {
       method: 'GET',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },

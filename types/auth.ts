@@ -7,6 +7,8 @@ export interface User {
   email: string;
   username?: string;
   name?: string;
+  firstname?: string;
+  lastname?: string;
   isActive?: boolean;
   isAdmin?: boolean;
   createdAt?: string;
