@@ -1,12 +1,12 @@
 import { useRouter } from 'expo-router';
-import { BadgeCheck, Bell, HelpCircle, LogOut, Settings, ShieldCheck } from 'lucide-react-native';
-import React from 'react';
+import { BadgeCheck, LogOut, ShieldCheck, Edit, Link as LinkIcon } from 'lucide-react-native';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView } from 'react-native';
+import { Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { Avatar, AvatarBadge, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
-import { Badge, BadgeIcon, BadgeText } from '@/components/ui/badge';
 import { Box } from '@/components/ui/box';
 import { Divider } from '@/components/ui/divider';
 import { Heading } from '@/components/ui/heading';
@@ -16,6 +16,8 @@ import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
+import { getCurrentUser } from '@/services/auth';
+import { User } from '@/types/auth';
 
 const MenuItem: React.FC<{
   icon: React.ComponentType<any>;
@@ -46,8 +48,30 @@ const MenuItem: React.FC<{
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
-  const { user, logout } = useAuth();
+  const { user: contextUser, logout } = useAuth();
   const router = useRouter();
+  const { getToken } = useDesignTokens();
+  const [user, setUser] = useState<User | null>(contextUser);
+  const [isLoading, setIsLoading] = useState(false);
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadUserData = async () => {
+        try {
+          setIsLoading(true);
+          const userData = await getCurrentUser();
+          if (userData) {
+            setUser(userData);
+          }
+        } catch (error) {
+          console.error('Failed to load user data:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      loadUserData();
+    }, [])
+  );
 
   const handleLogout = () => {
     Alert.alert(
@@ -87,10 +111,30 @@ export default function ProfileScreen() {
     return user.name.substring(0, 2).toUpperCase();
   };
 
+  const getUserFullName = () => {
+    return user?.name || t('profile.unknownUser');
+  };
+
+  const getUserEmail = () => {
+    return user?.email || t('profile.noEmail');
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-background-0">
+        <Box className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color={getToken('primary-500')} />
+          <Text className="text-typography-600 mt-4">
+            {t('profile.loading', 'Loading profile...')}
+          </Text>
+        </Box>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-background-0">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
-        {/* Header */}
         <Box className="px-6 py-4">
           <Heading size="2xl" className="text-typography-900 mb-2">
             {t('profile.title')}
@@ -100,12 +144,11 @@ export default function ProfileScreen() {
           </Text>
         </Box>
 
-        {/* Profile Card */}
         <Box className="mx-6 mb-6 bg-background-50 rounded-lg p-6 shadow-soft-1">
           <HStack space="md" align="center">
             <Avatar size="xl">
               <AvatarFallbackText>{getUserInitials()}</AvatarFallbackText>
-              {(user?.avatarUrl) && (
+              {user?.avatarUrl && (
                 <AvatarImage
                   source={{
                     uri: user.avatarUrl,
@@ -117,19 +160,17 @@ export default function ProfileScreen() {
             <VStack className="flex-1 gap-2">
               <HStack space="sm" align="center">
                 <Heading size="lg" className="text-typography-900">
-                  {user?.name || t('profile.unknownUser')}
+                  {getUserFullName()}
                 </Heading>
-                <Badge size="sm" variant="solid" action="success">
-                  <BadgeText>{t('profile.verified')}</BadgeText>
-                  <BadgeIcon as={BadgeCheck} />
-                </Badge>
               </HStack>
               <Text className="text-typography-600">
-                {user?.email || t('profile.noEmail')}
+                {getUserEmail()}
               </Text>
-              <Badge size="sm" variant="outline" action="info">
-                <BadgeText>{t('profile.premium')}</BadgeText>
-              </Badge>
+              {user?.username && (
+                <Text size="sm" className="text-typography-500">
+                  @{user.username}
+                </Text>
+              )}
             </VStack>
           </HStack>
         </Box>
@@ -146,32 +187,28 @@ export default function ProfileScreen() {
               <Divider className="my-2" />
             </>
           )}
+          <Text className="text-xs font-semibold text-typography-500 uppercase mb-2">
+            {t('profile.profileSection', 'Profile Management')}
+          </Text>
           <MenuItem
-            icon={Settings}
-            title={t('profile.settingsTitle')}
-            subtitle={t('profile.settingsSubtitle')}
+            icon={Edit}
+            title={t('profile.editProfile', 'Edit Profile')}
+            subtitle={t('profile.editProfileSubtitle', 'Update your personal information')}
             onPress={() => router.push('/(tabs)/edit-profile')}
           />
+          <Divider className="my-2" />
+
+          <Text className="text-xs font-semibold text-typography-500 uppercase mb-2 mt-4">
+            {t('profile.servicesSection', 'Connected Services')}
+          </Text>
           <MenuItem
-            icon={Settings}
+            icon={LinkIcon}
             title={t('profile.connectedServices', 'Connected Services')}
             subtitle={t('profile.connectedServicesSubtitle', 'Manage service connections')}
             onPress={() => router.push('/connected-services')}
           />
           <Divider className="my-2" />
-          <MenuItem
-            icon={Bell}
-            title={t('profile.notificationsTitle')}
-            subtitle={t('profile.notificationsSubtitle')}
-            onPress={() => router.push('/connected-services')}
-          />
-          <MenuItem
-            icon={HelpCircle}
-            title={t('profile.helpTitle')}
-            subtitle={t('profile.helpSubtitle')}
-            onPress={() => router.push('/help')}
-          />
-          <Divider className="my-2" />
+
           <MenuItem
             icon={LogOut}
             title={t('profile.logoutTitle')}

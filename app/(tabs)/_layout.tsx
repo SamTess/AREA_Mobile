@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Tabs, useRouter } from 'expo-router';
-import { Home, Settings, Zap } from 'lucide-react-native';
+import { Home, Settings, Zap, User } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { useTranslation } from 'react-i18next';
 
@@ -55,7 +55,28 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => <Zap size={size} color={color} />,
         }}
       />
-      {/* Login, Register and Forgot Password are hidden from the navigation bar */}
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: t('tabs.profile', 'Profile'),
+          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+        }}
+        listeners={{
+          tabPress: (e) => {
+            if (!isAuthenticated) {
+              e.preventDefault();
+              router.push('/(tabs)/login');
+            }
+          },
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: t('tabs.settings', 'Settings'),
+          tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
+        }}
+      />
       <Tabs.Screen
         name="login"
         options={{
@@ -69,21 +90,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
-        options={{
-          title: t('tabs.settings', 'Settings'),
-          tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
-        }}
-        listeners={{
-          tabPress: (e) => {
-            if (!isAuthenticated) {
-              e.preventDefault();
-              router.push('/(tabs)/login');
-            }
-          },
-        }}
-      />
-      <Tabs.Screen
         name="forgot-password"
         options={{
           href: null,
@@ -91,6 +97,12 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="edit-profile"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="server-settings"
         options={{
           href: null,
         }}
