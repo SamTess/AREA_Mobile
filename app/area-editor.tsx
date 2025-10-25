@@ -244,14 +244,14 @@ export default function AreaEditorScreen() {
             linksPayload.push({
               sourceActionDefinitionId,
               targetActionDefinitionId,
-              mapping: {},
+              mapping: link.mapping || {},
               condition: link.condition || {},
               order: link.order || 0,
             });
           }
         });
       } else {
-        if (configuredReactions.length > 0) {
+        if (configuredActions.length > 0 && configuredReactions.length > 0) {
           linksPayload.push({
             sourceActionDefinitionId: configuredActions[0].action.actionDefinitionId,
             targetActionDefinitionId: configuredReactions[0].reaction.actionDefinitionId,
@@ -279,7 +279,7 @@ export default function AreaEditorScreen() {
           name: action.name,
           description: action.description,
           parameters: action.parameters,
-          activationConfig: { type: 'webhook' },
+          activationConfig: action.activationConfig || { type: 'webhook' },
           serviceAccountId: action.serviceAccountId,
         })),
         reactions: configuredReactions.map(({ reaction }, index) => ({
@@ -290,10 +290,10 @@ export default function AreaEditorScreen() {
           mapping: reaction.mapping || {},
           condition: (reaction.condition as unknown as Record<string, unknown>) || {},
           order: index,
-          activationConfig: { type: 'chain' },
+          activationConfig: reaction.activationConfig || { type: 'chain' },
           serviceAccountId: reaction.serviceAccountId,
         })),
-        links: linksPayload.length > 0 ? linksPayload : undefined,
+        links: linksPayload,
       };
 
       if (isEditMode && areaId) {

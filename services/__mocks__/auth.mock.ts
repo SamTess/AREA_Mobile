@@ -13,10 +13,12 @@ import { AuthResponse, LoginCredentials, RegisterData, User } from '@/types/auth
 export const MOCK_USERS_DB = [
     {
         email: 'user@example.com',
+        username: 'johndoe',
         password: 'password123',
         user: {
             id: '1',
             email: 'user@example.com',
+            username: 'johndoe',
             name: 'John Doe',
             avatarUrl: 'https://i.pravatar.cc/150?img=1',
             createdAt: '2024-01-01T00:00:00.000Z',
@@ -26,10 +28,12 @@ export const MOCK_USERS_DB = [
     },
     {
         email: 'test@test.com',
+        username: 'janesmith',
         password: 'test123',
         user: {
             id: '2',
             email: 'test@test.com',
+            username: 'janesmith',
             name: 'Jane Smith',
             avatarUrl: 'https://i.pravatar.cc/150?img=2',
             createdAt: '2024-01-02T00:00:00.000Z',
@@ -39,10 +43,12 @@ export const MOCK_USERS_DB = [
     },
     {
         email: 'admin@example.com',
+        username: 'admin',
         password: 'admin123',
         user: {
             id: '3',
             email: 'admin@example.com',
+            username: 'admin',
             name: 'Admin User',
             avatarUrl: 'https://i.pravatar.cc/150?img=3',
             createdAt: '2024-01-03T00:00:00.000Z',
@@ -104,14 +110,19 @@ export async function mockLogin(
     await delay(options.delay);
 
     // Validate input
-    if (!credentials.email || !credentials.password) {
-        throw new MockAPIError('Email and password are required', 400, 'MISSING_FIELDS');
+    const hasEmail = 'email' in credentials && credentials.email;
+    const hasUsername = 'username' in credentials && credentials.username;
+    
+    if ((!hasEmail && !hasUsername) || !credentials.password) {
+        throw new MockAPIError('Email/username and password are required', 400, 'MISSING_FIELDS');
     }
 
-    // Find user
-    const mockUser = registeredUsers.find(
-        u => u.email === credentials.email && u.password === credentials.password
-    );
+    // Find user by email or username
+    const mockUser = registeredUsers.find(u => {
+        const matchEmail = hasEmail && u.email === credentials.email;
+        const matchUsername = hasUsername && u.username === credentials.username;
+        return (matchEmail || matchUsername) && u.password === credentials.password;
+    });
 
     if (!mockUser) {
         throw new MockAPIError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
@@ -139,8 +150,8 @@ export async function mockRegister(
     await delay(options.delay);
 
     // Validate input
-    if (!data.email || !data.password) {
-        throw new MockAPIError('Email and password are required', 400, 'MISSING_FIELDS');
+    if (!data.email || !data.password || !data.username) {
+        throw new MockAPIError('Email, username and password are required', 400, 'MISSING_FIELDS');
     }
 
     if (data.password.length < 8) {
@@ -152,10 +163,16 @@ export async function mockRegister(
         throw new MockAPIError('Email already registered', 409, 'EMAIL_EXISTS');
     }
 
+    // Check if username already exists
+    if (registeredUsers.some(u => u.username === data.username)) {
+        throw new MockAPIError('Username already taken', 409, 'USERNAME_EXISTS');
+    }
+
     // Create new user
     const newUser: User = {
         id: String(registeredUsers.length + 1),
         email: data.email,
+        username: data.username,
         isActive: true,
         isAdmin: false,
         avatarUrl: data.avatarUrl || `https://i.pravatar.cc/150?img=${registeredUsers.length + 1}`,
@@ -165,10 +182,12 @@ export async function mockRegister(
     // Add to registered users
     registeredUsers.push({
         email: data.email,
+        username: data.username,
         password: data.password,
         user: {
             id: newUser.id,
             email: newUser.email,
+            username: data.username,
             name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'New User',
             avatarUrl: newUser.avatarUrl || `https://i.pravatar.cc/150?img=${registeredUsers.length + 1}`,
             createdAt: newUser.createdAt || new Date().toISOString(),
