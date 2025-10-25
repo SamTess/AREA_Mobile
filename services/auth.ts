@@ -6,9 +6,9 @@ import {
     mockLogout,
     mockRegister,
 } from './__mocks__/auth.mock';
-import { API_CONFIG, ENV } from './api.config';
-import { get, post } from './api';
-import { clearAuthData, saveUserData } from './storage';
+import { API_CONFIG, ENV, getApiUrl } from './api.config';
+import { get, post, put } from './api';
+import { clearAuthData, saveUserData, getUserData } from './storage';
 
 /**
  * Mock mode configuration
@@ -93,17 +93,26 @@ export async function getCurrentUser(): Promise<User | null> {
     }
 
     try {
-        // Backend returns { message, user }
-        const data = await get<AuthResponse | User>(API_CONFIG.ENDPOINTS.ME);
-        let user: User | null = null;
-        if (data && 'message' in (data as any)) {
-            user = (data as AuthResponse).user;
-        } else {
-            user = (data as User) || null;
-        }
-        if (user) {
-            await saveUserData(JSON.stringify(user));
-        }
+        const response = await get<any>(API_CONFIG.ENDPOINTS.ME);
+        if (!response)
+            return null;
+        const backendUser = response.user || response;
+        const user: User = {
+            id: backendUser.id?.toString() || '',
+            email: backendUser.email || '',
+            username: backendUser.username || '',
+            firstname: backendUser.firstname || '',
+            lastname: backendUser.lastname || '',
+            name: backendUser.firstname && backendUser.lastname
+                ? `${backendUser.firstname} ${backendUser.lastname}`.trim()
+                : backendUser.email || '',
+            avatarUrl: backendUser.avatarUrl || null,
+            isActive: backendUser.isActive || false,
+            isAdmin: backendUser.isAdmin || false,
+            createdAt: backendUser.createdAt,
+            lastLoginAt: backendUser.lastLoginAt,
+        };
+        await saveUserData(JSON.stringify(user));
         return user;
     } catch (error) {
         console.error('Get current user error:', error);
@@ -145,3 +154,93 @@ export const authConfig = {
     mockUsers: MOCK_USERS_DB,
     apiBaseUrl: API_CONFIG.BASE_URL,
 };
+
+/**
+ * Update user profile
+ */
+export async function updateUserProfile(userId: string, updates: {
+    firstname?: string;
+    lastname?: string;
+    username?: string;
+    password?: string;
+    avatarUrl?: string;
+}): Promise<User> {
+    if (USE_MOCK) {
+        await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY));
+        const existingDataStr = await getUserData();
+        const existingData = existingDataStr ? JSON.parse(existingDataStr) : {};
+        const updatedUser = {
+            ...existingData,
+            username: updates.username || existingData.username,
+            firstname: updates.firstname || existingData.firstname,
+            lastname: updates.lastname || existingData.lastname,
+            avatarUrl: updates.avatarUrl || existingData.avatarUrl,
+            name: updates.firstname && updates.lastname
+                ? `${updates.firstname} ${updates.lastname}`
+                : existingData.name,
+        };
+        await saveUserData(JSON.stringify(updatedUser));
+        return updatedUser;
+    }
+
+    try {
+        const response = await put<any>(`${API_CONFIG.ENDPOINTS.UPDATE_PROFILE}/${userId}`, updates);
+        const backendUser = response;
+        const user: User = {
+            id: backendUser.id?.toString() || userId,
+            email: backendUser.email || '',
+            username: backendUser.username || '',
+            firstname: backendUser.firstname || '',
+            lastname: backendUser.lastname || '',
+            name: backendUser.firstname && backendUser.lastname
+                ? `${backendUser.firstname} ${backendUser.lastname}`.trim()
+                : backendUser.email || '',
+            avatarUrl: backendUser.avatarUrl || null,
+            isActive: backendUser.isActive || false,
+            isAdmin: backendUser.isAdmin || false,
+            createdAt: backendUser.createdAt,
+            lastLoginAt: backendUser.lastLoginAt,
+        };
+        await saveUserData(JSON.stringify(user));
+        return user;
+    } catch (error) {
+        console.error('Update profile error:', error);
+        throw error;
+    }
+}
+
+/**
+ * Convert image file to base64 data URL
+ * The backend doesn't have a file upload endpoint, so we convert to base64
+ * and send it as a data URL in the avatarUrl field (like the web version does)
+ */
+export async function uploadAvatarImage(fileUri: string): Promise<string> {
+    if (USE_MOCK) {
+        await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY));
+        return fileUri;
+    }
+
+    try {
+        const base64 = await fetch(fileUri)
+            .then(res => res.blob())
+            .then(blob => {
+                return new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        if (typeof reader.result === 'string') {
+                            resolve(reader.result);
+                        } else {
+                            reject(new Error('Failed to read file as data URL'));
+                        }
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            });
+
+        return base64;
+    } catch (error) {
+        console.error('Failed to convert avatar to base64:', error);
+        throw error;
+    }
+}
