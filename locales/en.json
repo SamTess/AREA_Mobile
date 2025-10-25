@@ -239,8 +239,8 @@
   "login": {
     "title": "Login",
     "subtitle": "Welcome! Sign in to your account",
-    "emailLabel": "Email",
-    "emailPlaceholder": "example@email.com",
+    "emailLabel": "Email / Username",
+    "emailPlaceholder": "example@email.com / username",
     "emailHelper": "Enter your email address",
     "emailRequired": "Email is required",
     "emailInvalid": "Please enter a valid email",

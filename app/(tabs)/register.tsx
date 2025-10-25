@@ -18,6 +18,7 @@ export default function RegisterScreen() {
     const router = useRouter();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -25,6 +26,7 @@ export default function RegisterScreen() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [firstNameError, setFirstNameError] = useState('');
     const [lastNameError, setLastNameError] = useState('');
+    const [usernameError, setUsernameError] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
@@ -45,6 +47,7 @@ export default function RegisterScreen() {
     const handleRegister = async () => {
         setFirstNameError('');
         setLastNameError('');
+        setUsernameError('');
         setEmailError('');
         setPasswordError('');
         setConfirmPasswordError('');
@@ -65,6 +68,17 @@ export default function RegisterScreen() {
             hasError = true;
         } else if (lastName.length < 2) {
             setLastNameError(t('register.lastNameTooShort') || 'Last name is too short');
+            hasError = true;
+        }
+
+        if (!username) {
+            setUsernameError(t('register.usernameRequired') || 'Username is required');
+            hasError = true;
+        } else if (username.length < 3) {
+            setUsernameError(t('register.usernameTooShort') || 'Username must be at least 3 characters');
+            hasError = true;
+        } else if (username.length > 50) {
+            setUsernameError(t('register.usernameTooLong') || 'Username must not exceed 50 characters');
             hasError = true;
         }
 
@@ -97,7 +111,7 @@ export default function RegisterScreen() {
         }
 
         try {
-            await register(email, password, firstName, lastName);
+            await register(email, password, firstName, lastName, username);
             Alert.alert(
                 t('register.successTitle') || 'Inscription réussie',
                 t('register.successMessage') || 'Votre compte a été créé avec succès',
@@ -204,6 +218,40 @@ export default function RegisterScreen() {
                                 ) : (
                                     <Text size="xs" className="text-typography-500 ml-1 mt-1">
                                         {t('register.lastNameHelper') || 'Your last name'}
+                                    </Text>
+                                )}
+                            </VStack>
+
+                            <VStack space="xs">
+                                <Text size="sm" bold className="text-typography-900 mb-1">
+                                    {'Username'}
+                                </Text>
+                                <Input
+                                    variant="outline"
+                                    size="lg"
+                                    isInvalid={!!usernameError}
+                                    className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
+                                >
+                                    <InputField
+                                        placeholder={'Choose a username'}
+                                        value={username}
+                                        onChangeText={(text) => {
+                                            setUsername(text);
+                                            setUsernameError('');
+                                        }}
+                                        autoCapitalize="none"
+                                        autoCorrect={false}
+                                    />
+                                </Input>
+                                {usernameError ? (
+                                    <Box className="flex-row items-center mt-1">
+                                        <Text size="xs" className="text-error-600 ml-1">
+                                            {usernameError}
+                                        </Text>
+                                    </Box>
+                                ) : (
+                                    <Text size="xs" className="text-typography-500 ml-1 mt-1">
+                                        {t('register.usernameHelper') || 'At least 3 characters'}
                                     </Text>
                                 )}
                             </VStack>

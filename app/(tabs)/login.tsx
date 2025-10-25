@@ -19,9 +19,9 @@ export default function LoginScreen() {
   const { login, isLoading, clearError } = useAuth();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [emailError, setEmailError] = useState('');
+  const [identifierError, setIdentifierError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
   const handleShowPassword = () => {
@@ -36,23 +36,15 @@ export default function LoginScreen() {
     );
   };
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
   const handleLogin = async () => {
-    setEmailError('');
+    setIdentifierError('');
     setPasswordError('');
     clearError();
 
     let hasError = false;
 
-    if (!email) {
-      setEmailError(t('login.emailRequired'));
-      hasError = true;
-    } else if (!validateEmail(email)) {
-      setEmailError(t('login.emailInvalid'));
+    if (!identifier) {
+      setIdentifierError(t('login.emailRequired') || 'Email or username is required');
       hasError = true;
     }
 
@@ -69,7 +61,7 @@ export default function LoginScreen() {
     }
 
     try {
-      await login(email, password);
+      await login(identifier, password);
       Alert.alert(
         t('login.successTitle') || 'Connexion réussie',
         t('login.successMessage') || 'Vous êtes maintenant connecté',
@@ -111,51 +103,47 @@ export default function LoginScreen() {
             </Text>
           </VStack>
 
-          {/* Formulaire */}
           <VStack space="xl">
-            {/* Champ Email */}
             <VStack space="xs">
               <Text size="sm" bold className="text-typography-900 mb-1">
-                {t('login.emailLabel')}
+                {t('login.emailLabel') || 'Email or Username'}
               </Text>
-              <Input 
-                variant="outline" 
+              <Input
+                variant="outline"
                 size="lg"
-                isInvalid={!!emailError}
+                isInvalid={!!identifierError}
                 className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
               >
                 <InputField
-                  placeholder={t('login.emailPlaceholder')}
-                  value={email}
+                  placeholder={t('login.emailPlaceholder') || 'Enter email or username'}
+                  value={identifier}
                   onChangeText={(text) => {
-                    setEmail(text);
-                    setEmailError('');
+                    setIdentifier(text);
+                    setIdentifierError('');
                   }}
-                  keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
                 />
               </Input>
-              {emailError ? (
+              {identifierError ? (
                 <Box className="flex-row items-center mt-1">
                   <Text size="xs" className="text-error-600 ml-1">
-                    ⚠️ {emailError}
+                    ⚠️ {identifierError}
                   </Text>
                 </Box>
               ) : (
                 <Text size="xs" className="text-typography-500 ml-1 mt-1">
-                  {t('login.emailHelper')}
+                  {t('login.emailHelper') || 'Your email or username'}
                 </Text>
               )}
             </VStack>
 
-            {/* Champ Mot de passe */}
             <VStack space="xs">
               <Text size="sm" bold className="text-typography-900 mb-1">
                 {t('login.passwordLabel')}
               </Text>
-              <Input 
-                variant="outline" 
+              <Input
+                variant="outline"
                 size="lg"
                 isInvalid={!!passwordError}
                 className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"

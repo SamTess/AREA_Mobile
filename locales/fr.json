@@ -239,8 +239,8 @@
   "login": {
     "title": "Connexion",
     "subtitle": "Bienvenue ! Connectez-vous à votre compte",
-    "emailLabel": "Email",
-    "emailPlaceholder": "exemple@email.com",
+    "emailLabel": "Email / Nom d'utilisateur",
+    "emailPlaceholder": "exemple@email.com / nom d'utilisateur",
     "emailHelper": "Entrez votre adresse email",
     "emailRequired": "L'email est requis",
     "emailInvalid": "Veuillez entrer un email valide",
