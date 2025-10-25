@@ -1,4 +1,4 @@
-import { API_CONFIG, HTTP_METHODS } from './api.config';
+import { API_CONFIG, HTTP_METHODS, getApiUrl } from './api.config';
 import { getCookies, saveCookies } from './storage';
 import { parseErrorMessage } from './errors';
 
@@ -14,8 +14,9 @@ interface ApiRequestOptions {
   signal?: AbortSignal;
 }
 
-function buildUrl(path: string, params?: QueryParams): string {
-  const url = new URL(path, API_CONFIG.BASE_URL);
+async function buildUrl(path: string, params?: QueryParams): Promise<string> {
+  const baseUrl = await getApiUrl();
+  const url = new URL(path, baseUrl);
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -82,7 +83,7 @@ async function parseJson<T>(response: Response): Promise<T | null> {
 
 async function request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
   const { method = HTTP_METHODS.GET, params, headers, body, signal } = options;
-  const url = buildUrl(path, params);
+  const url = await buildUrl(path, params);
 
   const hasBody = body !== undefined && body !== null;
 
