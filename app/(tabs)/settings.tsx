@@ -1,10 +1,11 @@
 import { useRouter } from 'expo-router';
 import { Server, HelpCircle, Globe, Moon, Sun, Check } from 'lucide-react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
+import * as SecureStore from 'expo-secure-store';
 
 import { Box } from '@/components/ui/box';
 import { Divider } from '@/components/ui/divider';
@@ -71,14 +72,22 @@ export default function SettingsScreen() {
     };
   }, [i18n]);
   const languageBadge = currentLanguage === 'fr' ? 'FR' : 'EN';
-  const handleLanguageChange = (lang: 'en' | 'fr') => {
+  const handleLanguageChange = useCallback((lang: 'en' | 'fr') => {
     i18n.changeLanguage(lang);
     setExpandedLanguage(false);
-  };
-  const handleThemeChange = (theme: 'light' | 'dark') => {
-    setColorScheme(theme);
-    setExpandedTheme(false);
-  };
+  }, [i18n]);
+  
+  const handleThemeChange = useCallback(async (theme: 'light' | 'dark') => {
+    try {
+      await SecureStore.setItemAsync('app_color_scheme', theme);
+      setColorScheme(theme);
+      setExpandedTheme(false);
+    } catch (err) {
+      console.error('Failed to save theme', err);
+      setColorScheme(theme);
+      setExpandedTheme(false);
+    }
+  }, [setColorScheme]);
 
   return (
     <SafeAreaView className="flex-1 bg-background-0">

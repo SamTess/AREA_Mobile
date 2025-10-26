@@ -9,7 +9,7 @@ import '@/i18n';
 import { Stack } from "expo-router";
 import { useColorScheme } from 'nativewind';
 import * as SecureStore from 'expo-secure-store';
-import { useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 function AppContent() {
   return (
@@ -38,6 +38,7 @@ function AppContent() {
 
 export default function RootLayout() {
   const { colorScheme, setColorScheme } = useColorScheme();
+  const [isReady, setIsReady] = useState(false);
   const STORAGE_KEY = 'app_color_scheme';
 
   useEffect(() => {
@@ -45,11 +46,17 @@ export default function RootLayout() {
     (async () => {
       try {
         const saved = await SecureStore.getItemAsync(STORAGE_KEY);
-        if (mounted && saved && setColorScheme) {
-          setColorScheme(saved as any);
+        if (mounted) {
+          if (saved && setColorScheme) {
+            setColorScheme(saved as any);
+          }
+          setIsReady(true);
         }
       } catch (err) {
         console.error('Failed to load color scheme from storage', err);
+        if (mounted) {
+          setIsReady(true);
+        }
       }
     })();
 
@@ -59,8 +66,8 @@ export default function RootLayout() {
   }, [setColorScheme]);
 
   useEffect(() => {
-    if (!colorScheme) return;
-
+    if (!colorScheme || !isReady)
+      return;
     (async () => {
       try {
         await SecureStore.setItemAsync(STORAGE_KEY, colorScheme);
@@ -68,10 +75,14 @@ export default function RootLayout() {
         console.error('Failed to save color scheme to storage', err);
       }
     })();
-  }, [colorScheme]);
+  }, [colorScheme, isReady]);
+  const mode = useMemo(() => colorScheme ?? 'light', [colorScheme]);
+
+  if (!isReady)
+    return null;
 
   return (
-    <GluestackUIProvider mode={colorScheme ?? 'light'}>
+    <GluestackUIProvider mode={mode}>
       <AppContent />
     </GluestackUIProvider>
   );
