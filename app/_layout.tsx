@@ -56,7 +56,7 @@ export default function RootLayout() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [setColorScheme]);
 
   useEffect(() => {
     if (!colorScheme) return;

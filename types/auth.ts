@@ -30,8 +30,8 @@ export interface RegisterData {
   email: string;
   username: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   avatarUrl?: string | null;
 }
 

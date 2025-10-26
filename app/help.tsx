@@ -16,7 +16,6 @@ import { Badge, BadgeText } from '@/components/ui/badge';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
-import { useDesignTokens } from '@/components/ui/hooks/useDesignTokens';
 import { HStack } from '@/components/ui/hstack';
 import { Input, InputField } from '@/components/ui/input';
 import { Pressable } from '@/components/ui/pressable';

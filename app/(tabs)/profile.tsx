@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
-import { BadgeCheck, LogOut, ShieldCheck, Edit, Link as LinkIcon } from 'lucide-react-native';
-import React, { useState, useEffect } from 'react';
+import { LogOut, ShieldCheck, Edit, Link as LinkIcon } from 'lucide-react-native';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,7 +8,6 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { Avatar, AvatarBadge, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Box } from '@/components/ui/box';
-import { Divider } from '@/components/ui/divider';
 import { Heading } from '@/components/ui/heading';
 import { useDesignTokens } from '@/components/ui/hooks/useDesignTokens';
 import { HStack } from '@/components/ui/hstack';

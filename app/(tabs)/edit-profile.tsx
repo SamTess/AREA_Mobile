@@ -255,7 +255,7 @@ export default function EditProfileScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [validateForm, formData, avatar, avatarFile, user, updateUser, t, router]);
+  }, [validateForm, formData, avatarFile, user, updateUser, t, router, originalAvatarSrc]);
 
   const handleBackPress = useCallback(() => {
     if (hasUnsavedChanges()) {

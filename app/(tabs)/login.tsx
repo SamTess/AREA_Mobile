@@ -1,5 +1,5 @@
 import { Box } from '@/components/ui/box';
-import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
+import { Button, ButtonText } from '@/components/ui/button';
 import { Center } from '@/components/ui/center';
 import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
