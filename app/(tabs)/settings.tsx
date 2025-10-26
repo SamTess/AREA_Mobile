@@ -59,7 +59,7 @@ export default function SettingsScreen() {
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language || 'en');
   const [expandedLanguage, setExpandedLanguage] = useState(false);
   const [expandedTheme, setExpandedTheme] = useState(false);
-  const currentTheme = colorScheme || 'light';
+  const currentTheme = colorScheme;
 
   useEffect(() => {
     const updateLanguage = () => {

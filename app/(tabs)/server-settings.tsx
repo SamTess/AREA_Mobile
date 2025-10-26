@@ -195,7 +195,7 @@ export default function ServerSettingsScreen() {
                     <TextInput
                       className="text-base"
                       style={{ color: colors.text }}
-                      placeholder="http://192.168.1.27:8080"
+                      placeholder="http://127.0.0.1:8080"
                       value={serverUrl}
                       onChangeText={setServerUrl}
                       placeholderTextColor={colors.textTertiary}
@@ -235,7 +235,7 @@ export default function ServerSettingsScreen() {
                   </Text>
                   <VStack space="xs" className="pl-3">
                     <Text className="text-xs" style={{ color: colors.textSecondary }}>
-                      • Local network: http://192.168.1.27:8080
+                      • Local network: http://127.0.0.1:8080
                     </Text>
                     <Text className="text-xs" style={{ color: colors.textSecondary }}>
                       • Localhost (emulator): http://10.0.2.2:8080

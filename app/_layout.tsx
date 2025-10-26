@@ -45,7 +45,7 @@ export default function RootLayout() {
     (async () => {
       try {
         const saved = await SecureStore.getItemAsync(STORAGE_KEY);
-        if (mounted && saved && setColorScheme && saved !== colorScheme) {
+        if (mounted && saved && setColorScheme) {
           setColorScheme(saved as any);
         }
       } catch (err) {
@@ -56,7 +56,7 @@ export default function RootLayout() {
     return () => {
       mounted = false;
     };
-  }, [colorScheme, setColorScheme]);
+  }, []);
 
   useEffect(() => {
     if (!colorScheme) return;
