@@ -1,5 +1,25 @@
 process.env.EXPO_PUBLIC_USE_MOCK = process.env.EXPO_PUBLIC_USE_MOCK ?? 'true';
-process.env.EXPO_PUBLIC_MOCK_DELAY = process.env.EXPO_PUBLIC_MOCK_DELAY ?? '0';
+process.env.EXPO_PUBLIC_MOCK_DELAY = process.env.EXPO_PUBLIC_USE_MOCK ?? '0';
+
+declare global {
+  var _ReactNativeCSSInterop: {
+    StyleSheet: {
+      create: (styles: any) => any;
+      flatten: (style: any) => any;
+    };
+    css: jest.MockedFunction<any>;
+    styled: jest.MockedFunction<any>;
+  };
+}
+
+global._ReactNativeCSSInterop = {
+  StyleSheet: {
+    create: (styles: any) => styles,
+    flatten: (style: any) => style,
+  },
+  css: jest.fn(),
+  styled: jest.fn(),
+};
 
 // Silence NativeWind style injection warnings during tests
 jest.mock('nativewind', () => {

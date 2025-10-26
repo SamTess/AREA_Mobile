@@ -103,7 +103,12 @@ export default function ConnectedServicesScreen() {
     setIsLoading(true);
     try {
       const catalog = await serviceCatalog.getServicesCatalog();
-      const connectedServices = await serviceConnection.getConnectedServices();
+      let connectedServices: ServiceConnectionStatus[] = [];
+      try {
+        connectedServices = await serviceConnection.getConnectedServices();
+      } catch (connectionError) {
+        console.warn('Failed to load connection status:', connectionError);
+      }
       const servicesWithStatus = catalog.map(service => {
         const connectionStatus = connectedServices.find(cs => cs.serviceKey === service.key);
         return {
