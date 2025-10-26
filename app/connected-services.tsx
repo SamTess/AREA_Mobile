@@ -66,9 +66,10 @@ function ServiceCard({ service, onConnect, onDisconnect }: ServiceCardProps) {
             <Button
               size="sm"
               variant="outline"
-              action="negative"
+              action="secondary"
               onPress={() => onDisconnect(service)}
               className="flex-1"
+              style={{ backgroundColor: colors.iconActive }}
             >
               <ButtonIcon as={Unlink} size="sm" />
               <ButtonText>{t('services.disconnect', 'Disconnect')}</ButtonText>
@@ -80,6 +81,7 @@ function ServiceCard({ service, onConnect, onDisconnect }: ServiceCardProps) {
               action="primary"
               onPress={() => onConnect(service)}
               className="flex-1"
+              style={{ backgroundColor: colors.iconActive }}
             >
               <ButtonIcon as={LinkIcon} size="sm" />
               <ButtonText>{t('services.connect', 'Connect')}</ButtonText>
