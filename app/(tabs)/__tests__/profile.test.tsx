@@ -12,6 +12,11 @@ jest.mock('expo-router', () => ({
   }),
 }));
 
+// Mock useFocusEffect
+jest.mock('@react-navigation/native', () => ({
+  useFocusEffect: jest.fn(() => {}), // No-op for testing
+}));
+
 // Mock expo-secure-store
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(() => Promise.resolve(null)),
@@ -34,19 +39,17 @@ describe('ProfileScreen', () => {
     render(<ProfileScreen />, { wrapper: Providers });
 
     expect(screen.getByText('Profile')).toBeTruthy();
-    expect(screen.getByText('Manage your account and preferences')).toBeTruthy();
-    expect(screen.getByText('Settings')).toBeTruthy();
-    expect(screen.getByText('Notifications')).toBeTruthy();
-    expect(screen.getByText('Help & support')).toBeTruthy();
+    expect(screen.getByText('Manage your account and personal information')).toBeTruthy();
+    expect(screen.getByText('Edit Profile')).toBeTruthy();
+    expect(screen.getByText('Manage service connections')).toBeTruthy();
     expect(screen.getByText('Log out')).toBeTruthy();
   });
 
   it('renders all option subtitles', () => {
     render(<ProfileScreen />, { wrapper: Providers });
 
-    expect(screen.getByText('Configure your app')).toBeTruthy();
-    expect(screen.getByText('Manage your notifications')).toBeTruthy();
-    expect(screen.getByText('Get help')).toBeTruthy();
+    expect(screen.getByText('Update your personal information')).toBeTruthy();
+    expect(screen.getByText('Manage service connections')).toBeTruthy();
     expect(screen.getByText('Sign out of your account')).toBeTruthy();
   });
 
@@ -55,13 +58,6 @@ describe('ProfileScreen', () => {
 
     // Check if profile section exists
     expect(screen.getByText('Profile')).toBeTruthy();
-  });
-
-  it('renders badges', () => {
-    render(<ProfileScreen />, { wrapper: Providers });
-
-    expect(screen.getByText('Verified')).toBeTruthy();
-    expect(screen.getByText('Premium Member')).toBeTruthy();
   });
 
   it('renders language toggle button', () => {
@@ -75,9 +71,8 @@ describe('ProfileScreen', () => {
     render(<ProfileScreen />, { wrapper: Providers });
 
     // Verify main menu items are rendered
-    expect(screen.getByText('Settings')).toBeTruthy();
-    expect(screen.getByText('Notifications')).toBeTruthy();
-    expect(screen.getByText('Help & support')).toBeTruthy();
+    expect(screen.getByText('Edit Profile')).toBeTruthy();
+    expect(screen.getByText('Manage service connections')).toBeTruthy();
     expect(screen.getByText('Log out')).toBeTruthy();
   });
 

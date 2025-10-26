@@ -12,6 +12,12 @@ jest.mock('expo-router', () => ({
     }),
 }));
 
+// Mock auth service
+jest.mock('@/services/auth', () => ({
+    login: jest.fn(() => Promise.reject(new Error('Invalid credentials'))),
+    getCurrentUser: jest.fn(() => Promise.resolve(null)),
+}));
+
 // Mock expo-secure-store
 jest.mock('expo-secure-store', () => ({
     getItemAsync: jest.fn(),
@@ -22,6 +28,28 @@ jest.mock('expo-secure-store', () => ({
 // Mock Alert
 jest.mock('react-native/Libraries/Alert/Alert', () => ({
     alert: jest.fn(),
+}));
+
+// Mock OAuth service
+jest.mock('@/services/oauth', () => ({
+    getOAuthProviders: jest.fn(() => Promise.resolve([
+        {
+            providerKey: 'github',
+            providerLabel: 'GitHub',
+            providerLogoUrl: 'https://github.com/favicon.ico',
+        },
+        {
+            providerKey: 'google',
+            providerLabel: 'Google',
+            providerLogoUrl: 'https://google.com/favicon.ico',
+        },
+        {
+            providerKey: 'microsoft',
+            providerLabel: 'Microsoft',
+            providerLogoUrl: 'https://microsoft.com/favicon.ico',
+        },
+    ])),
+    getOAuthUrl: jest.fn(() => Promise.resolve('https://example.com/oauth')),
 }));
 
 // Helper to wrap with AuthProvider
@@ -39,7 +67,7 @@ describe('LoginScreen', () => {
         // Tests use English by default (default i18n language)
         expect(screen.getByText('Login')).toBeTruthy();
         expect(screen.getByText('Welcome! Sign in to your account')).toBeTruthy();
-        expect(screen.getByPlaceholderText('example@email.com')).toBeTruthy();
+        expect(screen.getByPlaceholderText('example@email.com / username')).toBeTruthy();
         expect(screen.getByPlaceholderText('••••••••')).toBeTruthy();
 
         // Wait for the button to be rendered (after loading)
@@ -56,18 +84,6 @@ describe('LoginScreen', () => {
         // Wait for error messages to appear (using regex to ignore emoji)
         expect(await screen.findByText(/Email is required/)).toBeTruthy();
         expect(await screen.findByText(/Password is required/)).toBeTruthy();
-    });
-
-    it('shows email validation error for invalid email', async () => {
-        renderWithAuth(<LoginScreen />);
-
-        const emailInput = screen.getByPlaceholderText('example@email.com');
-        const loginButton = await screen.findByText('Sign In');
-
-        fireEvent.changeText(emailInput, 'invalid-email');
-        fireEvent.press(loginButton);
-
-        expect(await screen.findByText(/Please enter a valid email/)).toBeTruthy();
     });
 
     it('shows password validation error for short password', async () => {
@@ -106,7 +122,7 @@ describe('LoginScreen', () => {
     it('clears error messages when user types', async () => {
         renderWithAuth(<LoginScreen />);
 
-        const emailInput = screen.getByPlaceholderText('example@email.com');
+        const emailInput = screen.getByPlaceholderText('example@email.com / username');
         const loginButton = await screen.findByText('Sign In');
 
         // Trigger an error
