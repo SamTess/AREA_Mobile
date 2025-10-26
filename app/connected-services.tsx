@@ -15,6 +15,7 @@ import * as serviceCatalog from '@/services/serviceCatalog';
 import * as serviceConnection from '@/services/serviceConnection';
 import type { BackendService } from '@/types/areas';
 import type { ServiceConnectionStatus } from '@/services/serviceConnection';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface ServiceCardProps {
   service: BackendService & { connectionStatus?: ServiceConnectionStatus };
@@ -24,20 +25,21 @@ interface ServiceCardProps {
 
 function ServiceCard({ service, onConnect, onDisconnect }: ServiceCardProps) {
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const isConnected = !!service.connectionStatus?.isConnected;
   const userName = service.connectionStatus?.userName;
   return (
-    <Box className="bg-background-50 rounded-lg p-4 mb-3 border border-outline-100">
+    <Box className="rounded-xl p-4 mb-3 shadow-sm" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder }}>
       <VStack space="sm">
         <HStack space="md" className="items-center">
-          <Box className="w-12 h-12 bg-primary-100 rounded-lg items-center justify-center">
-            <Text className="text-primary-600 font-bold text-lg">
+          <Box className="w-12 h-12 rounded-lg items-center justify-center" style={{ backgroundColor: colors.info }}>
+            <Text className="text-white font-bold text-lg">
               {service.name.charAt(0)}
             </Text>
           </Box>
           <VStack className="flex-1">
             <HStack space="xs" className="items-center mb-1">
-              <Text className="text-typography-900 font-semibold">
+              <Text className="font-semibold" style={{ color: colors.text }}>
                 {service.name}
               </Text>
               <Badge
@@ -53,7 +55,7 @@ function ServiceCard({ service, onConnect, onDisconnect }: ServiceCardProps) {
               </Badge>
             </HStack>
             {isConnected && userName && (
-              <Text className="text-typography-600 text-xs">
+              <Text className="text-xs" style={{ color: colors.textSecondary }}>
                 {userName}
               </Text>
             )}
@@ -91,6 +93,7 @@ function ServiceCard({ service, onConnect, onDisconnect }: ServiceCardProps) {
 
 export default function ConnectedServicesScreen() {
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const [services, setServices] = useState<(BackendService & { connectionStatus?: ServiceConnectionStatus })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -206,25 +209,25 @@ export default function ConnectedServicesScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background-0">
-      <Box className="bg-background-0 px-4 pt-4 pb-3 border-b border-outline-100">
+      <Box className="px-4 pt-4 pb-3" style={{ backgroundColor: colors.info }}>
         <HStack className="items-center justify-between mb-3">
           <HStack space="sm" className="items-center flex-1">
             <Button size="xs" variant="link" onPress={() => router.back()}>
-              <ButtonIcon as={ArrowLeft} />
+              <ButtonIcon as={ArrowLeft} color="white" />
             </Button>
-            <Heading size="lg" className="text-typography-900">
+            <Heading size="lg" className="text-white">
               {t('services.title', 'Connected Services')}
             </Heading>
           </HStack>
         </HStack>
-        <Text className="text-typography-600 text-sm">
+        <Text className="text-white text-sm opacity-90">
           {t('services.subtitle', 'Manage your service connections for automations')}
         </Text>
       </Box>
 
       {isLoading ? (
         <Box className="flex-1 items-center justify-center">
-          <Text className="text-typography-600">
+          <Text style={{ color: colors.textSecondary }}>
             {t('common.loading', 'Loading...')}
           </Text>
         </Box>
@@ -244,7 +247,7 @@ export default function ConnectedServicesScreen() {
           }}
           ListEmptyComponent={
             <Box className="items-center justify-center py-12">
-              <Text className="text-typography-500 text-center">
+              <Text className="text-center" style={{ color: colors.textTertiary }}>
                 {t('services.empty', 'No services available')}
               </Text>
             </Box>

@@ -19,6 +19,7 @@ import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCurrentUser, updateUserProfile, uploadAvatarImage } from '@/services/auth';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface ProfileFormData {
   email: string;
@@ -33,6 +34,7 @@ export default function EditProfileScreen() {
   const { user, updateUser } = useAuth();
   const router = useRouter();
   const { getToken } = useDesignTokens();
+  const colors = useThemeColors();
 
   const [formData, setFormData] = useState<ProfileFormData>({
     email: '',
@@ -425,23 +427,22 @@ export default function EditProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background-0">
-      <Box className="px-6 py-4 border-b border-outline-100">
+      <Box className="px-6 py-4" style={{ backgroundColor: colors.info }}>
         <HStack space="md" align="center">
           <Pressable onPress={handleBackPress}>
-            <Icon as={ArrowLeft} size="xl" className="text-typography-900" />
+            <Icon as={ArrowLeft} size="xl" className="text-white" />
           </Pressable>
-          <Heading size="xl" className="text-typography-900 flex-1">
+          <Heading size="xl" className="text-white flex-1">
             {t('editProfile.title')}
           </Heading>
           <Button
             size="sm"
-            variant="solid"
-            action="primary"
             onPress={handleSave}
             isDisabled={isLoading || !hasUnsavedChanges()}
+            style={{ backgroundColor: 'white' }}
           >
-            <ButtonIcon as={Save} />
-            <ButtonText>{t('editProfile.save')}</ButtonText>
+            <ButtonIcon as={Save} color={colors.info} />
+            <ButtonText className="text-blue-600 font-semibold">{t('editProfile.save')}</ButtonText>
           </Button>
         </HStack>
       </Box>

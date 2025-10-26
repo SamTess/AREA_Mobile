@@ -83,33 +83,47 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background-0">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
-        <Box className="px-6 py-4">
-          <Heading size="2xl" className="text-typography-900 mb-2">
-            {t('settings.title', 'Settings')}
-          </Heading>
-          <Text size="md" className="text-typography-600">
+        <Box className="px-6 py-4" style={{ backgroundColor: colors.info }}>
+          <HStack className="items-center" space="sm">
+            <Box className="bg-white rounded-lg p-2">
+              <Server size={24} color={colors.info} />
+            </Box>
+            <Heading size="xl" className="text-white mb-2">
+              {t('settings.title', 'Settings')}
+            </Heading>
+          </HStack>
+          <Text size="md" className="text-white opacity-90">
             {t('settings.subtitle', 'Configure your application preferences')}
           </Text>
         </Box>
         <VStack className="mx-6 gap-2">
-          <Text className="text-xs font-semibold text-typography-500 uppercase mb-2 mt-4">
+          <Text className="text-xs font-semibold uppercase mb-2 mt-4" style={{ color: colors.textSecondary }}>
             {t('settings.serverSection', 'Server Configuration')}
           </Text>
-          <MenuItem
-            icon={Server}
-            title={t('settings.serverSettings', 'Server Settings')}
-            subtitle={t('settings.serverSettingsSubtitle', 'Configure backend server location')}
-            onPress={() => router.push('/(tabs)/server-settings')}
-          />
-          <Divider className="my-2" />
-          <Text className="text-xs font-semibold text-typography-500 uppercase mb-2 mt-4">
+          <Box
+            className="rounded-xl mb-2 shadow-sm"
+            style={{
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
+            }}
+          >
+            <MenuItem
+              icon={Server}
+              title={t('settings.serverSettings', 'Server Settings')}
+              subtitle={t('settings.serverSettingsSubtitle', 'Configure backend server location')}
+              onPress={() => router.push('/(tabs)/server-settings')}
+            />
+          </Box>
+          <Text className="text-xs font-semibold uppercase mb-2 mt-4" style={{ color: colors.textSecondary }}>
             {t('settings.appSection', 'Application')}
           </Text>
           <Box
-            className="rounded-lg border"
+            className="rounded-xl shadow-sm"
             style={{
               backgroundColor: colors.card,
-              borderColor: colors.border,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
             }}
           >
             <Pressable onPress={() => setExpandedLanguage(!expandedLanguage)} className="p-4">
@@ -172,10 +186,11 @@ export default function SettingsScreen() {
           </Box>
 
           <Box
-            className="rounded-lg border mt-2"
+            className="rounded-xl shadow-sm mt-2"
             style={{
               backgroundColor: colors.card,
-              borderColor: colors.border,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
             }}
           >
             <Pressable onPress={() => setExpandedTheme(!expandedTheme)} className="p-4">
@@ -242,17 +257,24 @@ export default function SettingsScreen() {
               </VStack>
             )}
           </Box>
-          <Divider className="my-2" />
-
-          <Text className="text-xs font-semibold text-typography-500 uppercase mb-2 mt-4">
+          <Text className="text-xs font-semibold uppercase mb-2 mt-4" style={{ color: colors.textSecondary }}>
             {t('settings.supportSection', 'Help & Support')}
           </Text>
-          <MenuItem
-            icon={HelpCircle}
-            title={t('settings.help', 'Help & Support')}
-            subtitle={t('settings.helpSubtitle', 'Get help and FAQs')}
-            onPress={() => router.push('/help')}
-          />
+          <Box
+            className="rounded-xl shadow-sm"
+            style={{
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
+            }}
+          >
+            <MenuItem
+              icon={HelpCircle}
+              title={t('settings.help', 'Help & Support')}
+              subtitle={t('settings.helpSubtitle', 'Get help and FAQs')}
+              onPress={() => router.push('/help')}
+            />
+          </Box>
         </VStack>
       </ScrollView>
     </SafeAreaView>

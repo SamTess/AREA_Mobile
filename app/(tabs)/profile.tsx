@@ -18,6 +18,7 @@ import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCurrentUser } from '@/services/auth';
 import { User } from '@/types/auth';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 const MenuItem: React.FC<{
   icon: React.ComponentType<any>;
@@ -51,6 +52,7 @@ export default function ProfileScreen() {
   const { user: contextUser, logout } = useAuth();
   const router = useRouter();
   const { getToken } = useDesignTokens();
+  const colors = useThemeColors();
   const [user, setUser] = useState<User | null>(contextUser);
   const [isLoading, setIsLoading] = useState(false);
   useFocusEffect(
@@ -135,16 +137,18 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background-0">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
-        <Box className="px-6 py-4">
-          <Heading size="2xl" className="text-typography-900 mb-2">
-            {t('profile.title')}
-          </Heading>
-          <Text size="md" className="text-typography-600">
+        <Box className="px-6 py-4" style={{ backgroundColor: colors.info }}>
+          <HStack className="items-center" space="sm">
+            <Heading size="xl" className="text-white mb-2">
+              {t('profile.title')}
+            </Heading>
+          </HStack>
+          <Text size="md" className="text-white opacity-90">
             {t('profile.subtitle')}
           </Text>
         </Box>
 
-        <Box className="mx-6 mb-6 bg-background-50 rounded-lg p-6 shadow-soft-1">
+        <Box className="mx-6 my-6 rounded-xl p-6 shadow-sm" style={{ backgroundColor: colors.card, borderColor: colors.cardBorder, borderWidth: 1 }}>
           <HStack space="md" align="center">
             <Avatar size="xl">
               <AvatarFallbackText>{getUserInitials()}</AvatarFallbackText>
@@ -159,15 +163,15 @@ export default function ProfileScreen() {
             </Avatar>
             <VStack className="flex-1 gap-2">
               <HStack space="sm" align="center">
-                <Heading size="lg" className="text-typography-900">
+                <Heading size="lg" style={{ color: colors.text }}>
                   {getUserFullName()}
                 </Heading>
               </HStack>
-              <Text className="text-typography-600">
+              <Text style={{ color: colors.textSecondary }}>
                 {getUserEmail()}
               </Text>
               {user?.username && (
-                <Text size="sm" className="text-typography-500">
+                <Text size="sm" style={{ color: colors.textTertiary }}>
                   @{user.username}
                 </Text>
               )}
@@ -178,43 +182,76 @@ export default function ProfileScreen() {
         <VStack className="mx-6 gap-2">
           {(user as any)?.isAdmin && (
             <>
-              <MenuItem
-                icon={ShieldCheck}
-                title={t('profile.adminDashboard')}
-                subtitle={t('profile.adminDashboardSubtitle')}
-                onPress={() => router.push('/(tabs)/admin-dashboard')}
-              />
-              <Divider className="my-2" />
+              <Box
+                className="rounded-xl shadow-sm mb-2"
+                style={{
+                  backgroundColor: colors.card,
+                  borderWidth: 1,
+                  borderColor: colors.cardBorder,
+                }}
+              >
+                <MenuItem
+                  icon={ShieldCheck}
+                  title={t('profile.adminDashboard')}
+                  subtitle={t('profile.adminDashboardSubtitle')}
+                  onPress={() => router.push('/(tabs)/admin-dashboard')}
+                />
+              </Box>
             </>
           )}
-          <Text className="text-xs font-semibold text-typography-500 uppercase mb-2">
+          <Text className="text-xs font-semibold uppercase mb-2" style={{ color: colors.textSecondary }}>
             {t('profile.profileSection', 'Profile Management')}
           </Text>
-          <MenuItem
-            icon={Edit}
-            title={t('profile.editProfile', 'Edit Profile')}
-            subtitle={t('profile.editProfileSubtitle', 'Update your personal information')}
-            onPress={() => router.push('/(tabs)/edit-profile')}
-          />
-          <Divider className="my-2" />
+          <Box
+            className="rounded-xl shadow-sm mb-2"
+            style={{
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
+            }}
+          >
+            <MenuItem
+              icon={Edit}
+              title={t('profile.editProfile', 'Edit Profile')}
+              subtitle={t('profile.editProfileSubtitle', 'Update your personal information')}
+              onPress={() => router.push('/(tabs)/edit-profile')}
+            />
+          </Box>
 
-          <Text className="text-xs font-semibold text-typography-500 uppercase mb-2 mt-4">
+          <Text className="text-xs font-semibold uppercase mb-2 mt-4" style={{ color: colors.textSecondary }}>
             {t('profile.servicesSection', 'Connected Services')}
           </Text>
-          <MenuItem
-            icon={LinkIcon}
-            title={t('profile.connectedServices', 'Connected Services')}
-            subtitle={t('profile.connectedServicesSubtitle', 'Manage service connections')}
-            onPress={() => router.push('/connected-services')}
-          />
-          <Divider className="my-2" />
+          <Box
+            className="rounded-xl shadow-sm mb-2"
+            style={{
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
+            }}
+          >
+            <MenuItem
+              icon={LinkIcon}
+              title={t('profile.connectedServices', 'Connected Services')}
+              subtitle={t('profile.connectedServicesSubtitle', 'Manage service connections')}
+              onPress={() => router.push('/connected-services')}
+            />
+          </Box>
 
-          <MenuItem
-            icon={LogOut}
-            title={t('profile.logoutTitle')}
-            subtitle={t('profile.logoutSubtitle')}
-            onPress={handleLogout}
-          />
+          <Box
+            className="rounded-xl shadow-sm"
+            style={{
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
+            }}
+          >
+            <MenuItem
+              icon={LogOut}
+              title={t('profile.logoutTitle')}
+              subtitle={t('profile.logoutSubtitle')}
+              onPress={handleLogout}
+            />
+          </Box>
         </VStack>
       </ScrollView>
     </SafeAreaView>
