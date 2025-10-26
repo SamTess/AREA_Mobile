@@ -217,33 +217,35 @@ export default function AreaEditorScreen() {
 
     setIsSaving(true);
     try {
-      const linksPayload: {
-        sourceActionDefinitionId?: string;
-        targetActionDefinitionId?: string;
-        mapping?: Record<string, string>;
+      const connectionsPayload: {
+        sourceServiceId?: string;
+        targetServiceId?: string;
+        linkType?: string;
+        mapping?: Record<string, unknown>;
         condition?: Record<string, unknown>;
         order?: number;
       }[] = [];
 
       if (links.length > 0) {
         links.forEach(link => {
-          let sourceActionDefinitionId = '';
-          let targetActionDefinitionId = '';
-          if (link.sourceType === 'action' && configuredActions[link.sourceIndex]) {
-            sourceActionDefinitionId = configuredActions[link.sourceIndex].action.actionDefinitionId;
-          } else if (link.sourceType === 'reaction' && configuredReactions[link.sourceIndex]) {
-            sourceActionDefinitionId = configuredReactions[link.sourceIndex].reaction.actionDefinitionId;
+          let sourceServiceId = '';
+          let targetServiceId = '';
+          if (link.sourceType === 'action' && configuredActions[link.sourceIndex] !== undefined) {
+            sourceServiceId = `action_${link.sourceIndex}`;
+          } else if (link.sourceType === 'reaction' && configuredReactions[link.sourceIndex] !== undefined) {
+            sourceServiceId = `reaction_${link.sourceIndex}`;
           }
-          if (link.targetType === 'action' && configuredActions[link.targetIndex]) {
-            targetActionDefinitionId = configuredActions[link.targetIndex].action.actionDefinitionId;
-          } else if (link.targetType === 'reaction' && configuredReactions[link.targetIndex]) {
-            targetActionDefinitionId = configuredReactions[link.targetIndex].reaction.actionDefinitionId;
+          if (link.targetType === 'action' && configuredActions[link.targetIndex] !== undefined) {
+            targetServiceId = `action_${link.targetIndex}`;
+          } else if (link.targetType === 'reaction' && configuredReactions[link.targetIndex] !== undefined) {
+            targetServiceId = `reaction_${link.targetIndex}`;
           }
 
-          if (sourceActionDefinitionId && targetActionDefinitionId) {
-            linksPayload.push({
-              sourceActionDefinitionId,
-              targetActionDefinitionId,
+          if (sourceServiceId && targetServiceId) {
+            connectionsPayload.push({
+              sourceServiceId,
+              targetServiceId,
+              linkType: 'chain',
               mapping: link.mapping || {},
               condition: link.condition || {},
               order: link.order || 0,
@@ -252,18 +254,20 @@ export default function AreaEditorScreen() {
         });
       } else {
         if (configuredActions.length > 0 && configuredReactions.length > 0) {
-          linksPayload.push({
-            sourceActionDefinitionId: configuredActions[0].action.actionDefinitionId,
-            targetActionDefinitionId: configuredReactions[0].reaction.actionDefinitionId,
+          connectionsPayload.push({
+            sourceServiceId: 'action_0',
+            targetServiceId: 'reaction_0',
+            linkType: 'chain',
             mapping: {},
             condition: {},
             order: 0,
           });
         }
         for (let i = 0; i < configuredReactions.length - 1; i++) {
-          linksPayload.push({
-            sourceActionDefinitionId: configuredReactions[i].reaction.actionDefinitionId,
-            targetActionDefinitionId: configuredReactions[i + 1].reaction.actionDefinitionId,
+          connectionsPayload.push({
+            sourceServiceId: `reaction_${i}`,
+            targetServiceId: `reaction_${i + 1}`,
+            linkType: 'chain',
             mapping: {},
             condition: {},
             order: i + 1,
@@ -293,7 +297,8 @@ export default function AreaEditorScreen() {
           activationConfig: reaction.activationConfig || { type: 'chain' },
           serviceAccountId: reaction.serviceAccountId,
         })),
-        links: linksPayload,
+        connections: connectionsPayload,
+        layoutMode: 'linear',
       };
 
       if (isEditMode && areaId) {

@@ -70,7 +70,7 @@ export async function createAreaWithActions(payload: CreateAreaPayloadType): Pro
     return mockService.createArea(payload as CreateAreaPayload, { delay: MOCK_DELAY });
   }
 
-  return apiClient.post<AreaDto>('/api/areas/with-actions', payload);
+  return apiClient.post<AreaDto>('/api/areas/with-links', payload);
 }
 
 export async function updateArea(id: string, updates: UpdateAreaPayload): Promise<AreaDto> {
