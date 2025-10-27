@@ -68,7 +68,6 @@ export default function EditProfileScreen() {
           if (!userData && user)
             userData = user;
           if (userData) {
-            console.log('Loading user data:', userData);
             const profileData: ProfileFormData = {
               email: userData.email || '',
               username: userData.username || '',

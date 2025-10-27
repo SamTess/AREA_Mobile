@@ -39,6 +39,7 @@ function AppContent() {
 export default function RootLayout() {
   const { colorScheme, setColorScheme } = useColorScheme();
   const [isReady, setIsReady] = useState(false);
+  const [initialTheme, setInitialTheme] = useState<'light' | 'dark'>('light');
   const STORAGE_KEY = 'app_color_scheme';
 
   useEffect(() => {
@@ -47,10 +48,16 @@ export default function RootLayout() {
       try {
         const saved = await SecureStore.getItemAsync(STORAGE_KEY);
         if (mounted) {
-          if (saved && setColorScheme) {
-            setColorScheme(saved as any);
+          const theme = (saved as 'light' | 'dark') || 'light';
+          setInitialTheme(theme);
+          if (setColorScheme) {
+            setColorScheme(theme);
           }
-          setIsReady(true);
+          setTimeout(() => {
+            if (mounted) {
+              setIsReady(true);
+            }
+          }, 10);
         }
       } catch (err) {
         console.error('Failed to load color scheme from storage', err);
@@ -66,8 +73,8 @@ export default function RootLayout() {
   }, [setColorScheme]);
 
   useEffect(() => {
-    if (!colorScheme || !isReady)
-      return;
+    if (!colorScheme || !isReady) return;
+    
     (async () => {
       try {
         await SecureStore.setItemAsync(STORAGE_KEY, colorScheme);
@@ -76,10 +83,14 @@ export default function RootLayout() {
       }
     })();
   }, [colorScheme, isReady]);
-  const mode = useMemo(() => colorScheme ?? 'light', [colorScheme]);
 
-  if (!isReady)
+  const mode = useMemo(() => {
+    return isReady ? (colorScheme ?? initialTheme) : initialTheme;
+  }, [colorScheme, initialTheme, isReady]);
+
+  if (!isReady) {
     return null;
+  }
 
   return (
     <GluestackUIProvider mode={mode}>

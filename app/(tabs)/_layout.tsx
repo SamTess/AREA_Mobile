@@ -18,31 +18,27 @@ export default function TabLayout() {
     'background-0': colorScheme === 'dark' ? 'rgb(18 18 18)' : 'rgb(255 255 255)',
   }), [colorScheme]);
 
-  const getColorValue = (token: string) => {
-    return colors[token as keyof typeof colors];
-  };
+  const screenOptions = useMemo(() => ({
+    tabBarActiveTintColor: colors['indigo-600'],
+    tabBarInactiveTintColor: colors['gray-500'],
+    headerShown: false,
+    tabBarStyle: {
+      backgroundColor: colors['background-0'],
+      borderBottomWidth: 1,
+      borderBottomColor: colors['gray-200'],
+      marginTop: 0,
+      paddingTop: 0,
+      paddingBottom: 16,
+      height: 60,
+    },
+    tabBarLabelStyle: {
+      fontSize: 12,
+      fontWeight: '500' as const,
+    },
+  }), [colors]);
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: getColorValue('indigo-600'),
-        tabBarInactiveTintColor: getColorValue('gray-500'),
-        headerShown: false,
-        tabBarStyle: {
-          backgroundColor: getColorValue('background-0'),
-          borderBottomWidth: 1,
-          borderBottomColor: getColorValue('gray-200'),
-          marginTop: 0,
-          paddingTop: 0,
-          paddingBottom: 16,
-          height: 60,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '500',
-        },
-      }}
-    >
+    <Tabs screenOptions={screenOptions}>
       <Tabs.Screen
         name="index"
         options={{

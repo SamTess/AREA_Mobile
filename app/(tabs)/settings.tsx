@@ -76,7 +76,7 @@ export default function SettingsScreen() {
     i18n.changeLanguage(lang);
     setExpandedLanguage(false);
   }, [i18n]);
-  
+
   const handleThemeChange = useCallback(async (theme: 'light' | 'dark') => {
     try {
       await SecureStore.setItemAsync('app_color_scheme', theme);
