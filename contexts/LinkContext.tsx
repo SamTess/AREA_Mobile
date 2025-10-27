@@ -7,6 +7,7 @@ export interface LinkConfig {
   targetType: 'action' | 'reaction';
   linkType: 'chain' | 'conditional' | 'parallel' | 'sequential';
   order: number;
+  mapping?: Record<string, string>;
   condition?: Record<string, unknown>;
 }
 

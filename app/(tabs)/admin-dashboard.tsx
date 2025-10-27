@@ -27,7 +27,6 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('users');
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isVerified, setIsVerified] = useState(true);
 
   const checkAdminAccess = React.useCallback(async () => {
     try {
@@ -39,16 +38,6 @@ export default function AdminDashboard() {
         Alert.alert(t('admin.accessDenied'), 'You do not have admin privileges');
         router.replace('/(tabs)');
         return;
-      }
-      if (!(user as any).isVerified) {
-        setIsVerified(false);
-        Alert.alert(
-          t('admin.emailNotVerified'),
-          t('admin.users.emailVerificationMessage'),
-          [{ text: 'OK' }]
-        );
-      } else {
-        setIsVerified(true);
       }
       setIsAdmin(true);
     } catch {
@@ -112,15 +101,6 @@ export default function AdminDashboard() {
         <Text style={[styles.title, { color: colors.text }]}>{t('admin.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
-
-      {!isVerified && (
-        <View style={[styles.warningBanner, { backgroundColor: colors.isDark ? '#3F2A0D' : '#FFF3CD', borderBottomColor: colors.isDark ? '#5A3F1A' : '#FFE69C' }]}>
-          <Ionicons name="warning" size={20} color={colors.warning} />
-          <Text style={[styles.warningText, { color: colors.isDark ? '#FDB94D' : '#856404' }]}>
-            {t('admin.emailNotVerified')}
-          </Text>
-        </View>
-      )}
 
       <View style={[styles.tabBar, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         {tabs.map((tab) => (
@@ -204,17 +184,5 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  warningBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    gap: 8,
-  },
-  warningText: {
-    flex: 1,
-    fontSize: 13,
   },
 });

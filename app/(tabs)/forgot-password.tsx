@@ -11,10 +11,12 @@ import { KeyRound } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert } from 'react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export default function ForgotPasswordScreen() {
     const { t } = useTranslation();
     const router = useRouter();
+    const colors = useThemeColors();
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -63,23 +65,23 @@ export default function ForgotPasswordScreen() {
     };
 
     return (
-        <Box className="flex-1 bg-background-50 justify-center">
+        <Box className="flex-1 justify-center" style={{ backgroundColor: colors.backgroundSecondary }}>
             <VStack space="2xl" className="w-full max-w-md mx-auto px-6">
                 {/* Carte de mot de passe oublié avec fond */}
-                <Box className="bg-background-0 rounded-2xl shadow-lg p-8">
+                <Box className="rounded-2xl shadow-lg p-8" style={{ backgroundColor: colors.card }}>
                     {/* Icône en haut */}
                     <Center className="mb-6">
-                        <Box className="w-20 h-20 rounded-full bg-primary-100 items-center justify-center">
-                            <KeyRound size={40} color="#333333" strokeWidth={2} />
+                        <Box className="w-20 h-20 rounded-full items-center justify-center" style={{ backgroundColor: `${colors.info}20` }}>
+                            <KeyRound size={40} color={colors.info} strokeWidth={2} />
                         </Box>
                     </Center>
 
                     {/* En-tête */}
                     <VStack space="md" className="items-center mb-8">
-                        <Heading size="4xl" className="text-center text-primary-500">
+                        <Heading size="4xl" className="text-center" style={{ color: colors.info }}>
                             {t('forgotPassword.title')}
                         </Heading>
-                        <Text size="md" className="text-typography-600 text-center">
+                        <Text size="md" className="text-center" style={{ color: colors.textSecondary }}>
                             {t('forgotPassword.subtitle')}
                         </Text>
                     </VStack>
@@ -88,14 +90,18 @@ export default function ForgotPasswordScreen() {
                     <VStack space="xl">
                         {/* Champ Email */}
                         <VStack space="xs">
-                            <Text size="sm" bold className="text-typography-900 mb-1">
+                            <Text size="sm" bold className="mb-1" style={{ color: colors.text }}>
                                 {t('forgotPassword.emailLabel')}
                             </Text>
                             <Input 
                                 variant="outline" 
                                 size="lg"
                                 isInvalid={!!emailError}
-                                className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
+                                className="rounded-lg"
+                                style={{ 
+                                    backgroundColor: colors.background,
+                                    borderColor: emailError ? colors.error : colors.border
+                                }}
                             >
                                 <InputField
                                     placeholder={t('forgotPassword.emailPlaceholder')}
@@ -107,16 +113,18 @@ export default function ForgotPasswordScreen() {
                                     keyboardType="email-address"
                                     autoCapitalize="none"
                                     autoCorrect={false}
+                                    style={{ color: colors.text }}
+                                    placeholderTextColor={colors.textTertiary}
                                 />
                             </Input>
                             {emailError ? (
                                 <Box className="flex-row items-center mt-1">
-                                    <Text size="xs" className="text-error-600 ml-1">
+                                    <Text size="xs" className="ml-1" style={{ color: colors.error }}>
                                         {emailError}
                                     </Text>
                                 </Box>
                             ) : (
-                                <Text size="xs" className="text-typography-500 ml-1 mt-1">
+                                <Text size="xs" className="ml-1 mt-1" style={{ color: colors.textSecondary }}>
                                     {t('forgotPassword.emailHelper')}
                                 </Text>
                             )}
@@ -127,12 +135,13 @@ export default function ForgotPasswordScreen() {
                             size="lg"
                             onPress={handleSendResetLink}
                             isDisabled={isLoading}
-                            className="mt-6 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 rounded-lg shadow-md"
+                            className="mt-6 rounded-lg shadow-md"
+                            style={{ backgroundColor: colors.info }}
                         >
                             {isLoading ? (
                                 <ActivityIndicator testID="activity-indicator" color="white" />
                             ) : (
-                                <ButtonText className="font-semibold text-base">
+                                <ButtonText className="font-semibold text-base text-white">
                                     {t('forgotPassword.sendButton')}
                                 </ButtonText>
                             )}
@@ -142,7 +151,7 @@ export default function ForgotPasswordScreen() {
                         <Box className="items-center mt-2">
                             <Text 
                                 size="sm" 
-                                className="text-primary-500"
+                                style={{ color: colors.info }}
                                 onPress={() => router.push('/(tabs)/login')}
                             >
                                 {t('forgotPassword.backToLogin')}

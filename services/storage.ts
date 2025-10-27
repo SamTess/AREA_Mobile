@@ -8,6 +8,7 @@ const STORAGE_KEYS = {
     REFRESH_TOKEN: 'auth_refresh_token',
     USER_DATA: 'auth_user_data',
     COOKIES: 'auth_cookies',
+    SERVER_URL: 'app_server_url',
 } as const;
 
 /**
@@ -76,4 +77,25 @@ export async function clearAuthData(): Promise<void> {
         SecureStore.deleteItemAsync(STORAGE_KEYS.USER_DATA),
         SecureStore.deleteItemAsync(STORAGE_KEYS.COOKIES),
     ]);
+}
+
+/**
+ * Saves the server URL
+ */
+export async function saveServerUrl(url: string): Promise<void> {
+    await SecureStore.setItemAsync(STORAGE_KEYS.SERVER_URL, url);
+}
+
+/**
+ * Retrieves the server URL
+ */
+export async function getServerUrl(): Promise<string | null> {
+    return await SecureStore.getItemAsync(STORAGE_KEYS.SERVER_URL);
+}
+
+/**
+ * Clears the server URL (resets to default)
+ */
+export async function clearServerUrl(): Promise<void> {
+    await SecureStore.deleteItemAsync(STORAGE_KEYS.SERVER_URL);
 }

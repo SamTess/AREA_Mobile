@@ -9,7 +9,7 @@ import '@/i18n';
 import { Stack } from "expo-router";
 import { useColorScheme } from 'nativewind';
 import * as SecureStore from 'expo-secure-store';
-import { useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 function AppContent() {
   return (
@@ -38,6 +38,8 @@ function AppContent() {
 
 export default function RootLayout() {
   const { colorScheme, setColorScheme } = useColorScheme();
+  const [isReady, setIsReady] = useState(false);
+  const [initialTheme, setInitialTheme] = useState<'light' | 'dark'>('light');
   const STORAGE_KEY = 'app_color_scheme';
 
   useEffect(() => {
@@ -45,22 +47,34 @@ export default function RootLayout() {
     (async () => {
       try {
         const saved = await SecureStore.getItemAsync(STORAGE_KEY);
-        if (mounted && saved && setColorScheme && saved !== colorScheme) {
-          setColorScheme(saved as any);
+        if (mounted) {
+          const theme = (saved as 'light' | 'dark') || 'light';
+          setInitialTheme(theme);
+          if (setColorScheme) {
+            setColorScheme(theme);
+          }
+          setTimeout(() => {
+            if (mounted) {
+              setIsReady(true);
+            }
+          }, 10);
         }
       } catch (err) {
         console.error('Failed to load color scheme from storage', err);
+        if (mounted) {
+          setIsReady(true);
+        }
       }
     })();
 
     return () => {
       mounted = false;
     };
-  }, [colorScheme, setColorScheme]);
+  }, [setColorScheme]);
 
   useEffect(() => {
-    if (!colorScheme) return;
-
+    if (!colorScheme || !isReady) return;
+    
     (async () => {
       try {
         await SecureStore.setItemAsync(STORAGE_KEY, colorScheme);
@@ -68,10 +82,18 @@ export default function RootLayout() {
         console.error('Failed to save color scheme to storage', err);
       }
     })();
-  }, [colorScheme]);
+  }, [colorScheme, isReady]);
+
+  const mode = useMemo(() => {
+    return isReady ? (colorScheme ?? initialTheme) : initialTheme;
+  }, [colorScheme, initialTheme, isReady]);
+
+  if (!isReady) {
+    return null;
+  }
 
   return (
-    <GluestackUIProvider mode={colorScheme ?? 'light'}>
+    <GluestackUIProvider mode={mode}>
       <AppContent />
     </GluestackUIProvider>
   );

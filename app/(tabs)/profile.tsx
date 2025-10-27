@@ -1,14 +1,13 @@
 import { useRouter } from 'expo-router';
-import { BadgeCheck, Bell, HelpCircle, LogOut, Settings, ShieldCheck } from 'lucide-react-native';
-import React from 'react';
+import { LogOut, ShieldCheck, Edit, Link as LinkIcon } from 'lucide-react-native';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView } from 'react-native';
+import { Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { Avatar, AvatarBadge, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
-import { Badge, BadgeIcon, BadgeText } from '@/components/ui/badge';
 import { Box } from '@/components/ui/box';
-import { Divider } from '@/components/ui/divider';
 import { Heading } from '@/components/ui/heading';
 import { useDesignTokens } from '@/components/ui/hooks/useDesignTokens';
 import { HStack } from '@/components/ui/hstack';
@@ -16,6 +15,9 @@ import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
+import { getCurrentUser } from '@/services/auth';
+import { User } from '@/types/auth';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 const MenuItem: React.FC<{
   icon: React.ComponentType<any>;
@@ -46,8 +48,31 @@ const MenuItem: React.FC<{
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
-  const { user, logout } = useAuth();
+  const { user: contextUser, logout } = useAuth();
   const router = useRouter();
+  const { getToken } = useDesignTokens();
+  const colors = useThemeColors();
+  const [user, setUser] = useState<User | null>(contextUser);
+  const [isLoading, setIsLoading] = useState(false);
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadUserData = async () => {
+        try {
+          setIsLoading(true);
+          const userData = await getCurrentUser();
+          if (userData) {
+            setUser(userData);
+          }
+        } catch (error) {
+          console.error('Failed to load user data:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      loadUserData();
+    }, [])
+  );
 
   const handleLogout = () => {
     Alert.alert(
@@ -87,25 +112,46 @@ export default function ProfileScreen() {
     return user.name.substring(0, 2).toUpperCase();
   };
 
+  const getUserFullName = () => {
+    return user?.name || t('profile.unknownUser');
+  };
+
+  const getUserEmail = () => {
+    return user?.email || t('profile.noEmail');
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-background-0">
+        <Box className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color={getToken('primary-500')} />
+          <Text className="text-typography-600 mt-4">
+            {t('profile.loading', 'Loading profile...')}
+          </Text>
+        </Box>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-background-0">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
-        {/* Header */}
-        <Box className="px-6 py-4">
-          <Heading size="2xl" className="text-typography-900 mb-2">
-            {t('profile.title')}
-          </Heading>
-          <Text size="md" className="text-typography-600">
+        <Box className="px-6 py-4" style={{ backgroundColor: colors.info }}>
+          <HStack className="items-center" space="sm">
+            <Heading size="xl" className="text-white mb-2">
+              {t('profile.title')}
+            </Heading>
+          </HStack>
+          <Text size="md" className="text-white opacity-90">
             {t('profile.subtitle')}
           </Text>
         </Box>
 
-        {/* Profile Card */}
-        <Box className="mx-6 mb-6 bg-background-50 rounded-lg p-6 shadow-soft-1">
+        <Box className="mx-6 my-6 rounded-xl p-6 shadow-sm" style={{ backgroundColor: colors.card, borderColor: colors.cardBorder, borderWidth: 1 }}>
           <HStack space="md" align="center">
             <Avatar size="xl">
               <AvatarFallbackText>{getUserInitials()}</AvatarFallbackText>
-              {(user?.avatarUrl) && (
+              {user?.avatarUrl && (
                 <AvatarImage
                   source={{
                     uri: user.avatarUrl,
@@ -116,20 +162,18 @@ export default function ProfileScreen() {
             </Avatar>
             <VStack className="flex-1 gap-2">
               <HStack space="sm" align="center">
-                <Heading size="lg" className="text-typography-900">
-                  {user?.name || t('profile.unknownUser')}
+                <Heading size="lg" style={{ color: colors.text }}>
+                  {getUserFullName()}
                 </Heading>
-                <Badge size="sm" variant="solid" action="success">
-                  <BadgeText>{t('profile.verified')}</BadgeText>
-                  <BadgeIcon as={BadgeCheck} />
-                </Badge>
               </HStack>
-              <Text className="text-typography-600">
-                {user?.email || t('profile.noEmail')}
+              <Text style={{ color: colors.textSecondary }}>
+                {getUserEmail()}
               </Text>
-              <Badge size="sm" variant="outline" action="info">
-                <BadgeText>{t('profile.premium')}</BadgeText>
-              </Badge>
+              {user?.username && (
+                <Text size="sm" style={{ color: colors.textTertiary }}>
+                  @{user.username}
+                </Text>
+              )}
             </VStack>
           </HStack>
         </Box>
@@ -137,47 +181,76 @@ export default function ProfileScreen() {
         <VStack className="mx-6 gap-2">
           {(user as any)?.isAdmin && (
             <>
-              <MenuItem
-                icon={ShieldCheck}
-                title={t('profile.adminDashboard')}
-                subtitle={t('profile.adminDashboardSubtitle')}
-                onPress={() => router.push('/(tabs)/admin-dashboard')}
-              />
-              <Divider className="my-2" />
+              <Box
+                className="rounded-xl shadow-sm mb-2"
+                style={{
+                  backgroundColor: colors.card,
+                  borderWidth: 1,
+                  borderColor: colors.cardBorder,
+                }}
+              >
+                <MenuItem
+                  icon={ShieldCheck}
+                  title={t('profile.adminDashboard')}
+                  subtitle={t('profile.adminDashboardSubtitle')}
+                  onPress={() => router.push('/(tabs)/admin-dashboard')}
+                />
+              </Box>
             </>
           )}
-          <MenuItem
-            icon={Settings}
-            title={t('profile.settingsTitle')}
-            subtitle={t('profile.settingsSubtitle')}
-            onPress={() => router.push('/(tabs)/edit-profile')}
-          />
-          <MenuItem
-            icon={Settings}
-            title={t('profile.connectedServices', 'Connected Services')}
-            subtitle={t('profile.connectedServicesSubtitle', 'Manage service connections')}
-            onPress={() => router.push('/connected-services')}
-          />
-          <Divider className="my-2" />
-          <MenuItem
-            icon={Bell}
-            title={t('profile.notificationsTitle')}
-            subtitle={t('profile.notificationsSubtitle')}
-            onPress={() => router.push('/connected-services')}
-          />
-          <MenuItem
-            icon={HelpCircle}
-            title={t('profile.helpTitle')}
-            subtitle={t('profile.helpSubtitle')}
-            onPress={() => router.push('/help')}
-          />
-          <Divider className="my-2" />
-          <MenuItem
-            icon={LogOut}
-            title={t('profile.logoutTitle')}
-            subtitle={t('profile.logoutSubtitle')}
-            onPress={handleLogout}
-          />
+          <Text className="text-xs font-semibold uppercase mb-2" style={{ color: colors.textSecondary }}>
+            {t('profile.profileSection', 'Profile Management')}
+          </Text>
+          <Box
+            className="rounded-xl shadow-sm mb-2"
+            style={{
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
+            }}
+          >
+            <MenuItem
+              icon={Edit}
+              title={t('profile.editProfile', 'Edit Profile')}
+              subtitle={t('profile.editProfileSubtitle', 'Update your personal information')}
+              onPress={() => router.push('/(tabs)/edit-profile')}
+            />
+          </Box>
+
+          <Text className="text-xs font-semibold uppercase mb-2 mt-4" style={{ color: colors.textSecondary }}>
+            {t('profile.servicesSection', 'Connected Services')}
+          </Text>
+          <Box
+            className="rounded-xl shadow-sm mb-2"
+            style={{
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
+            }}
+          >
+            <MenuItem
+              icon={LinkIcon}
+              title={t('profile.connectedServices', 'Connected Services')}
+              subtitle={t('profile.connectedServicesSubtitle', 'Manage service connections')}
+              onPress={() => router.push('/connected-services')}
+            />
+          </Box>
+
+          <Box
+            className="rounded-xl shadow-sm"
+            style={{
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
+            }}
+          >
+            <MenuItem
+              icon={LogOut}
+              title={t('profile.logoutTitle')}
+              subtitle={t('profile.logoutSubtitle')}
+              onPress={handleLogout}
+            />
+          </Box>
         </VStack>
       </ScrollView>
     </SafeAreaView>

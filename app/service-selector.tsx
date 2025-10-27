@@ -211,7 +211,6 @@ export default function ServiceSelectorScreen() {
         data = await serviceCatalog.getServiceReactions(service.key);
         console.log(`Loaded ${data.length} actions for ${service.name}`);
       }
-      console.log('Actions details:', data);
       setActions(data);
       setFilteredActions(data);
       setStep(2);

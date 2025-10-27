@@ -35,6 +35,7 @@ export default function LinkConfiguratorScreen() {
   const [linkType, setLinkType] = useState<'chain' | 'conditional' | 'parallel' | 'sequential'>('chain');
   const [order, setOrder] = useState('0');
   const [condition, setCondition] = useState('{}');
+  const [mapping, setMapping] = useState('{}');
   const [selectedSourceIndex, setSelectedSourceIndex] = useState<number>(
     params.sourceIndex ? parseInt(params.sourceIndex) : -1
   );
@@ -55,6 +56,7 @@ export default function LinkConfiguratorScreen() {
         setLinkType(existingData.linkType || 'chain');
         setOrder(existingData.order?.toString() || '0');
         setCondition(JSON.stringify(existingData.condition || {}, null, 2));
+        setMapping(JSON.stringify(existingData.mapping || {}, null, 2));
         setSelectedSourceIndex(existingData.sourceIndex);
         setSelectedSourceType(existingData.sourceType);
         setSelectedTargetIndex(existingData.targetIndex);
@@ -86,6 +88,17 @@ export default function LinkConfiguratorScreen() {
       }
     }
 
+    let parsedMapping = {};
+    try {
+      parsedMapping = JSON.parse(mapping);
+    } catch {
+      Alert.alert(
+        t('linkConfigurator.error', 'Error'),
+        t('linkConfigurator.invalidMapping', 'Invalid mapping JSON format')
+      );
+      return;
+    }
+
     const linkData = {
       sourceIndex: selectedSourceIndex,
       targetIndex: selectedTargetIndex,
@@ -93,6 +106,7 @@ export default function LinkConfiguratorScreen() {
       targetType: selectedTargetType,
       linkType,
       order: parseInt(order) || 0,
+      mapping: parsedMapping,
       condition: linkType === 'conditional' ? parsedCondition : undefined,
     };
     const existingLink = getLinkBetween(
@@ -508,6 +522,24 @@ export default function LinkConfiguratorScreen() {
                 </Text>
               </VStack>
             )}
+            <VStack space="sm">
+              <Text className="font-bold text-lg" style={{ color: colors.text }}>
+                {t('linkConfigurator.mapping', 'Field Mapping (JSON)')}
+              </Text>
+              <Input className="min-h-32" variant="outline" size="md">
+                <InputField
+                  placeholder='{"sourceField": "targetField", "output.data": "input.value"}'
+                  value={mapping}
+                  onChangeText={setMapping}
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                />
+              </Input>
+              <Text className="text-xs" style={{ color: colors.textSecondary }}>
+                {t('linkConfigurator.mappingDesc', 'Map output fields from source to input fields of target')}
+              </Text>
+            </VStack>
             <Box className="h-8" />
           </VStack>
         </Box>

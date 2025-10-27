@@ -3,13 +3,40 @@
  * Centralized configuration for backend API
  */
 
+import { getServerUrl } from './storage';
+
+/**
+ * Default server URL (same as in server-settings.tsx)
+ */
+const DEFAULT_SERVER_URL = 'http://127.0.0.1:8080';
+
+/**
+ * Get the configured API URL from storage (user's server settings)
+ */
+let cachedServerUrl: string | null = null;
+
+export async function getApiUrl(): Promise<string> {
+    if (cachedServerUrl)
+        return cachedServerUrl;
+    const storedUrl = await getServerUrl();
+    const url = storedUrl || DEFAULT_SERVER_URL;
+    cachedServerUrl = url;
+    return url;
+}
+
+/**
+ * Update the cached server URL (call after changing server settings)
+ */
+export function updateCachedServerUrl(url: string | null): void {
+    cachedServerUrl = url;
+}
+
 /**
  * Environment variables
  */
 export const ENV = {
-    // Use Android emulator loopback by default; override via EXPO_PUBLIC_API_URL
-    API_URL: process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8080',
-    USE_MOCK: process.env.EXPO_PUBLIC_USE_MOCK !== 'false', // Default to true for development
+    API_URL: process.env.EXPO_PUBLIC_API_URL || DEFAULT_SERVER_URL,
+    USE_MOCK: process.env.EXPO_PUBLIC_USE_MOCK !== 'false',
     MOCK_DELAY: parseInt(process.env.EXPO_PUBLIC_MOCK_DELAY || '1000', 10),
 } as const;
 
@@ -17,12 +44,13 @@ export const ENV = {
  * API endpoints
  */
 export const API_ENDPOINTS = {
-    // Authentication
     LOGIN: '/api/auth/login',
     REGISTER: '/api/auth/register',
     LOGOUT: '/api/auth/logout',
     REFRESH: '/api/auth/refresh',
     ME: '/api/auth/me',
+    UPDATE_PROFILE: '/api/users',
+    UPLOAD_AVATAR: '/api/users/avatar',
 } as const;
 
 /**

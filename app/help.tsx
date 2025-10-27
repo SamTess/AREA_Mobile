@@ -16,12 +16,12 @@ import { Badge, BadgeText } from '@/components/ui/badge';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
-import { useDesignTokens } from '@/components/ui/hooks/useDesignTokens';
 import { HStack } from '@/components/ui/hstack';
 import { Input, InputField } from '@/components/ui/input';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface ContactMethod {
   icon: React.ComponentType<any>;
@@ -33,6 +33,7 @@ interface ContactMethod {
 }
 
 const ContactCard: React.FC<ContactMethod> = ({ icon: Icon, title, description, value, link }) => {
+  const colors = useThemeColors();
   const handlePress = async () => {
     try {
       const canOpen = await Linking.canOpenURL(link);
@@ -44,14 +45,14 @@ const ContactCard: React.FC<ContactMethod> = ({ icon: Icon, title, description, 
 
   return (
     <Pressable onPress={handlePress} className="mb-4">
-      <Box className="bg-background-50 rounded-2xl p-6 shadow-soft-1 border border-outline-100">
+      <Box className="rounded-2xl p-6 shadow-soft-1" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
         <VStack space="md" className="items-center">
-          <Box className="w-16 h-16 bg-primary-500 rounded-full items-center justify-center">
+          <Box className="w-16 h-16 rounded-full items-center justify-center" style={{ backgroundColor: colors.info }}>
             <Icon size={32} color="#FFFFFF" />
           </Box>
           <VStack space="xs" className="items-center">
-            <Text className="text-typography-900 font-bold text-lg text-center">{title}</Text>
-            <Text size="sm" className="text-typography-600 text-center">{description}</Text>
+            <Text className="font-bold text-lg text-center" style={{ color: colors.text }}>{title}</Text>
+            <Text size="sm" className="text-center" style={{ color: colors.textSecondary }}>{description}</Text>
           </VStack>
           <Badge size="md" variant="solid" action="info" className="w-full">
             <BadgeText className="text-center w-full">{value}</BadgeText>
@@ -67,15 +68,15 @@ const InfoCard: React.FC<{
   title: string;
   subtitle: string;
 }> = ({ icon: Icon, title, subtitle }) => {
-  const { getToken } = useDesignTokens();
+  const colors = useThemeColors();
   return (
-    <Box className="bg-background-50 rounded-xl p-4 shadow-soft-1 border border-outline-100 flex-1">
+    <Box className="rounded-xl p-4 shadow-soft-1 flex-1" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
       <VStack space="sm" className="items-center">
-        <Box className="w-10 h-10 bg-background-100 rounded-full items-center justify-center">
-          <Icon size={20} color={getToken('primary-500')} />
+        <Box className="w-10 h-10 rounded-full items-center justify-center" style={{ backgroundColor: `${colors.info}20` }}>
+          <Icon size={20} color={colors.info} />
         </Box>
-        <Text className="text-typography-900 font-semibold text-center">{title}</Text>
-        <Text size="sm" className="text-typography-600 text-center">{subtitle}</Text>
+        <Text className="font-semibold text-center" style={{ color: colors.text }}>{title}</Text>
+        <Text size="sm" className="text-center" style={{ color: colors.textSecondary }}>{subtitle}</Text>
       </VStack>
     </Box>
   );
@@ -84,6 +85,7 @@ const InfoCard: React.FC<{
 export default function HelpScreen() {
   const { t } = useTranslation();
   const headerHeight = useHeaderHeight();
+  const colors = useThemeColors();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -137,24 +139,26 @@ export default function HelpScreen() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-background-0" edges={['top']}>
+    <SafeAreaView className="flex-1" edges={['top']} style={{ backgroundColor: colors.background }}>
       <KeyboardAvoidingView
-        className="flex-1 bg-background-0"
+        className="flex-1"
+        style={{ backgroundColor: colors.background }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={headerHeight}
       >
         <ScrollView
-          className="flex-1 bg-background-0"
+          className="flex-1"
+          style={{ backgroundColor: colors.background }}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode={Platform.OS === 'ios' ? 'on-drag' : 'none'}
           contentContainerStyle={{ paddingBottom: 24 }}
         >
           {/* Header */}
           <Box className="px-6 py-6">
-            <Heading size="3xl" className="text-typography-900 mb-2 text-center">
+            <Heading size="3xl" className="mb-2 text-center" style={{ color: colors.info }}>
               {t('help.title')}
             </Heading>
-            <Text size="lg" className="text-typography-600 text-center">{t('help.subtitle')}</Text>
+            <Text size="lg" className="text-center" style={{ color: colors.textSecondary }}>{t('help.subtitle')}</Text>
           </Box>
 
           {/* Contact Methods */}
@@ -165,23 +169,23 @@ export default function HelpScreen() {
           </Box>
 
           {/* Contact Form */}
-          <Box className="mx-6 mb-6 bg-background-50 rounded-2xl p-6 shadow-soft-2">
+          <Box className="mx-6 mb-6 rounded-2xl p-6 shadow-soft-2" style={{ backgroundColor: colors.card }}>
             <VStack space="lg">
               <VStack space="sm" className="items-center">
-                <Box className="w-14 h-14 bg-primary-500 rounded-full items-center justify-center mb-2">
+                <Box className="w-14 h-14 rounded-full items-center justify-center mb-2" style={{ backgroundColor: colors.info }}>
                   <MessageCircle size={28} color="#FFFFFF" />
                 </Box>
-                <Heading size="xl" className="text-typography-900 text-center">{t('help.formTitle')}</Heading>
-                <Text size="sm" className="text-typography-600 text-center">{t('help.formSubtitle')}</Text>
+                <Heading size="xl" className="text-center" style={{ color: colors.text }}>{t('help.formTitle')}</Heading>
+                <Text size="sm" className="text-center" style={{ color: colors.textSecondary }}>{t('help.formSubtitle')}</Text>
               </VStack>
 
               {submitted && (
-                <Box className="bg-success-100 rounded-lg p-4 border border-success-300">
+                <Box className="rounded-lg p-4" style={{ backgroundColor: `${colors.success}20`, borderWidth: 1, borderColor: colors.success }}>
                   <HStack space="sm" className="items-center">
-                    <AlertCircle size={20} color="#16a34a" />
+                    <AlertCircle size={20} color={colors.success} />
                     <VStack className="flex-1">
-                      <Text className="text-success-700 font-semibold">{t('help.successTitle')}</Text>
-                      <Text size="sm" className="text-success-600">{t('help.successMessage')}</Text>
+                      <Text className="font-semibold" style={{ color: colors.success }}>{t('help.successTitle')}</Text>
+                      <Text size="sm" style={{ color: colors.success }}>{t('help.successMessage')}</Text>
                     </VStack>
                   </HStack>
                 </Box>
@@ -190,21 +194,23 @@ export default function HelpScreen() {
               <VStack space="md">
                 {/* Nom */}
                 <VStack space="xs">
-                  <Text className="text-typography-900 font-medium">{t('help.nameLabel')}</Text>
-                  <Input variant="outline" size="lg">
+                  <Text className="font-medium" style={{ color: colors.text }}>{t('help.nameLabel')}</Text>
+                  <Input variant="outline" size="lg" style={{ backgroundColor: colors.background, borderColor: colors.border }}>
                     <InputField
                       placeholder={t('help.namePlaceholder')}
                       value={formData.name}
                       onChangeText={(text) => setFormData({ ...formData, name: text })}
                       returnKeyType="next"
+                      style={{ color: colors.text }}
+                      placeholderTextColor={colors.textTertiary}
                     />
                   </Input>
                 </VStack>
 
                 {/* Email */}
                 <VStack space="xs">
-                  <Text className="text-typography-900 font-medium">{t('help.emailLabel')}</Text>
-                  <Input variant="outline" size="lg">
+                  <Text className="font-medium" style={{ color: colors.text }}>{t('help.emailLabel')}</Text>
+                  <Input variant="outline" size="lg" style={{ backgroundColor: colors.background, borderColor: colors.border }}>
                     <InputField
                       placeholder={t('help.emailPlaceholder')}
                       value={formData.email}
@@ -212,26 +218,30 @@ export default function HelpScreen() {
                       keyboardType="email-address"
                       autoCapitalize="none"
                       returnKeyType="next"
+                      style={{ color: colors.text }}
+                      placeholderTextColor={colors.textTertiary}
                     />
                   </Input>
                 </VStack>
 
                 {/* Sujet */}
                 <VStack space="xs">
-                  <Text className="text-typography-900 font-medium">{t('help.subjectLabel')}</Text>
-                  <Input variant="outline" size="lg">
+                  <Text className="font-medium" style={{ color: colors.text }}>{t('help.subjectLabel')}</Text>
+                  <Input variant="outline" size="lg" style={{ backgroundColor: colors.background, borderColor: colors.border }}>
                     <InputField
                       placeholder={t('help.subjectPlaceholder')}
                       value={formData.subject}
                       onChangeText={(text) => setFormData({ ...formData, subject: text })}
                       returnKeyType="next"
+                      style={{ color: colors.text }}
+                      placeholderTextColor={colors.textTertiary}
                     />
                   </Input>
                 </VStack>
 
                 {/* Message */}
                 <VStack space="xs">
-                  <Text className="text-typography-900 font-medium">{t('help.messageLabel')}</Text>
+                  <Text className="font-medium" style={{ color: colors.text }}>{t('help.messageLabel')}</Text>
                   <TextInput
                     multiline
                     placeholder={t('help.messagePlaceholder')}
@@ -246,21 +256,23 @@ export default function HelpScreen() {
                       textAlignVertical: 'top',
                       paddingTop: 12,
                       borderWidth: 1,
-                      borderColor: '#e5e7eb',
+                      borderColor: colors.border,
                       borderRadius: 8,
                       padding: 12,
                       fontSize: 16,
-                      backgroundColor: 'white',
+                      backgroundColor: colors.background,
+                      color: colors.text,
                     }}
+                    placeholderTextColor={colors.textTertiary}
                     returnKeyType="done"
                     blurOnSubmit
                   />
                 </VStack>
 
                 {/* Bouton envoyer */}
-                <Button size="lg" action="primary" onPress={handleSubmit} className="mt-2">
+                <Button size="lg" action="primary" onPress={handleSubmit} className="mt-2" style={{ backgroundColor: colors.info }}>
                   <ButtonIcon as={Send} />
-                  <ButtonText>{t('help.sendButton')}</ButtonText>
+                  <ButtonText className="text-white">{t('help.sendButton')}</ButtonText>
                 </Button>
               </VStack>
             </VStack>

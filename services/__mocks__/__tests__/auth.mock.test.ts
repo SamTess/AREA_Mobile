@@ -84,6 +84,7 @@ describe('Mock Authentication Service', () => {
         it('should register a new user successfully', async () => {
             const data = {
                 email: 'newuser@example.com',
+                username: 'newuser',
                 password: 'password123',
                 firstName: 'New',
                 lastName: 'User',
@@ -98,6 +99,7 @@ describe('Mock Authentication Service', () => {
         it('should throw error when email already exists', async () => {
             const data = {
                 email: 'user@example.com', // Already exists
+                username: 'testuser',
                 password: 'password123',
                 firstName: 'Test',
                 lastName: 'User',
@@ -111,6 +113,7 @@ describe('Mock Authentication Service', () => {
         it('should throw error with weak password', async () => {
             const data = {
                 email: 'new@example.com',
+                username: 'newuser',
                 password: '123', // Too short
                 firstName: 'Test',
                 lastName: 'User',
@@ -124,6 +127,7 @@ describe('Mock Authentication Service', () => {
         it('should throw error with missing email', async () => {
             const data = {
                 email: '',
+                username: 'testuser',
                 password: 'password123',
                 firstName: 'Test',
                 lastName: 'User',
@@ -137,6 +141,7 @@ describe('Mock Authentication Service', () => {
         it('should use default name if not provided', async () => {
             const data = {
                 email: 'noname@example.com',
+                username: 'noname',
                 password: 'password123',
             };
 
@@ -149,6 +154,7 @@ describe('Mock Authentication Service', () => {
             // Register
             const registerData = {
                 email: 'newuser@example.com',
+                username: 'newuser',
                 password: 'password123',
                 firstName: 'New',
                 lastName: 'User',
@@ -202,6 +208,7 @@ describe('Mock Authentication Service', () => {
             await mockRegister(
                 {
                     email: 'temp@example.com',
+                    username: 'tempuser',
                     password: 'password123',
                     firstName: 'Temp',
                     lastName: 'User',

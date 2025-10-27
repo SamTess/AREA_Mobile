@@ -9,8 +9,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
+  register: (email: string, password: string, firstName: string, lastName: string, username: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
   clearError: () => void;
@@ -48,12 +48,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (identifier: string, password: string) => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await authService.login({ email, password });
+      const isEmail = identifier.includes('@');
+      const credentials = isEmail
+        ? { email: identifier, password }
+        : { username: identifier, password };
+
+      const response = await authService.login(credentials);
 
       if (response.user) {
         setUser(response.user);
@@ -68,13 +73,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const register = async (email: string, password: string, firstName: string, lastName: string) => {
+  const register = async (email: string, password: string, firstName: string, lastName: string, username: string) => {
     try {
       setIsLoading(true);
       setError(null);
 
       const response = await authService.register({
         email,
+        username,
         password,
         firstName,
         lastName,

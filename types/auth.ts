@@ -5,7 +5,10 @@
 export interface User {
   id: string;
   email: string;
+  username?: string;
   name?: string;
+  firstname?: string;
+  lastname?: string;
   isActive?: boolean;
   isAdmin?: boolean;
   createdAt?: string;
@@ -18,13 +21,14 @@ export interface AuthResponse {
   user: User | null;
 }
 
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
+export type LoginCredentials =
+  | { email: string; username?: never; password: string }
+  | { username: string; email?: never; password: string }
+  | { email: string; username: string; password: string };
 
 export interface RegisterData {
   email: string;
+  username: string;
   password: string;
   firstName?: string;
   lastName?: string;

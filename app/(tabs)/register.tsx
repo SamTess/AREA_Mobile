@@ -11,13 +11,16 @@ import { EyeIcon, EyeOffIcon, UserPlus } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export default function RegisterScreen() {
     const { t } = useTranslation();
     const { register, isLoading, clearError } = useAuth();
     const router = useRouter();
+    const colors = useThemeColors();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -25,6 +28,7 @@ export default function RegisterScreen() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [firstNameError, setFirstNameError] = useState('');
     const [lastNameError, setLastNameError] = useState('');
+    const [usernameError, setUsernameError] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
@@ -45,6 +49,7 @@ export default function RegisterScreen() {
     const handleRegister = async () => {
         setFirstNameError('');
         setLastNameError('');
+        setUsernameError('');
         setEmailError('');
         setPasswordError('');
         setConfirmPasswordError('');
@@ -65,6 +70,17 @@ export default function RegisterScreen() {
             hasError = true;
         } else if (lastName.length < 2) {
             setLastNameError(t('register.lastNameTooShort') || 'Last name is too short');
+            hasError = true;
+        }
+
+        if (!username) {
+            setUsernameError(t('register.usernameRequired') || 'Username is required');
+            hasError = true;
+        } else if (username.length < 3) {
+            setUsernameError(t('register.usernameTooShort') || 'Username must be at least 3 characters');
+            hasError = true;
+        } else if (username.length > 50) {
+            setUsernameError(t('register.usernameTooLong') || 'Username must not exceed 50 characters');
             hasError = true;
         }
 
@@ -97,7 +113,7 @@ export default function RegisterScreen() {
         }
 
         try {
-            await register(email, password, firstName, lastName);
+            await register(email, password, firstName, lastName, username);
             Alert.alert(
                 t('register.successTitle') || 'Inscription réussie',
                 t('register.successMessage') || 'Votre compte a été créé avec succès',
@@ -118,38 +134,38 @@ export default function RegisterScreen() {
     };
 
     return (
-        <ScrollView className="flex-1 bg-background-50">
+        <ScrollView className="flex-1" style={{ backgroundColor: colors.backgroundSecondary }}>
             <Box className="flex-1 justify-center py-8">
                 <VStack space="2xl" className="w-full max-w-md mx-auto px-6">
                     {/* Registration card with background */}
-                    <Box className="bg-background-0 rounded-2xl shadow-lg p-8">
+                    <Box className="rounded-2xl shadow-lg p-8" style={{ backgroundColor: colors.card }}>
                         {/* Top icon */}
                         <Center className="mb-6">
-                            <Box className="w-20 h-20 rounded-full bg-primary-100 items-center justify-center">
-                                <UserPlus size={40} color="#333333" strokeWidth={2} />
+                            <Box className="w-20 h-20 rounded-full items-center justify-center" style={{ backgroundColor: `${colors.info}20` }}>
+                                <UserPlus size={40} color={colors.info} strokeWidth={2} />
                             </Box>
                         </Center>
 
                         {/* Header */}
                         <VStack space="md" className="items-center mb-8">
-                            <Heading size="4xl" className="text-center text-primary-500">
+                            <Heading size="4xl" className="text-center" style={{ color: colors.info }}>
                                 {t('register.title')}
                             </Heading>
-                            <Text size="md" className="text-typography-600 text-center">
+                            <Text size="md" className="text-center" style={{ color: colors.textSecondary }}>
                                 {t('register.subtitle')}
                             </Text>
                         </VStack>
 
                         <VStack space="xl">
                             <VStack space="xs">
-                                <Text size="sm" bold className="text-typography-900 mb-1">
+                                <Text size="sm" bold className="mb-1" style={{ color: colors.text }}>
                                     {t('register.firstNameLabel') || 'First Name'}
                                 </Text>
                                 <Input
                                     variant="outline"
                                     size="lg"
                                     isInvalid={!!firstNameError}
-                                    className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
+                                    className="rounded-lg" style={{ backgroundColor: colors.background, borderColor: colors.border }}
                                 >
                                     <InputField
                                         placeholder={t('register.firstNamePlaceholder') || 'Enter your first name'}
@@ -160,29 +176,31 @@ export default function RegisterScreen() {
                                         }}
                                         autoCapitalize="words"
                                         autoCorrect={false}
+                                        style={{ color: colors.text }}
+                                        placeholderTextColor={colors.textTertiary}
                                     />
                                 </Input>
                                 {firstNameError ? (
                                     <Box className="flex-row items-center mt-1">
-                                        <Text size="xs" className="text-error-600 ml-1">
+                                        <Text size="xs" className="ml-1" style={{ color: colors.error }}>
                                             {firstNameError}
                                         </Text>
                                     </Box>
                                 ) : (
-                                    <Text size="xs" className="text-typography-500 ml-1 mt-1">
+                                    <Text size="xs" className="ml-1 mt-1" style={{ color: colors.textSecondary }}>
                                         {t('register.firstNameHelper') || 'Your first name'}
                                     </Text>
                                 )}
                             </VStack>
                             <VStack space="xs">
-                                <Text size="sm" bold className="text-typography-900 mb-1">
+                                <Text size="sm" bold className="mb-1" style={{ color: colors.text }}>
                                     {t('register.lastNameLabel') || 'Last Name'}
                                 </Text>
                                 <Input
                                     variant="outline"
                                     size="lg"
                                     isInvalid={!!lastNameError}
-                                    className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
+                                    className="rounded-lg" style={{ backgroundColor: colors.background, borderColor: colors.border }}
                                 >
                                     <InputField
                                         placeholder={t('register.lastNamePlaceholder') || 'Enter your last name'}
@@ -197,27 +215,61 @@ export default function RegisterScreen() {
                                 </Input>
                                 {lastNameError ? (
                                     <Box className="flex-row items-center mt-1">
-                                        <Text size="xs" className="text-error-600 ml-1">
+                                        <Text size="xs" className="ml-1" style={{ color: colors.error }}>
                                             {lastNameError}
                                         </Text>
                                     </Box>
                                 ) : (
-                                    <Text size="xs" className="text-typography-500 ml-1 mt-1">
+                                    <Text size="xs" className="ml-1 mt-1" style={{ color: colors.textSecondary }}>
                                         {t('register.lastNameHelper') || 'Your last name'}
+                                    </Text>
+                                )}
+                            </VStack>
+
+                            <VStack space="xs">
+                                <Text size="sm" bold className="mb-1" style={{ color: colors.text }}>
+                                    {'Username'}
+                                </Text>
+                                <Input
+                                    variant="outline"
+                                    size="lg"
+                                    isInvalid={!!usernameError}
+                                    className="rounded-lg" style={{ backgroundColor: colors.background, borderColor: colors.border }}
+                                >
+                                    <InputField
+                                        placeholder={'Choose a username'}
+                                        value={username}
+                                        onChangeText={(text) => {
+                                            setUsername(text);
+                                            setUsernameError('');
+                                        }}
+                                        autoCapitalize="none"
+                                        autoCorrect={false}
+                                    />
+                                </Input>
+                                {usernameError ? (
+                                    <Box className="flex-row items-center mt-1">
+                                        <Text size="xs" className="ml-1" style={{ color: colors.error }}>
+                                            {usernameError}
+                                        </Text>
+                                    </Box>
+                                ) : (
+                                    <Text size="xs" className="ml-1 mt-1" style={{ color: colors.textSecondary }}>
+                                        {t('register.usernameHelper') || 'At least 3 characters'}
                                     </Text>
                                 )}
                             </VStack>
 
                             {/* Email Field */}
                             <VStack space="xs">
-                                <Text size="sm" bold className="text-typography-900 mb-1">
+                                <Text size="sm" bold className="mb-1" style={{ color: colors.text }}>
                                     {t('register.emailLabel')}
                                 </Text>
                                 <Input
                                     variant="outline"
                                     size="lg"
                                     isInvalid={!!emailError}
-                                    className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
+                                    className="rounded-lg" style={{ backgroundColor: colors.background, borderColor: colors.border }}
                                 >
                                     <InputField
                                         placeholder={t('register.emailPlaceholder')}
@@ -233,26 +285,26 @@ export default function RegisterScreen() {
                                 </Input>
                                 {emailError ? (
                                     <Box className="flex-row items-center mt-1">
-                                        <Text size="xs" className="text-error-600 ml-1">
+                                        <Text size="xs" className="ml-1" style={{ color: colors.error }}>
                                             {emailError}
                                         </Text>
                                     </Box>
                                 ) : (
-                                    <Text size="xs" className="text-typography-500 ml-1 mt-1">
+                                    <Text size="xs" className="ml-1 mt-1" style={{ color: colors.textSecondary }}>
                                         {t('register.emailHelper')}
                                     </Text>
                                 )}
                             </VStack>
 
                             <VStack space="xs">
-                                <Text size="sm" bold className="text-typography-900 mb-1">
+                                <Text size="sm" bold className="mb-1" style={{ color: colors.text }}>
                                     {t('register.passwordLabel')}
                                 </Text>
                                 <Input
                                     variant="outline"
                                     size="lg"
                                     isInvalid={!!passwordError}
-                                    className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
+                                    className="rounded-lg" style={{ backgroundColor: colors.background, borderColor: colors.border }}
                                 >
                                     <InputField
                                         type={showPassword ? 'text' : 'password'}
@@ -268,32 +320,32 @@ export default function RegisterScreen() {
                                     <InputSlot className="pr-3" onPress={handleShowPassword}>
                                         <InputIcon
                                             as={showPassword ? EyeIcon : EyeOffIcon}
-                                            className="text-typography-500"
+                                            style={{ color: colors.textSecondary }}
                                         />
                                     </InputSlot>
                                 </Input>
                                 {passwordError ? (
                                     <Box className="flex-row items-center mt-1">
-                                        <Text size="xs" className="text-error-600 ml-1">
+                                        <Text size="xs" className="ml-1" style={{ color: colors.error }}>
                                             {passwordError}
                                         </Text>
                                     </Box>
                                 ) : (
-                                    <Text size="xs" className="text-typography-500 ml-1 mt-1">
+                                    <Text size="xs" className="ml-1 mt-1" style={{ color: colors.textSecondary }}>
                                         {t('register.passwordHelper')}
                                     </Text>
                                 )}
                             </VStack>
 
                             <VStack space="xs">
-                                <Text size="sm" bold className="text-typography-900 mb-1">
+                                <Text size="sm" bold className="mb-1" style={{ color: colors.text }}>
                                     {t('register.confirmPasswordLabel')}
                                 </Text>
                                 <Input
                                     variant="outline"
                                     size="lg"
                                     isInvalid={!!confirmPasswordError}
-                                    className="border-outline-300 bg-background-0 focus:border-primary-500 rounded-lg"
+                                    className="rounded-lg" style={{ backgroundColor: colors.background, borderColor: colors.border }}
                                 >
                                     <InputField
                                         type={showConfirmPassword ? 'text' : 'password'}
@@ -309,18 +361,18 @@ export default function RegisterScreen() {
                                     <InputSlot className="pr-3" onPress={handleShowConfirmPassword}>
                                         <InputIcon
                                             as={showConfirmPassword ? EyeIcon : EyeOffIcon}
-                                            className="text-typography-500"
+
                                         />
                                     </InputSlot>
                                 </Input>
                                 {confirmPasswordError ? (
                                     <Box className="flex-row items-center mt-1">
-                                        <Text size="xs" className="text-error-600 ml-1">
+                                        <Text size="xs" className="ml-1" style={{ color: colors.error }}>
                                             {confirmPasswordError}
                                         </Text>
                                     </Box>
                                 ) : (
-                                    <Text size="xs" className="text-typography-500 ml-1 mt-1">
+                                    <Text size="xs" className="ml-1 mt-1" style={{ color: colors.textSecondary }}>
                                         {t('register.confirmPasswordHelper')}
                                     </Text>
                                 )}
@@ -330,7 +382,7 @@ export default function RegisterScreen() {
                                 size="lg"
                                 onPress={handleRegister}
                                 isDisabled={isLoading}
-                                className="mt-6 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 rounded-lg shadow-md"
+                                className="mt-6 rounded-lg shadow-md" style={{ backgroundColor: colors.info }}
                             >
                                 {isLoading ? (
                                     <ActivityIndicator testID="activity-indicator" color="white" />
@@ -344,12 +396,12 @@ export default function RegisterScreen() {
                     </Box>
 
                     <Box className="items-center mt-4">
-                        <Text size="sm" className="text-typography-600">
+                        <Text size="sm" style={{ color: colors.textSecondary }}>
                             {t('register.hasAccount')}{' '}
                             <Text
                                 size="sm"
                                 bold
-                                className="text-primary-500"
+                                style={{ color: colors.info }}
                                 onPress={() => router.push('/(tabs)/login')}
                             >
                                 {t('register.signIn')}
