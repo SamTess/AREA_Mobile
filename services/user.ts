@@ -171,3 +171,36 @@ export async function getUserById(userId: string): Promise<User> {
     throw error;
   }
 }
+
+export async function deleteAccount(): Promise<void> {
+  if (USE_MOCK) {
+    await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY));
+    await saveUserData('');
+    return;
+  }
+
+  try {
+    const existingDataStr = await getUserData();
+    const existingData = existingDataStr ? JSON.parse(existingDataStr) : null;
+    if (!existingData || !existingData.id) {
+      throw new Error('No user is currently logged in');
+    }
+
+    const baseUrl = await getApiUrl();
+    const response = await fetch(`${baseUrl}/api/users/${encodeURIComponent(existingData.id)}`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || 'Failed to delete account');
+    }
+
+    await saveUserData('');
+  } catch (error) {
+    console.error('Delete account error:', error);
+    throw error;
+  }
+}
