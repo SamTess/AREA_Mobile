@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { LogOut, ShieldCheck, Edit, Link as LinkIcon } from 'lucide-react-native';
+import { LogOut, ShieldCheck, Edit, Link as LinkIcon, Space, Trash } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, ActivityIndicator } from 'react-native';
@@ -48,7 +48,7 @@ const MenuItem: React.FC<{
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
-  const { user: contextUser, logout } = useAuth();
+  const { user: contextUser, logout, deleteAccount } = useAuth();
   const router = useRouter();
   const { getToken } = useDesignTokens();
   const colors = useThemeColors();
@@ -73,6 +73,36 @@ export default function ProfileScreen() {
       loadUserData();
     }, [])
   );
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      t('profile.deleteAccountTitle', 'Delete Account'),
+      t('profile.deleteAccountConfirmation', 'Are you sure you want to delete your account? This action cannot be undone.'),
+      [
+        {
+          text: t('profile.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('profile.confirm'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteAccount();
+              await logout();
+              router.replace('/(tabs)/login');
+            } catch (error) {
+              console.error('Delete account error:', error);
+              Alert.alert(
+                t('profile.error'),
+                t('profile.deleteAccountError', 'There was an error deleting your account. Please try again later.')
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -249,6 +279,12 @@ export default function ProfileScreen() {
               title={t('profile.logoutTitle')}
               subtitle={t('profile.logoutSubtitle')}
               onPress={handleLogout}
+            />
+            <MenuItem
+              icon={Trash}
+              title={t('profile.deleteAccount', 'Delete Account')}
+              subtitle={t('profile.deleteAccountSubtitle', 'Permanently delete your account')}
+              onPress={handleDeleteAccount}
             />
           </Box>
         </VStack>
