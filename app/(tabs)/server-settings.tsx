@@ -66,6 +66,20 @@ export default function ServerSettingsScreen() {
       return;
     }
 
+    try {
+      const response = await fetch(`${serverUrl}/actuator/health`);
+      if (!response.ok) {
+        throw new Error('Health check failed');
+      }
+    } catch (error) {
+      console.error('Health check error:', error);
+      Alert.alert(
+        t('serverSettings.error', 'Error'),
+        t('serverSettings.healthCheckFailed', 'Server health check failed. Please verify the URL.')
+      );
+      return;
+    }
+
     setIsSaving(true);
     try {
       await saveServerUrl(serverUrl);
