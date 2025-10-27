@@ -72,6 +72,7 @@ export default function ServerSettingsScreen() {
         throw new Error('Health check failed');
       }
     } catch (error) {
+      console.error('Health check error:', error);
       Alert.alert(
         t('serverSettings.error', 'Error'),
         t('serverSettings.healthCheckFailed', 'Server health check failed. Please verify the URL.')
