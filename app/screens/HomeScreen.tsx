@@ -1,381 +1,394 @@
 import { router } from 'expo-router';
-import { Activity, ArrowRight, Bell, Github, Mail, Plus, Zap } from 'lucide-react-native';
-import React, { useState } from 'react';
+import { Activity, ArrowRight, Plus, Zap, TrendingUp, Github, MessageCircle, Music, Mail, FileSpreadsheet } from 'lucide-react-native';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
+import { FlatList, RefreshControl } from 'react-native';
 
-import { ActionReactionItem } from '@/components/ActionReactionItem';
-import { Badge, BadgeText } from '@/components/ui/badge';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
-import { Divider } from '@/components/ui/divider';
 import { Heading } from '@/components/ui/heading';
-import { useDesignTokens } from '@/components/ui/hooks/useDesignTokens';
 import { HStack } from '@/components/ui/hstack';
-import { Icon } from '@/components/ui/icon';
 import { Pressable } from '@/components/ui/pressable';
-import { ScrollView } from '@/components/ui/scroll-view';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-
-interface Service {
-  id: number;
-  name: string;
-  icon: any;
-  color: string;
-  category: string;
-  isConnected: boolean;
-}
-
-interface ActionReactionPair {
-  id: number;
-  actionName: string;
-  reactionName: string;
-  actionIcon: any;
-  reactionIcon: any;
-  actionColor: string;
-  reactionColor: string;
-  isConnected: boolean;
-  actionService: string;
-  reactionService: string;
-}
-
-const ServiceCard: React.FC<{
-  service: Service;
-  onPress: () => void;
-}> = ({ service, onPress }) => {
-  const { t } = useTranslation();
-  const categoryKey = (service.category || '').toLowerCase();
-  const categoryLabel =
-    categoryKey === 'dev' || categoryKey === 'productivity'
-      ? t(`home.category.${categoryKey}` as any)
-      : service.category;
-
-  return (
-    <Pressable onPress={onPress} testID={`service-card-${service.name}`}>
-      <Box
-        className="bg-background-0 rounded-xl p-4 shadow-soft-1 border border-outline-100 mr-3"
-        style={{ width: 140 }}
-      >
-        <VStack space="sm" className="items-center">
-          <Box
-            className="w-14 h-14 rounded-full items-center justify-center"
-            style={{ backgroundColor: service.color + '20' }}
-          >
-            <Icon as={service.icon} size="xl" style={{ color: service.color }} />
-          </Box>
-          <VStack space="xs" className="items-center">
-            <Text size="sm" className="text-typography-900 font-semibold text-center">
-              {service.name}
-            </Text>
-            <Badge size="sm" variant="outline" action="muted">
-              <BadgeText className="text-xs">{categoryLabel}</BadgeText>
-            </Badge>
-          </VStack>
-          {service.isConnected && (
-            <Badge size="sm" variant="solid" action="success">
-              <BadgeText className="text-xs">{t('actionReaction.connected')}</BadgeText>
-            </Badge>
-          )}
-        </VStack>
-      </Box>
-    </Pressable>
-  );
-};
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { useArea } from '@/contexts/AreaContext';
+import { AreaListCard } from '@/components/ui/areas/AreaListCard';
+import * as areaService from '@/services/area';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
-  const { getToken } = useDesignTokens();
+  const colors = useThemeColors();
+  const { areas, isRefreshing, refreshAreas, fetchAreas, hasFetched, deleteArea, toggleArea } = useArea();
+  const activeCount = areas.filter((area) => area.enabled).length;
+  const totalCount = areas.length;
+  const recentAreas = React.useMemo(() => {
+    return [...areas]
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .slice(0, 5);
+  }, [areas]);
 
-  // Services disponibles avec leur état de connexion
-  const [services, setServices] = useState<Service[]>([
-    { id: 1, name: 'GitHub', icon: Github, color: '#181717', category: 'Dev', isConnected: false },
-    { id: 2, name: 'Microsoft', icon: Mail, color: '#00A4EF', category: 'Productivity', isConnected: false },
-    { id: 3, name: 'Google', icon: Mail, color: '#EA4335', category: 'Productivity', isConnected: false },
-  ]);
+  const handleRefresh = useCallback(() => {
+    refreshAreas().catch((err: unknown) => console.error(t('areas.error.refresh', 'Failed to refresh areas'), err));
+  }, [refreshAreas, t]);
 
-  // Exemples d'Action-Réaction pairs (pour démonstration)
-  const [actionReactionPairs, setActionReactionPairs] = useState<ActionReactionPair[]>([
-    {
-      id: 1,
-      actionName: t('actionReaction.githubAction'),
-      reactionName: t('actionReaction.microsoftReaction'),
-      actionIcon: Github,
-      reactionIcon: Mail,
-      actionColor: '#181717',
-      reactionColor: '#00A4EF',
-      isConnected: false,
-      actionService: 'GitHub',
-      reactionService: 'Microsoft',
-    },
-    {
-      id: 2,
-      actionName: t('actionReaction.googleAction'),
-      reactionName: t('actionReaction.githubReaction'),
-      actionIcon: Mail,
-      reactionIcon: Github,
-      actionColor: '#EA4335',
-      reactionColor: '#181717',
-      isConnected: false,
-      actionService: 'Google',
-      reactionService: 'GitHub',
-    },
-  ]);
-
-  const handleServicePress = (serviceId: number) => {
-    router.push('/connected-services'); // Page de configuration du service
-  };
-
-  const handleConnectService = (pairId: number) => {
-    // Mettre à jour l'état de connexion de l'action-réaction
-    setActionReactionPairs((prev) =>
-      prev.map((pair) =>
-        pair.id === pairId ? { ...pair, isConnected: !pair.isConnected } : pair
-      )
-    );
-
-    // Mettre à jour aussi l'état des services correspondants
-    const pair = actionReactionPairs.find((p) => p.id === pairId);
-    if (pair) {
-      setServices((prev) =>
-        prev.map((service) =>
-          service.name === pair.actionService || service.name === pair.reactionService
-            ? { ...service, isConnected: true }
-            : service
-        )
-      );
-    }
-  };
-
-  const handleActionReactionPress = (pairId: number) => {
-    router.push('/area-editor'); // Page de détails de l'automation
+  const handleAreaPress = (areaId: string) => {
+    router.push(`/area-editor?id=${areaId}`);
   };
 
   const handleCreateNew = () => {
-    router.push('/area-editor'); // Page de création d'automation
+    router.push('/area-editor');
   };
 
-  const connectedCount = actionReactionPairs.filter((p) => p.isConnected).length;
-  const totalCount = actionReactionPairs.length;
+  const handleSeeAllAreas = () => {
+    router.push('/(tabs)/areas');
+  };
+
+  const handleDeleteArea = async (areaId: string) => {
+    try {
+      await deleteArea(areaId);
+    } catch (err) {
+      console.error('Failed to delete area:', err);
+    }
+  };
+
+  const handleRunArea = async (areaId: string) => {
+    try {
+      await areaService.runArea(areaId);
+      console.log('Area triggered successfully');
+    } catch (err) {
+      console.error('Failed to run area:', err);
+    }
+  };
+
+  const handleToggleArea = async (areaId: string, enabled: boolean) => {
+    try {
+      await toggleArea(areaId, enabled);
+    } catch (err) {
+      console.error('Failed to toggle area:', err);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!hasFetched) {
+        fetchAreas().catch((err: unknown) => console.error(t('areas.error.fetch', 'Failed to load areas'), err));
+      }
+    }, [hasFetched, fetchAreas, t])
+  );
 
   return (
-    <SafeAreaView className="flex-1 bg-background-50">
-      <ScrollView
-        className="flex-1"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      >
-        {/* Header */}
-        <Box className="px-6 py-4">
-          <Heading size="2xl" className="text-typography-900 mb-2">
-            {t('home.greeting')}
-          </Heading>
-          <Text size="md" className="text-typography-600">
-            {t('home.subtitle')}
-          </Text>
-        </Box>
-
-        {/* Stats Cards */}
-        <HStack space="md" className="px-6 mb-6">
-          <Box className="flex-1 bg-primary-600 rounded-xl p-4">
+    <SafeAreaView className="flex-1 bg-background-0">
+      <Box className="px-4 pt-4 pb-6" style={{ backgroundColor: colors.info }}>
+        <VStack space="sm" className="mb-4">
+          <HStack className="items-center" space="sm">
+            <Box className="bg-white rounded-lg p-2">
+              <Zap size={24} color={colors.info} />
+            </Box>
+            <VStack className="flex-1">
+              <Heading size="xl" className="text-white">
+                {t('tabs.home')}
+              </Heading>
+              <Text className="text-white text-sm opacity-90">
+                {t('home.subtitle')}
+              </Text>
+            </VStack>
+          </HStack>
+        </VStack>
+        <HStack space="sm">
+          <Box className="flex-1 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
             <VStack space="xs">
               <HStack space="xs" align="center">
-                <Icon as={Zap} size="sm" className="text-primary-50" />
-                <Text size="xs" className="text-primary-100 font-semibold">
-                  {t('home.activesLabel')}
+                <Zap size={18} color="white" />
+                <Text size="xs" className="text-white font-semibold uppercase">
+                  {t('areas.card.active')}
                 </Text>
               </HStack>
-              <Heading size="2xl" className="text-typography-0">
-                {connectedCount}
+              <Heading size="2xl" className="text-white">
+                {activeCount}
               </Heading>
-              <Text size="xs" className="text-primary-100">
-                {t('home.automationsInProgress')}
+              <Text size="xs" className="text-white opacity-80">
+                {activeCount === 1
+                  ? t('areas.card.enabled', 'Enabled')
+                  : t('home.automationsInProgress')}
               </Text>
             </VStack>
           </Box>
-
-          <Box className="flex-1 bg-success-600 rounded-xl p-4">
+          <Box className="flex-1 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
             <VStack space="xs">
               <HStack space="xs" align="center">
-                <Icon as={Activity} size="sm" className="text-success-50" />
-                <Text size="xs" className="text-success-100 font-semibold">
+                <Activity size={18} color="white" />
+                <Text size="xs" className="text-white font-semibold uppercase">
                   {t('home.totalLabel')}
                 </Text>
               </HStack>
-              <Heading size="2xl" className="text-typography-0">
+              <Heading size="2xl" className="text-white">
                 {totalCount}
               </Heading>
-              <Text size="xs" className="text-success-100">
-                {'AREAS'}
+              <Text size="xs" className="text-white opacity-80">
+                {totalCount === 1
+                  ? t('tabs.areas', 'Area')
+                  : t('tabs.areas', 'Areas')}
               </Text>
             </VStack>
           </Box>
         </HStack>
-
-        {/* Mes Action-Réactions */}
-        <VStack className="gap-4 px-6 mb-6">
-          <HStack justify="between" align="center">
-            <Heading size="lg" className="text-typography-900">
-              {t('home.myAutomationsTitle')}
-            </Heading>
-            <Badge size="sm" variant="solid" action="info">
-              <BadgeText>{actionReactionPairs.length}</BadgeText>
-            </Badge>
-          </HStack>
-
-          {actionReactionPairs.length === 0 ? (
-            <Box className="bg-background-0 rounded-xl p-8 border-2 border-dashed border-outline-200">
-              <VStack space="md" className="items-center">
-                <Box className="w-16 h-16 bg-primary-50 rounded-full items-center justify-center">
-                  <Icon as={Zap} size="xl" className="text-primary-600" />
-                </Box>
-                <VStack space="xs" className="items-center">
-                  <Heading size="sm" className="text-typography-900 text-center">
-                    {t('home.noAutomationsTitle')}
+      </Box>
+      <FlatList
+        data={recentAreas}
+        keyExtractor={(item) => item.id}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.info}
+          />
+        }
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingBottom: 16,
+        }}
+        ListHeaderComponent={
+          <>
+            <VStack space="md" className="mt-4 mb-4">
+              <HStack justify="between" align="center">
+                <VStack>
+                  <Heading size="lg" style={{ color: colors.text }}>
+                    {totalCount > 0
+                      ? t('areas.header.subtitle', 'Recent Areas')
+                      : t('areas.empty.title')}
                   </Heading>
-                  <Text size="sm" className="text-typography-600 text-center">
-                    {t('home.noAutomationsDesc')}
-                  </Text>
+                  {totalCount > 0 && (
+                    <Text size="xs" style={{ color: colors.textSecondary }}>
+                      {recentAreas.length} {t('areas.results.showing', 'most recent')}
+                    </Text>
+                  )}
                 </VStack>
-              </VStack>
-            </Box>
-          ) : (
-            <VStack space="md">
-              {actionReactionPairs.map((pair) => (
-                <ActionReactionItem
-                  key={pair.id}
-                  actionName={pair.actionName}
-                  reactionName={pair.reactionName}
-                  actionIcon={pair.actionIcon}
-                  reactionIcon={pair.reactionIcon}
-                  actionColor={pair.actionColor}
-                  reactionColor={pair.reactionColor}
-                  isConnected={pair.isConnected}
-                  onConnect={() => handleConnectService(pair.id)}
-                  onPress={() => handleActionReactionPress(pair.id)}
-                />
-              ))}
+                {totalCount > 0 && (
+                  <Button variant="link" size="sm" onPress={handleSeeAllAreas}>
+                    <ButtonText style={{ color: colors.info }}>{t('home.seeAll')}</ButtonText>
+                    <ButtonIcon as={ArrowRight} color={colors.info} size="sm" />
+                  </Button>
+                )}
+              </HStack>
+              {totalCount === 0 && (
+                <Box
+                  className="rounded-xl p-8 border-2 border-dashed"
+                  style={{
+                    backgroundColor: colors.card,
+                    borderColor: colors.cardBorder,
+                  }}
+                >
+                  <VStack space="md" className="items-center">
+                    <Box
+                      className="w-16 h-16 rounded-full items-center justify-center"
+                      style={{ backgroundColor: colors.info + '20' }}
+                    >
+                      <Zap size={48} color={colors.info} />
+                    </Box>
+                    <VStack space="xs" className="items-center">
+                      <Heading size="md" style={{ color: colors.text }} className="text-center">
+                        {t('areas.empty.title')}
+                      </Heading>
+                      <Text size="sm" style={{ color: colors.textSecondary }} className="text-center px-8">
+                        {t('areas.empty.description')}
+                      </Text>
+                    </VStack>
+                    <Button
+                      size="md"
+                      onPress={handleCreateNew}
+                      style={{ backgroundColor: colors.info }}
+                      className="mt-4"
+                    >
+                      <ButtonIcon as={Plus} color="white" />
+                      <ButtonText className="text-white">
+                        {t('areas.empty.action')}
+                      </ButtonText>
+                    </Button>
+                  </VStack>
+                </Box>
+              )}
             </VStack>
-          )}
-        </VStack>
-
-        <Divider className="my-4" />
-
-        {/* Services Disponibles */}
-        <VStack className="gap-4 mb-6">
-          <HStack justify="between" align="center" className="px-6">
-            <Heading size="lg" className="text-typography-900">
-              {t('home.servicesTitle')}
-            </Heading>
-            <Button variant="link" size="sm" onPress={() => router.push('/connected-services')}>
-              <ButtonText className="text-primary-600">{t('home.seeAll')}</ButtonText>
-              <ButtonIcon as={ArrowRight} className="text-primary-600" size="sm" />
-            </Button>
-          </HStack>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingLeft: 24,
-              paddingRight: 24,
-            }}
-            decelerationRate="fast"
-          >
-            <HStack space="md">
-              {services.map((service) => (
-                <ServiceCard
-                  key={service.id}
-                  service={service}
-                  onPress={() => handleServicePress(service.id)}
-                />
-              ))}
-            </HStack>
-          </ScrollView>
-        </VStack>
-
-        {/* CTA - Créer nouvelle automation */}
-        <Box className="px-6">
-          <Box className="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-xl p-6 shadow-soft-2">
-            <VStack space="md">
-              <VStack space="sm">
-                <HStack space="sm" align="center">
-                  <Icon as={Plus} size="lg" className="text-typography-0" />
-                  <Heading size="lg" className="text-typography-0">
-                    {t('home.createAutomationTitle')}
-                  </Heading>
-                </HStack>
-                <Text size="md" className="text-primary-100">
-                  {t('home.createAutomationSubtitle')}
-                </Text>
-              </VStack>
-              <Button
-                variant="solid"
-                size="lg"
-                className="bg-background-0 self-start"
-                onPress={handleCreateNew}
-                testID="btn-create-automation"
-              >
-                <ButtonIcon as={Plus} className="text-primary-600" />
-                <ButtonText className="text-primary-600 font-semibold">
-                  {t('home.createAutomationButton')}
-                </ButtonText>
-              </Button>
-            </VStack>
-          </Box>
-        </Box>
-
-        {/* Templates populaires */}
-        <VStack className="gap-4 px-6 mt-6">
-          <Heading size="lg" className="text-typography-900">
-            {t('home.popularTemplatesTitle')}
-          </Heading>
-
-          <VStack space="sm">
-            {[
-              { title: t('home.template1Title'), desc: t('home.template1Desc'), icon: Github },
-              { title: t('home.template2Title'), desc: t('home.template2Desc'), icon: Bell },
-              { title: t('home.template3Title'), desc: t('home.template3Desc'), icon: Github },
-            ].map((template, idx) => (
-              <Pressable key={idx} onPress={handleCreateNew}>
-                <Box className="bg-background-0 rounded-lg p-4 border border-outline-100">
+          </>
+        }
+        ListFooterComponent={
+          totalCount > 0 ? (
+            <VStack space="md" className="mt-4">
+              {totalCount > 5 && (
+                <Box
+                  className="rounded-xl p-4 border"
+                  style={{
+                    backgroundColor: colors.card,
+                    borderColor: colors.info,
+                  }}
+                >
                   <HStack justify="between" align="center">
                     <HStack space="md" align="center" className="flex-1">
-                      <Box className="w-10 h-10 bg-primary-50 rounded-full items-center justify-center">
-                        <Icon as={template.icon} size="md" className="text-primary-600" />
+                      <Box
+                        className="w-10 h-10 rounded-full items-center justify-center"
+                        style={{ backgroundColor: colors.info + '20' }}
+                      >
+                        <TrendingUp size={20} color={colors.info} />
                       </Box>
                       <VStack className="flex-1">
-                        <Text size="sm" className="text-typography-900 font-semibold">
-                          {template.title}
+                        <Text size="sm" style={{ color: colors.text }} className="font-semibold">
+                          {t('home.seeAll')}
                         </Text>
-                        <Text size="xs" className="text-typography-600">
-                          {template.desc}
+                        <Text size="xs" style={{ color: colors.textSecondary }}>
+                          {t('areas.results.count', {
+                            count: totalCount,
+                            total: totalCount,
+                            defaultValue: `View all ${totalCount} areas`
+                          })}
                         </Text>
                       </VStack>
                     </HStack>
-                    <Icon as={ArrowRight} size="md" className="text-typography-400" />
+                    <Button
+                      size="sm"
+                      variant="solid"
+                      onPress={handleSeeAllAreas}
+                      style={{ backgroundColor: colors.info }}
+                    >
+                      <ButtonText className="text-white text-xs">
+                        {t('home.seeAll')}
+                      </ButtonText>
+                      <ButtonIcon as={ArrowRight} color="white" size="xs" />
+                    </Button>
                   </HStack>
                 </Box>
-              </Pressable>
-            ))}
-          </VStack>
-        </VStack>
-      </ScrollView>
-
-      {/* FAB - Bouton d'action flottant */}
+              )}
+              <Box
+                className="rounded-xl p-6 shadow-sm"
+                style={{ backgroundColor: colors.info }}
+              >
+                <VStack space="md">
+                  <VStack space="sm">
+                    <HStack space="sm" align="center">
+                      <Plus size={24} color="white" />
+                      <Heading size="lg" className="text-white">
+                        {t('areas.header.newButton')}
+                      </Heading>
+                    </HStack>
+                    <Text size="sm" className="text-white opacity-90">
+                      {t('areas.header.subtitle')}
+                    </Text>
+                  </VStack>
+                  <Button
+                    variant="solid"
+                    size="lg"
+                    className="bg-white self-start"
+                    onPress={handleCreateNew}
+                    testID="btn-create-automation"
+                  >
+                    <ButtonIcon as={Plus} color={colors.info} />
+                    <ButtonText style={{ color: colors.info }} className="font-semibold">
+                      {t('areas.empty.action')}
+                    </ButtonText>
+                  </Button>
+                </VStack>
+              </Box>
+              <VStack space="sm">
+                <HStack justify="between" align="center">
+                  <Heading size="md" style={{ color: colors.text }}>
+                    {t('home.popularTemplatesTitle')}
+                  </Heading>
+                </HStack>
+                <Text size="xs" style={{ color: colors.textSecondary }}>
+                  {t('home.createAutomationSubtitle')}
+                </Text>
+                {[
+                  {
+                    title: t('home.template1Title'),
+                    desc: t('home.template1Desc'),
+                    icon: Github,
+                    iconColor: '#585555ff',
+                    accentColor: '#5865F2'
+                  },
+                  {
+                    title: t('home.template2Title'),
+                    desc: t('home.template2Desc'),
+                    icon: Music,
+                    iconColor: '#1DB954',
+                    accentColor: '#E01E5A'
+                  },
+                  {
+                    title: t('home.template3Title'),
+                    desc: t('home.template3Desc'),
+                    icon: Mail,
+                    iconColor: '#EA4335',
+                    accentColor: '#0F9D58'
+                  },
+                ].map((template, idx) => (
+                  <Pressable key={idx} onPress={handleCreateNew}>
+                    <Box
+                      className="rounded-lg p-4 border"
+                      style={{
+                        backgroundColor: colors.card,
+                        borderColor: colors.cardBorder,
+                      }}
+                    >
+                      <HStack justify="between" align="center">
+                        <HStack space="md" align="center" className="flex-1">
+                          <Box
+                            className="w-10 h-10 rounded-full items-center justify-center"
+                            style={{
+                              backgroundColor: template.iconColor + '15',
+                              borderWidth: 1,
+                              borderColor: template.iconColor + '30'
+                            }}
+                          >
+                            <template.icon size={20} color={template.iconColor} />
+                          </Box>
+                          <VStack className="flex-1">
+                            <Text size="sm" style={{ color: colors.text }} className="font-semibold">
+                              {template.title}
+                            </Text>
+                            <Text size="xs" style={{ color: colors.textSecondary }}>
+                              {template.desc}
+                            </Text>
+                          </VStack>
+                        </HStack>
+                        <Box
+                          className="w-8 h-8 rounded-full items-center justify-center"
+                          style={{ backgroundColor: template.accentColor + '15' }}
+                        >
+                          <ArrowRight size={16} color={template.accentColor} />
+                        </Box>
+                      </HStack>
+                    </Box>
+                  </Pressable>
+                ))}
+              </VStack>
+            </VStack>
+          ) : null
+        }
+        renderItem={({ item }) => (
+          <AreaListCard
+            area={item}
+            onPress={() => handleAreaPress(item.id)}
+            onEdit={handleAreaPress}
+            onDelete={handleDeleteArea}
+            onRun={handleRunArea}
+            onToggle={handleToggleArea}
+          />
+        )}
+      />
       <Box className="absolute bottom-6 right-6">
         <Pressable onPress={handleCreateNew}>
           <Box
-            className="w-16 h-16 bg-primary-600 rounded-full items-center justify-center shadow-hard-2"
+            className="w-16 h-16 rounded-full items-center justify-center shadow-lg"
             style={{
-              shadowColor: getToken('primary-600'),
+              backgroundColor: colors.info,
+              shadowColor: colors.info,
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.3,
               shadowRadius: 8,
               elevation: 8,
             }}
           >
-            <Icon as={Plus} size="xl" className="text-typography-0" />
+            <Plus size={28} color="white" />
           </Box>
         </Pressable>
       </Box>
