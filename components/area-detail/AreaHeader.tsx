@@ -43,7 +43,7 @@ export function AreaHeader({
 
   return (
     <Box
-      className="bg-surface px-4 pb-4 border-b border-outline-200 shadow-sm"
+      className="bg-blue-600 px-4 pb-4 border-b border-blue-700 shadow-md"
       style={containerStyle}
     >
       <View className="flex-row items-center justify-between">
@@ -53,7 +53,7 @@ export function AreaHeader({
             className="p-2 mr-2"
             testID="back-button"
           >
-            <Icon as={ArrowLeft} size="xl" className="text-typography-900" />
+            <Icon as={ArrowLeft} size="xl" className="text-white" />
           </TouchableOpacity>
         )}
 
@@ -63,20 +63,22 @@ export function AreaHeader({
               <TextInput
                 value={title}
                 onChangeText={onChangeTitle}
-                className="text-xl font-bold text-typography-900 border-b border-outline-200 pb-1 mb-2"
+                className="text-xl font-bold text-white border-b border-blue-400 pb-1 mb-2"
                 placeholder={t('areaDetail.header.titlePlaceholder')}
+                placeholderTextColor="rgba(255,255,255,0.7)"
               />
               <TextInput
                 value={description}
                 onChangeText={onChangeDescription}
-                className="text-sm text-typography-600 border-b border-outline-200 pb-1"
+                className="text-sm text-white border-b border-blue-400 pb-1"
                 placeholder={t('areaDetail.header.descriptionPlaceholder')}
+                placeholderTextColor="rgba(255,255,255,0.7)"
                 multiline
               />
             </View>
           ) : (
             <View>
-              <Text className="text-xl font-bold text-typography-900">{title}</Text>
+              <Text className="text-xl font-bold text-white">{title}</Text>
             </View>
           )}
         </View>
@@ -84,15 +86,15 @@ export function AreaHeader({
         <View className="flex-row gap-2 ml-4">
           <TouchableOpacity
             onPress={onToggleEditing}
-            className="p-2 bg-primary-500 rounded-full"
+            className="p-2 bg-white rounded-full"
             testID="toggle-edit"
           >
-            <Edit3 size={20} color="white" />
+            <Edit3 size={20} color="#2563EB" />
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={onRequestDelete}
-            className="p-2 bg-error-500 rounded-full"
+            className="p-2 bg-red-500 rounded-full"
             testID="request-delete"
           >
             <Trash2 size={20} color="white" />

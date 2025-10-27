@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { X } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 import type { CardData, ActionDto, ReactionDto } from '@/types/area-detail';
 import type { Service } from '@/types/services';
@@ -22,12 +23,13 @@ type TriggerType = 'cron' | 'webhook' | 'manual';
 
 export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDetailsSheetProps) {
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const [editedCard, setEditedCard] = useState<CardData | null>(null);
   const [name, setName] = useState('');
   const [triggerType, setTriggerType] = useState<TriggerType>('manual');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState('');
   const [cronExpression, setCronExpression] = useState('');
 
@@ -108,7 +110,7 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
     return (
       <VStack space="md" className="mt-4">
         <View>
-          <Text className="text-sm font-semibold mb-2 text-typography-700">
+          <Text className="text-sm font-semibold mb-2" style={{ color: colors.text }}>
             {t('areaDetail.detailsSheet.triggerType')}
           </Text>
           <View className="flex-row gap-2 flex-wrap">
@@ -116,16 +118,17 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
               <TouchableOpacity
                 key={type}
                 onPress={() => setTriggerType(type)}
-                className={`px-4 py-2 rounded-lg border ${
-                  triggerType === type
-                    ? 'bg-primary-500 border-primary-500'
-                    : 'bg-surface border-outline-200'
-                }`}
+                className="px-4 py-2 rounded-lg border"
+                style={{
+                  backgroundColor: triggerType === type ? colors.info : colors.card,
+                  borderColor: triggerType === type ? colors.info : colors.border,
+                }}
               >
                 <Text
-                  className={`text-sm font-medium ${
-                    triggerType === type ? 'text-background-0' : 'text-typography-700'
-                  }`}
+                  className="text-sm font-medium"
+                  style={{
+                    color: triggerType === type ? 'white' : colors.text,
+                  }}
                 >
                   {t(`areaDetail.detailsSheet.triggerTypes.${type}`)}
                 </Text>
@@ -137,7 +140,7 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
         {triggerType === 'webhook' && (
           <>
             <View>
-              <Text className="text-sm font-semibold mb-2 text-typography-700">
+              <Text className="text-sm font-semibold mb-2" style={{ color: colors.text }}>
                 {t('areaDetail.detailsSheet.webhookUrlLabel')}
               </Text>
               <Input variant="outline" size="md">
@@ -150,27 +153,40 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
             </View>
 
             <View>
-              <Text className="text-sm font-semibold mb-2 text-typography-700">
+              <Text className="text-sm font-semibold mb-2" style={{ color: colors.text }}>
                 {t('areaDetail.detailsSheet.serviceOptionalLabel')}
               </Text>
               {loading ? (
-                <ActivityIndicator size="small" color="#6366f1" />
+                <ActivityIndicator size="small" color={colors.info} />
               ) : (
-                <ScrollView className="max-h-40 border border-outline-200 rounded-lg bg-surface">
+                <ScrollView
+                  className="max-h-40 rounded-lg border"
+                  style={{
+                    borderColor: colors.border,
+                    backgroundColor: colors.card,
+                  }}
+                >
                   {services.map((service) => (
                     <TouchableOpacity
                       key={service.id}
                       onPress={() => setSelectedService(service)}
-                      className={`p-3 border-b border-outline-100 ${
-                        selectedService?.id === service.id ? 'bg-primary-50' : 'bg-surface'
-                      }`}
+                      className="p-3"
+                      style={{
+                        backgroundColor: selectedService?.id === service.id
+                          ? colors.info + '20'
+                          : colors.card,
+                        borderBottomWidth: 1,
+                        borderBottomColor: colors.border,
+                      }}
                     >
                       <Text
-                        className={`text-sm ${
-                          selectedService?.id === service.id
-                            ? 'font-semibold text-primary-700'
-                            : 'text-typography-700'
-                        }`}
+                        className="text-sm"
+                        style={{
+                          color: selectedService?.id === service.id
+                            ? colors.info
+                            : colors.text,
+                          fontWeight: selectedService?.id === service.id ? '600' : '400',
+                        }}
                       >
                         {service.name}
                       </Text>
@@ -184,7 +200,7 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
 
         {triggerType === 'cron' && (
           <View>
-            <Text className="text-sm font-semibold mb-2 text-typography-700">
+            <Text className="text-sm font-semibold mb-2" style={{ color: colors.text }}>
               {t('areaDetail.detailsSheet.cronLabel')}
             </Text>
             <Input variant="outline" size="md">
@@ -194,7 +210,7 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
                 placeholder={t('areaDetail.detailsSheet.cronPlaceholder')}
               />
             </Input>
-            <Text className="text-xs text-typography-500 mt-1">
+            <Text className="text-xs mt-1" style={{ color: colors.textSecondary }}>
               {t('areaDetail.detailsSheet.cronHelper')}
             </Text>
           </View>
@@ -207,31 +223,44 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
     return (
       <VStack space="md" className="mt-4">
         <View>
-          <Text className="text-sm font-semibold mb-2 text-typography-700">
+          <Text className="text-sm font-semibold mb-2" style={{ color: colors.text }}>
             {t('areaDetail.detailsSheet.selectServiceLabel')}
           </Text>
           {loading ? (
-            <ActivityIndicator size="small" color="#6366f1" />
+            <ActivityIndicator size="small" color={colors.info} />
           ) : (
-            <ScrollView className="max-h-60 border border-outline-200 rounded-lg bg-surface">
+            <ScrollView
+              className="max-h-60 rounded-lg border"
+              style={{
+                borderColor: colors.border,
+                backgroundColor: colors.card,
+              }}
+            >
               {services.map((service) => (
                 <TouchableOpacity
                   key={service.id}
                   onPress={() => setSelectedService(service)}
-                  className={`flex-row gap-4 justify-between p-3 border-b border-outline-100 ${
-                    selectedService?.id === service.id ? 'bg-primary-50' : 'bg-surface'
-                  }`}
+                  className="flex-row gap-4 justify-between p-3"
+                  style={{
+                    backgroundColor: selectedService?.id === service.id
+                      ? colors.info + '20'
+                      : colors.card,
+                    borderBottomWidth: 1,
+                    borderBottomColor: colors.border,
+                  }}
                 >
                   <Text
-                    className={`text-base ${
-                      selectedService?.id === service.id
-                        ? 'font-semibold text-primary-700'
-                        : 'text-typography-700'
-                    }`}
+                    className="text-base"
+                    style={{
+                      color: selectedService?.id === service.id
+                        ? colors.info
+                        : colors.text,
+                      fontWeight: selectedService?.id === service.id ? '600' : '400',
+                    }}
                   >
                     {service.name}
                   </Text>
-                  <Text className="text-xs text-typography-500 mt-1">
+                  <Text className="text-xs mt-1" style={{ color: colors.textSecondary }}>
                     {t('areaDetail.detailsSheet.authLabel')} {service.auth}
                   </Text>
                 </TouchableOpacity>
@@ -241,12 +270,20 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
         </View>
 
         {selectedService && (
-          <View className="p-3 bg-primary-50 rounded-lg">
-            <Text className="text-sm text-primary-900">
+          <View
+            className="p-3 rounded-lg border"
+            style={{
+              backgroundColor: colors.info + '20',
+              borderColor: colors.info,
+            }}
+          >
+            <Text className="text-sm" style={{ color: colors.text }}>
               {t('areaDetail.detailsSheet.selectedService')}{' '}
-              <Text className="font-semibold text-primary-900">{selectedService.name}</Text>
+              <Text className="font-semibold" style={{ color: colors.info }}>
+                {selectedService.name}
+              </Text>
             </Text>
-            <Text className="text-xs text-primary-700 mt-1">
+            <Text className="text-xs mt-1" style={{ color: colors.textSecondary }}>
               {t('areaDetail.detailsSheet.selectedServiceHelper')}
             </Text>
           </View>
@@ -262,31 +299,43 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <View className="flex-1 bg-background-0">
-        {/* Header */}
-        <View className="flex-row items-center justify-between p-4 border-b border-outline-200 bg-background-0">
-          <Heading size="lg">{t('areaDetail.detailsSheet.title')}</Heading>
+      <View className="flex-1" style={{ backgroundColor: colors.backgroundSecondary }}>
+        <View
+          className="flex-row items-center justify-between p-4 border-b"
+          style={{
+            backgroundColor: colors.info,
+            borderBottomColor: colors.border,
+          }}
+        >
+          <Heading size="lg" className="text-white">
+            {t('areaDetail.detailsSheet.title')}
+          </Heading>
           <TouchableOpacity onPress={onClose}>
-            <X size={24} color="#666" />
+            <X size={24} color="white" />
           </TouchableOpacity>
         </View>
 
-        {/* Content */}
         <ScrollView className="flex-1 p-4">
           {card && (
             <VStack space="lg">
-              {/* Card Type Badge */}
-              <View className="bg-background-100 p-3 rounded-lg">
-                <Text className="text-sm font-semibold text-typography-600 uppercase">
+              <View
+                className="p-3 rounded-lg border"
+                style={{
+                  backgroundColor: colors.info + '20',
+                  borderColor: colors.info,
+                }}
+              >
+                <Text
+                  className="text-sm font-semibold uppercase"
+                  style={{ color: colors.info }}
+                >
                   {card.type === 'action'
                     ? t('areaDetail.detailsSheet.cardType.action')
                     : t('areaDetail.detailsSheet.cardType.reaction')}
                 </Text>
               </View>
-
-              {/* Name Input */}
               <View>
-                <Text className="text-sm font-semibold mb-2 text-typography-700">
+                <Text className="text-sm font-semibold mb-2" style={{ color: colors.text }}>
                   {t('areaDetail.detailsSheet.nameLabel')}
                 </Text>
                 <Input variant="outline" size="md">
@@ -297,30 +346,36 @@ export function CardDetailsSheet({ visible, card, onClose, onCardEdit }: CardDet
                   />
                 </Input>
               </View>
-
-              {/* Type-specific Settings */}
               {card.type === 'action' ? renderActionSettings() : renderReactionSettings()}
             </VStack>
           )}
         </ScrollView>
-
-        {/* Footer */}
-        <View className="p-4 border-t border-outline-200 bg-background-0">
+        <View
+          className="p-4 border-t"
+          style={{
+            backgroundColor: colors.card,
+            borderTopColor: colors.border,
+          }}
+        >
           <View className="flex-row gap-3">
             <Button
               onPress={onClose}
-              action="secondary"
               variant="outline"
               className="flex-1"
+              style={{ borderColor: colors.border }}
             >
-              <ButtonText>{t('areaDetail.detailsSheet.cancel')}</ButtonText>
+              <ButtonText style={{ color: colors.text }}>
+                {t('areaDetail.detailsSheet.cancel')}
+              </ButtonText>
             </Button>
             <Button
               onPress={handleSave}
-              action="primary"
               className="flex-1"
+              style={{ backgroundColor: colors.info }}
             >
-              <ButtonText>{t('areaDetail.detailsSheet.save')}</ButtonText>
+              <ButtonText className="text-white">
+                {t('areaDetail.detailsSheet.save')}
+              </ButtonText>
             </Button>
           </View>
         </View>

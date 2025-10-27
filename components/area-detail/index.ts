@@ -4,5 +4,6 @@ export * from './Card';
 export * from './CardDetailsSheet';
 export * from './ConnectionLayer';
 export * from './DotGridBackground';
+export * from './LinkDetailsSheet';
 export * from './RemoveZone';
 export * from './constants';

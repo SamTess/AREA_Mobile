@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ActionReactionItem from '@/components/ActionReactionItem';
+import { ActionReactionItem } from '@/components/ActionReactionItem';
 import { Badge, BadgeText } from '@/components/ui/badge';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
@@ -123,7 +123,7 @@ export default function HomeScreen() {
   ]);
 
   const handleServicePress = (serviceId: number) => {
-    router.push('/details'); // Page de configuration du service
+    router.push('/connected-services'); // Page de configuration du service
   };
 
   const handleConnectService = (pairId: number) => {
@@ -148,11 +148,11 @@ export default function HomeScreen() {
   };
 
   const handleActionReactionPress = (pairId: number) => {
-    router.push('/details'); // Page de détails de l'automation
+    router.push('/area-editor'); // Page de détails de l'automation
   };
 
   const handleCreateNew = () => {
-    router.push('/details'); // Page de création d'automation
+    router.push('/area-editor'); // Page de création d'automation
   };
 
   const connectedCount = actionReactionPairs.filter((p) => p.isConnected).length;
@@ -267,7 +267,7 @@ export default function HomeScreen() {
             <Heading size="lg" className="text-typography-900">
               {t('home.servicesTitle')}
             </Heading>
-            <Button variant="link" size="sm" onPress={() => router.push('/details')}>
+            <Button variant="link" size="sm" onPress={() => router.push('/connected-services')}>
               <ButtonText className="text-primary-600">{t('home.seeAll')}</ButtonText>
               <ButtonIcon as={ArrowRight} className="text-primary-600" size="sm" />
             </Button>

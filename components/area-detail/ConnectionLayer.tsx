@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import Svg, { Line } from 'react-native-svg';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 import type { ActiveConnection, CardData, Connection } from '@/types/area-detail';
 import { CARD_WIDTH, CARD_HEIGHT, screenWidth, screenHeight } from './constants';
@@ -22,9 +23,11 @@ interface ConnectionLayerProps {
   cards: CardData[];
   connections: Connection[];
   activeConnection: ActiveConnection | null;
+  onConnectionPress?: (connection: Connection) => void;
 }
 
-export function ConnectionLayer({ cards, connections, activeConnection }: ConnectionLayerProps) {
+export function ConnectionLayer({ cards, connections, activeConnection, onConnectionPress }: ConnectionLayerProps) {
+  const colors = useThemeColors();
   const connectorLines = useMemo(
     () =>
       connections
@@ -37,20 +40,31 @@ export function ConnectionLayer({ cards, connections, activeConnection }: Connec
           const toPoint = getDockPoint(toCard, 'left');
 
           return (
-            <Line
-              key={`${connection.from}-${connection.to}`}
-              x1={fromPoint.x}
-              y1={fromPoint.y}
-              x2={toPoint.x}
-              y2={toPoint.y}
-              stroke="#6366f1"
-              strokeWidth={3}
-              strokeLinecap="round"
-            />
+            <React.Fragment key={`${connection.from}-${connection.to}`}>
+              <Line
+                x1={fromPoint.x}
+                y1={fromPoint.y}
+                x2={toPoint.x}
+                y2={toPoint.y}
+                stroke="transparent"
+                strokeWidth={20}
+                strokeLinecap="round"
+                onPress={() => onConnectionPress?.(connection)}
+              />
+              <Line
+                x1={fromPoint.x}
+                y1={fromPoint.y}
+                x2={toPoint.x}
+                y2={toPoint.y}
+                stroke={colors.info}
+                strokeWidth={3}
+                strokeLinecap="round"
+              />
+            </React.Fragment>
           );
         })
         .filter(Boolean),
-    [cards, connections]
+    [cards, connections, onConnectionPress, colors]
   );
 
   return (
@@ -71,7 +85,7 @@ export function ConnectionLayer({ cards, connections, activeConnection }: Connec
           y1={activeConnection.start.y}
           x2={activeConnection.point.x}
           y2={activeConnection.point.y}
-          stroke="#6366f1"
+          stroke={colors.info}
           strokeWidth={3}
           strokeDasharray="6,6"
           strokeLinecap="round"

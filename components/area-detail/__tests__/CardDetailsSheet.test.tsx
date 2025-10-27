@@ -365,7 +365,7 @@ describe('CardDetailsSheet', () => {
   });
 
   it('does not render card content when card is null', () => {
-    const { queryByText, queryByPlaceholderText } = render(
+    const { queryByPlaceholderText } = render(
       <CardDetailsSheet {...defaultProps} card={null} />
     );
 

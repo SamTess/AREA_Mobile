@@ -1,4 +1,5 @@
 import { API_CONFIG, HTTP_METHODS } from './api.config';
+import { getCookies, saveCookies } from './storage';
 import { parseErrorMessage } from './errors';
 
 interface QueryParams {
@@ -28,6 +29,44 @@ function buildUrl(path: string, params?: QueryParams): string {
   return url.toString();
 }
 
+async function requestInterceptor(headers: Record<string, string>): Promise<Record<string, string>> {
+  const storedCookies = await getCookies();
+
+  if (storedCookies) {
+    return {
+      ...headers,
+      Cookie: storedCookies,
+    };
+  }
+
+  return headers;
+}
+
+async function responseInterceptor(response: Response): Promise<void> {
+  const setCookieHeader = response.headers.get('set-cookie');
+
+  if (setCookieHeader) {
+    const cookies = parseCookies(setCookieHeader);
+    if (cookies) {
+      await saveCookies(cookies);
+    }
+  }
+}
+
+function parseCookies(setCookieHeader: string): string {
+  const cookieStrings = setCookieHeader.split(',').map(cookie => cookie.trim());
+
+  const cookies = cookieStrings
+    .map(cookie => {
+      const parts = cookie.split(';');
+      return parts[0].trim();
+    })
+    .filter(Boolean)
+    .join('; ');
+
+  return cookies;
+}
+
 async function parseJson<T>(response: Response): Promise<T | null> {
   if (response.status === 204) {
     return null;
@@ -46,19 +85,25 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
   const url = buildUrl(path, params);
 
   const hasBody = body !== undefined && body !== null;
+
+  const interceptedHeaders = await requestInterceptor({
+    ...API_CONFIG.HEADERS,
+    ...(headers || {}),
+    ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
+  });
+
   const requestInit: RequestInit = {
     method,
     signal,
     credentials: 'include',
-    headers: {
-      ...API_CONFIG.HEADERS,
-      ...(headers || {}),
-      ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
-    },
+    headers: interceptedHeaders,
     body: hasBody ? JSON.stringify(body) : undefined,
   };
 
   const response = await fetch(url, requestInit);
+
+  await responseInterceptor(response);
+
   const data = await parseJson<T>(response);
 
   if (!response.ok) {

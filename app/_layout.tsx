@@ -1,6 +1,9 @@
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AreaProvider } from '@/contexts/AreaContext';
+import { SelectedAreaProvider } from '@/contexts/SelectedAreaContext';
+import { AreaEditorProvider } from '@/contexts/AreaEditorContext';
+import { LinkProvider } from '@/contexts/LinkContext';
 import '@/global.css';
 import '@/i18n';
 import { Stack } from "expo-router";
@@ -12,13 +15,22 @@ function AppContent() {
   return (
     <AuthProvider>
       <AreaProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" options={{ title: "Home" }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="screens/HomeScreen" options={{ title: "Home" }} />
-          <Stack.Screen name="details" options={{ title: "Details" }} />
-          <Stack.Screen name="area-detail" options={{ title: "Area Details" }} />
-        </Stack>
+        <SelectedAreaProvider>
+          <AreaEditorProvider>
+            <LinkProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="index" options={{ title: "Home" }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="area-editor" options={{ title: "Area Editor" }} />
+                <Stack.Screen name="service-selector" options={{ title: "Select Service" }} />
+                <Stack.Screen name="action-configurator" options={{ title: "Configure Action" }} />
+                <Stack.Screen name="link-configurator" options={{ title: "Configure Link" }} />
+                <Stack.Screen name="connected-services" options={{ title: "Connected Services" }} />
+                <Stack.Screen name="help" options={{ title: "Help & Support" }} />
+              </Stack>
+            </LinkProvider>
+          </AreaEditorProvider>
+        </SelectedAreaProvider>
       </AreaProvider>
     </AuthProvider>
   );
@@ -44,7 +56,7 @@ export default function RootLayout() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [colorScheme, setColorScheme]);
 
   useEffect(() => {
     if (!colorScheme) return;

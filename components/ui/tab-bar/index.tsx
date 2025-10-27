@@ -4,7 +4,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 
 const tabBarStyle = tva({
-  base: 'flex-row bg-background-0 border-t border-border-light',
+  base: 'flex-row bg-background-0 border-border-light',
   variants: {
     size: {
       sm: 'h-12 px-2',
