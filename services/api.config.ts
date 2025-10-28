@@ -35,7 +35,7 @@ export function updateCachedServerUrl(url: string | null): void {
  * Environment variables
  */
 export const ENV = {
-    API_URL: process.env.EXPO_PUBLIC_API_URL || DEFAULT_SERVER_URL,
+    API_URL: DEFAULT_SERVER_URL,
     USE_MOCK: process.env.EXPO_PUBLIC_USE_MOCK !== 'false',
     MOCK_DELAY: parseInt(process.env.EXPO_PUBLIC_MOCK_DELAY || '1000', 10),
 } as const;
