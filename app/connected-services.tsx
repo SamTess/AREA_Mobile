@@ -16,7 +16,6 @@ import * as serviceConnection from '@/services/serviceConnection';
 import type { BackendService } from '@/types/areas';
 import type { ServiceConnectionStatus } from '@/services/serviceConnection';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { useAuth } from '@/contexts/AuthContext';
 import { getServerUrl } from '@/services/storage';
 
 interface ServiceCardProps {
@@ -99,10 +98,8 @@ function ServiceCard({ service, onConnect, onDisconnect }: ServiceCardProps) {
 export default function ConnectedServicesScreen() {
   const { t } = useTranslation();
   const colors = useThemeColors();
-  const { user } = useAuth();
   const [services, setServices] = useState<(BackendService & { connectionStatus?: ServiceConnectionStatus })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const storedUrl = getServerUrl();
 
   const loadServices = React.useCallback(async () => {
     setIsLoading(true);
@@ -144,18 +141,17 @@ export default function ConnectedServicesScreen() {
     }, [loadServices])
   );
 
-  const handleConnect = async (service: Service) => {
+  const handleConnect = async (service: BackendService) => {
     try {
-      const provider = mapServiceToProvider(service.key);
-      
-      // Utiliser la WebView pour OAuth
-      router.push({
-        pathname: '/oauth/webview-auth',
-        params: { 
-          provider: provider,
-          mode: 'link'
-        }
-      });
+      const serverUrl = await getServerUrl();
+      const redirectUri = encodeURIComponent('areamobile://oauth-callback');
+      const authUrl = `${serverUrl}/api/oauth/${service.key.toLowerCase()}/authorize?origin=mobile&mode=link&mobile_redirect=${redirectUri}`;
+      const canOpen = await Linking.canOpenURL(authUrl);
+      if (canOpen) {
+        await Linking.openURL(authUrl);
+      } else {
+        throw new Error('Cannot open URL');
+      }
     } catch (error) {
       console.error('Failed to connect service:', error);
       Alert.alert(

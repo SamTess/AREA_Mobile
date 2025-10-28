@@ -1,0 +1,144 @@
+import React, { useEffect, useRef } from 'react';
+import { View, ActivityIndicator, Alert } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Text } from '@/components/ui/text';
+import { VStack } from '@/components/ui/vstack';
+import { Center } from '@/components/ui/center';
+import { useTranslation } from 'react-i18next';
+import { getApiUrl } from '@/services/api.config';
+import * as SecureStore from 'expo-secure-store';
+import { useAuth } from '@/contexts/AuthContext';
+
+
+export default function OAuthCallbackScreen() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const [message, setMessage] = React.useState('Processing authentication...');
+  const hasProcessed = useRef(false);
+  const { refreshAuth } = useAuth();
+
+  useEffect(() => {
+    if (hasProcessed.current) {
+      return;
+    }
+
+    const processOAuthCallback = async () => {
+      hasProcessed.current = true;
+
+      const { success, code, error, error_description, provider, mode } = params;
+
+      if (error) {
+        console.error('OAuth error:', error);
+        Alert.alert(
+          t('oauth.error', 'Authentication Error'),
+          (error_description as string) || (error as string) || t('oauth.authFailed', 'Authentication failed'),
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                router.replace(mode === 'link' ? '/connected-services' : '/(tabs)/login');
+              }
+            }
+          ]
+        );
+        return;
+      }
+
+      if (success === 'true' && code) {
+        try {
+          setMessage(t('oauth.exchanging', 'Exchanging authorization code...'));
+          const providerName = (provider as string) || 'google';
+          const authMode = (mode as string) || 'login';
+          const apiUrl = await getApiUrl();
+          const response = await fetch(`${apiUrl}/api/oauth/${providerName}/exchange`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ code: code }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.accessToken && data.refreshToken) {
+              await SecureStore.setItemAsync('auth_access_token', data.accessToken);
+              await SecureStore.setItemAsync('auth_refresh_token', data.refreshToken);
+              await new Promise(resolve => setTimeout(resolve, 500));
+              await refreshAuth();
+            } else {
+              console.warn('No tokens in response body');
+            }
+            setMessage(t('oauth.success', 'Authentication successful!'));
+            setTimeout(() => {
+              if (authMode === 'link') {
+                router.replace('/connected-services');
+              } else {
+                router.replace('/(tabs)');
+              }
+            }, 1000);
+          } else {
+            const errorText = await response.text();
+            console.error('Exchange failed - Status:', response.status);
+            console.error('Exchange failed - Response:', errorText);
+            let errorData;
+            try {
+              errorData = JSON.parse(errorText);
+            } catch {
+              errorData = { message: errorText };
+            }
+            throw new Error(errorData.message || `Token exchange failed (${response.status})`);
+          }
+        } catch (error) {
+          console.error('Token exchange error:', error);
+          setMessage(t('oauth.error', 'Error'));
+          Alert.alert(
+            t('oauth.error', 'Error'),
+            error instanceof Error ? error.message : t('oauth.exchangeFailed', 'Failed to complete authentication'),
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  router.replace(mode === 'link' ? '/connected-services' : '/(tabs)/login');
+                }
+              }
+            ]
+          );
+        }
+      } else {
+        console.warn('OAuth callback without code or error');
+        Alert.alert(
+          t('oauth.error', 'Error'),
+          t('oauth.invalidCallback', 'Invalid OAuth callback'),
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                router.replace('/(tabs)/login');
+              }
+            }
+          ]
+        );
+      }
+    };
+
+    processOAuthCallback();
+  }, [params, router, t, refreshAuth]);
+
+  return (
+    <View className="flex-1 bg-background-0">
+      <Center className="flex-1">
+        <VStack space="xl" className="items-center px-6">
+          <ActivityIndicator size="large" color="#0066CC" />
+          <Text className="text-lg text-center text-typography-700">
+            {message}
+          </Text>
+          <Text className="text-sm text-center text-typography-500">
+            {t('oauth.pleaseWait', 'Please wait...')}
+          </Text>
+        </VStack>
+      </Center>
+    </View>
+  );
+}

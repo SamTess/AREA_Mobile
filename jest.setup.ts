@@ -1,4 +1,4 @@
-process.env.EXPO_PUBLIC_USE_MOCK = process.env.EXPO_PUBLIC_USE_MOCK ?? 'true';
+process.env.EXPO_PUBLIC_USE_MOCK = process.env.EXPO_PUBLIC_USE_MOCK ?? 'false';
 process.env.EXPO_PUBLIC_MOCK_DELAY = process.env.EXPO_PUBLIC_USE_MOCK ?? '0';
 
 declare global {

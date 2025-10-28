@@ -28,6 +28,7 @@ function AppContent() {
                 <Stack.Screen name="link-configurator" options={{ title: "Configure Link" }} />
                 <Stack.Screen name="connected-services" options={{ title: "Connected Services" }} />
                 <Stack.Screen name="help" options={{ title: "Help & Support" }} />
+                <Stack.Screen name="oauth-callback" options={{ title: "OAuth Callback" }} />
               </Stack>
             </LinkProvider>
           </AreaEditorProvider>

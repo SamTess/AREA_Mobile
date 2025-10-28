@@ -11,9 +11,10 @@ import { useRouter } from 'expo-router';
 import { EyeIcon, EyeOffIcon, LockKeyhole } from 'lucide-react-native';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Linking, Image } from 'react-native';
-import { getOAuthProviders, getOAuthUrl, OAuthProvider } from '@/services/oauth';
+import { ActivityIndicator, Alert, Image, Linking } from 'react-native';
+import { getOAuthProviders, OAuthProvider } from '@/services/oauth';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { getApiUrl } from '@/services/api.config';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -46,14 +47,15 @@ export default function LoginScreen() {
 
   const handleOAuthLogin = async (provider: OAuthProvider) => {
     try {
-      // Utiliser la WebView pour OAuth
-      router.push({
-        pathname: '/oauth/webview-auth',
-        params: { 
-          provider: provider.providerKey,
-          mode: 'login'
-        }
-      });
+      const apiUrl = await getApiUrl();
+      const redirectUri = encodeURIComponent('areamobile://oauth-callback');
+      const authUrl = `${apiUrl}/api/oauth/${provider.providerKey.toLowerCase()}/authorize?origin=mobile&mode=login&mobile_redirect=${redirectUri}`;
+      const canOpen = await Linking.canOpenURL(authUrl);
+      if (canOpen) {
+        await Linking.openURL(authUrl);
+      } else {
+        throw new Error('Cannot open URL');
+      }
     } catch (error) {
       console.error('OAuth login error:', error);
       Alert.alert(
@@ -140,9 +142,9 @@ export default function LoginScreen() {
                 size="lg"
                 isInvalid={!!identifierError}
                 className="rounded-lg"
-                style={{ 
-                  backgroundColor: colors.background, 
-                  borderColor: identifierError ? colors.error : colors.border 
+                style={{
+                  backgroundColor: colors.background,
+                  borderColor: identifierError ? colors.error : colors.border
                 }}
               >
                 <InputField
@@ -180,9 +182,9 @@ export default function LoginScreen() {
                 size="lg"
                 isInvalid={!!passwordError}
                 className="rounded-lg"
-                style={{ 
-                  backgroundColor: colors.background, 
-                  borderColor: passwordError ? colors.error : colors.border 
+                style={{
+                  backgroundColor: colors.background,
+                  borderColor: passwordError ? colors.error : colors.border
                 }}
               >
                 <InputField
@@ -199,8 +201,8 @@ export default function LoginScreen() {
                   placeholderTextColor={colors.textTertiary}
                 />
                 <InputSlot className="pr-3" onPress={handleShowPassword}>
-                  <InputIcon 
-                    as={showPassword ? EyeIcon : EyeOffIcon} 
+                  <InputIcon
+                    as={showPassword ? EyeIcon : EyeOffIcon}
                     style={{ color: colors.textSecondary }}
                   />
                 </InputSlot>
@@ -237,8 +239,8 @@ export default function LoginScreen() {
 
             {/* Lien mot de passe oublié */}
             <Box className="items-center mt-2">
-              <Text 
-                size="sm" 
+              <Text
+                size="sm"
                 style={{ color: colors.info }}
                 onPress={() => router.push('/(tabs)/forgot-password')}
               >
@@ -290,9 +292,9 @@ export default function LoginScreen() {
         <Box className="items-center mt-4">
           <Text size="sm" style={{ color: colors.textSecondary }}>
             {t('login.noAccount')}{' '}
-            <Text 
-              size="sm" 
-              bold 
+            <Text
+              size="sm"
+              bold
               style={{ color: colors.info }}
               onPress={() => router.push('/(tabs)/register')}
             >
