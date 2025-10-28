@@ -18,6 +18,7 @@ const config: Config = {
   collectCoverageFrom: [
     'app/**/*.{ts,tsx}',
     'components/**/*.{ts,tsx}',
+    'hooks/**/*.{ts,tsx}',
     '!**/*.d.ts',
     '!**/*.web.tsx',
     '!**/*.web.ts',
