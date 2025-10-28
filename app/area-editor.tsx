@@ -49,7 +49,7 @@ function ServiceCard({ service, actionDef, actionData, params, type, index, onEd
   const hasParams = paramCount > 0;
   const serviceIcon = service.iconLightUrl || service.iconDarkUrl;
   const [imageError, setImageError] = React.useState(false);
-
+  
   return (
     <TouchableOpacity onPress={onEdit} activeOpacity={0.7} disabled={!onEdit}>
       <Box
@@ -224,7 +224,7 @@ export default function AreaEditorScreen() {
             }
 
             if (sourceIndex !== -1 && targetIndex !== -1) {
-              console.log('Adding link:', { sourceIndex, targetIndex, sourceType, targetType });
+              console.log(':', { sourceIndex, targetIndex, sourceType, targetType });
               loadedLinks.push({
                 sourceIndex,
                 targetIndex,
@@ -235,9 +235,13 @@ export default function AreaEditorScreen() {
                 mapping: link.mapping as Record<string, string>,
                 condition: link.condition,
               });
+            } else {
+              console.log('Skipping link - source or target not found:', { sourceIndex, targetIndex });
             }
           }
           initializeLinks(loadedLinks);
+        } else {
+          console.log('No links found in area');
         }
 
         setDataLoaded(true);
