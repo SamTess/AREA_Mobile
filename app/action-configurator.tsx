@@ -57,7 +57,9 @@ export default function ActionConfiguratorScreen() {
   const openOAuthFlow = React.useCallback(async () => {
     try {
       const provider = serviceConnection.mapServiceKeyToOAuthProvider(params.serviceKey);
-      const oauthUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/oauth/${provider}/authorize`;
+      const { getOAuthUrl } = await import('@/services/oauth');
+      const oauthUrl = await getOAuthUrl(provider, true);
+      
       Alert.alert(
         t('configurator.connectService', 'Connect Service'),
         t('configurator.connectMessage', `You need to connect your ${params.serviceName} account to use this action.`),

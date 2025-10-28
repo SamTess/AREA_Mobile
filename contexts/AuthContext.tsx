@@ -10,6 +10,7 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (identifier: string, password: string) => Promise<void>;
+  loginWithOAuth: (user: User) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string, username: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
@@ -67,6 +68,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed';
       setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * Login with OAuth - set user directly from OAuth response
+   */
+  const loginWithOAuth = async (userData: User) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      setUser(userData);
+      await storage.saveUserData(JSON.stringify(userData));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'OAuth login failed';
+      setError(message);
+      console.error('OAuth login error:', err);
       throw err;
     } finally {
       setIsLoading(false);
@@ -147,6 +167,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isLoading,
     error,
     login,
+    loginWithOAuth,
     register,
     logout,
     updateUser,

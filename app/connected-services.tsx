@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, Alert, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Link as LinkIcon, Unlink } from 'lucide-react-native';
 import { Box } from '@/components/ui/box';
@@ -16,6 +16,7 @@ import * as serviceConnection from '@/services/serviceConnection';
 import type { BackendService } from '@/types/areas';
 import type { ServiceConnectionStatus } from '@/services/serviceConnection';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ServiceCardProps {
   service: BackendService & { connectionStatus?: ServiceConnectionStatus };
@@ -96,6 +97,7 @@ function ServiceCard({ service, onConnect, onDisconnect }: ServiceCardProps) {
 export default function ConnectedServicesScreen() {
   const { t } = useTranslation();
   const colors = useThemeColors();
+  const { user } = useAuth();
   const [services, setServices] = useState<(BackendService & { connectionStatus?: ServiceConnectionStatus })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -106,7 +108,7 @@ export default function ConnectedServicesScreen() {
       let connectedServices: ServiceConnectionStatus[] = [];
       try {
         connectedServices = await serviceConnection.getConnectedServices();
-      } catch (connectionError) {
+      } catch (connectionError: any) {
         console.warn('Failed to load connection status:', connectionError);
       }
       const servicesWithStatus = catalog.map(service => {
@@ -132,10 +134,19 @@ export default function ConnectedServicesScreen() {
     loadServices();
   }, [loadServices]);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('Connected services screen focused - reloading services');
+      loadServices();
+    }, [loadServices])
+  );
+
   const handleConnect = async (service: BackendService) => {
     try {
       const provider = serviceConnection.mapServiceKeyToOAuthProvider(service.key);
-      const oauthUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/oauth/${provider}/authorize`;
+      const { getOAuthUrl } = await import('@/services/oauth');
+      const oauthUrl = await getOAuthUrl(provider, true);
+      
       Alert.alert(
         t('services.connect', 'Connect Service'),
         t('services.connectMessage', `You will be redirected to ${service.name} to authorize the connection.`),

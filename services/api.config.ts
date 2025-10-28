@@ -6,9 +6,9 @@
 import { getServerUrl } from './storage';
 
 /**
- * Default server URL (same as in server-settings.tsx)
+ * Default server URL - Use env var first, then fallback to localhost
  */
-const DEFAULT_SERVER_URL = 'http://127.0.0.1:8080';
+const DEFAULT_SERVER_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8080';
 
 /**
  * Get the configured API URL from storage (user's server settings)
@@ -16,10 +16,19 @@ const DEFAULT_SERVER_URL = 'http://127.0.0.1:8080';
 let cachedServerUrl: string | null = null;
 
 export async function getApiUrl(): Promise<string> {
-    if (cachedServerUrl)
+    if (cachedServerUrl) {
         return cachedServerUrl;
+    }
+    
     const storedUrl = await getServerUrl();
-    const url = storedUrl || DEFAULT_SERVER_URL;
+
+    let url: string;
+    if (storedUrl) {
+        url = storedUrl;
+    } else {
+        url = DEFAULT_SERVER_URL;
+    }
+    
     cachedServerUrl = url;
     return url;
 }

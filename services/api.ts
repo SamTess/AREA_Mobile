@@ -1,5 +1,5 @@
 import { API_CONFIG, HTTP_METHODS, getApiUrl } from './api.config';
-import { getCookies, saveCookies } from './storage';
+import { getCookies, saveCookies, getAccessToken } from './storage';
 import { parseErrorMessage } from './errors';
 
 interface QueryParams {
@@ -31,16 +31,21 @@ async function buildUrl(path: string, params?: QueryParams): Promise<string> {
 }
 
 async function requestInterceptor(headers: Record<string, string>): Promise<Record<string, string>> {
-  const storedCookies = await getCookies();
+  const modifiedHeaders = { ...headers };
 
-  if (storedCookies) {
-    return {
-      ...headers,
-      Cookie: storedCookies,
-    };
+  const accessToken = await getAccessToken();
+  if (accessToken) {
+    modifiedHeaders.Authorization = `Bearer ${accessToken}`;
+  } else {
+    console.warn('No access token found in storage');
   }
 
-  return headers;
+  const storedCookies = await getCookies();
+  if (storedCookies) {
+    modifiedHeaders.Cookie = storedCookies;
+  }
+
+  return modifiedHeaders;
 }
 
 async function responseInterceptor(response: Response): Promise<void> {
