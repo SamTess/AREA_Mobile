@@ -121,7 +121,7 @@ export default function SettingsScreen() {
               icon={Server}
               title={t('settings.serverSettings', 'Server Settings')}
               subtitle={t('settings.serverSettingsSubtitle', 'Configure backend server location')}
-              onPress={() => router.push('/(tabs)/server-settings')}
+              onPress={() => router.push('/(tabs)/server-settings' as any)}
             />
           </Box>
           <Text className="text-xs font-semibold uppercase mb-2 mt-4" style={{ color: colors.textSecondary }}>
@@ -281,7 +281,7 @@ export default function SettingsScreen() {
               icon={HelpCircle}
               title={t('settings.help', 'Help & Support')}
               subtitle={t('settings.helpSubtitle', 'Get help and FAQs')}
-              onPress={() => router.push('/help')}
+              onPress={() => router.push('/help' as any)}
             />
           </Box>
         </VStack>

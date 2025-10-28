@@ -208,7 +208,7 @@ describe('AreaEditorScreen', () => {
     fireEvent.press(addActionTouchable);
 
     expect(mockRouter.push).toHaveBeenCalledWith({
-      pathname: '/service-selector',
+      pathname: '/service-selector' as any,
       params: { type: 'action' }
     });
   });
@@ -224,7 +224,7 @@ describe('AreaEditorScreen', () => {
     fireEvent.press(addReactionTouchable);
 
     expect(mockRouter.push).toHaveBeenCalledWith({
-      pathname: '/service-selector',
+      pathname: '/service-selector' as any,
       params: { type: 'reaction' }
     });
   });
@@ -512,7 +512,7 @@ describe('AreaEditorScreen', () => {
       ],
     });
 
-    mockGetActionDefinitionById.mockImplementation((id) => {
+    mockGetActionDefinitionById.mockImplementation((id: string) => {
       if (id === 'def-1') {
         return Promise.resolve({
           id: 'def-1',
@@ -530,7 +530,7 @@ describe('AreaEditorScreen', () => {
       return Promise.reject(new Error('Not found'));
     });
 
-    mockGetServiceByKey.mockImplementation((key) => {
+    mockGetServiceByKey.mockImplementation((key: string) => {
       if (key === 'github') {
         return Promise.resolve({
           id: 'service-1',
@@ -659,8 +659,9 @@ describe('AreaEditorScreen', () => {
     const alertCalls = mockAlert.mock.calls;
     const lastCall = alertCalls[alertCalls.length - 1];
     const buttons = lastCall[2]; // buttons array is the 3rd parameter
-    const deleteButtonAction = buttons[1]; // Second button (Delete)
-    deleteButtonAction.onPress();
+    if (buttons && buttons[1] && typeof buttons[1].onPress === 'function') {
+      buttons[1].onPress();
+    }
 
     expect(mockDeleteArea).toHaveBeenCalledWith('area-1');
   });

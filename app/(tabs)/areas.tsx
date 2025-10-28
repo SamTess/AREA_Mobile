@@ -66,18 +66,18 @@ export default function AreasTab() {
   const handleAreaPress = (areaId: string) => {
     if (alreadyPressedRef.current) return;
     alreadyPressedRef.current = true;
-    router.push(`/area-editor?id=${areaId}`);
+    router.push(`/area-editor?id=${areaId}` as any);
     setTimeout(() => {
       alreadyPressedRef.current = false;
     }, 1000);
   };
 
   const handleCreateArea = () => {
-    router.push('/area-editor');
+    router.push('/area-editor' as any);
   };
 
   const handleEditArea = (areaId: string) => {
-    router.push(`/area-editor?id=${areaId}`);
+    router.push(`/area-editor?id=${areaId}` as any);
   };
 
   const handleDeleteArea = async (areaId: string) => {

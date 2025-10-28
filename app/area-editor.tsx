@@ -471,14 +471,14 @@ export default function AreaEditorScreen() {
 
   const handleAddAction = () => {
     router.push({
-      pathname: '/service-selector',
+      pathname: '/service-selector' as any,
       params: { type: 'action' }
     });
   };
 
   const handleAddReaction = () => {
     router.push({
-      pathname: '/service-selector',
+      pathname: '/service-selector' as any,
       params: { type: 'reaction' }
     });
   };
@@ -519,7 +519,7 @@ export default function AreaEditorScreen() {
 
     const { action, service, definition } = configuredAction;
     router.push({
-      pathname: '/action-configurator',
+      pathname: '/action-configurator' as any,
       params: {
         type: 'action',
         serviceId: service.id,
@@ -542,7 +542,7 @@ export default function AreaEditorScreen() {
 
     const { reaction, service, definition } = configuredReaction;
     router.push({
-      pathname: '/action-configurator',
+      pathname: '/action-configurator' as any,
       params: {
         type: 'reaction',
         serviceId: service.id,
@@ -567,7 +567,7 @@ export default function AreaEditorScreen() {
       );
       return;
     }
-    router.push('/link-configurator');
+    router.push('/link-configurator' as any);
   };
 
   if (isLoading) {
@@ -922,7 +922,7 @@ export default function AreaEditorScreen() {
                                   variant="outline"
                                   onPress={() => {
                                     router.push({
-                                      pathname: '/link-configurator',
+                                      pathname: '/link-configurator' as any,
                                       params: {
                                         sourceIndex: link.sourceIndex.toString(),
                                         targetIndex: link.targetIndex.toString(),
