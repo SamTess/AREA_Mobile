@@ -17,6 +17,7 @@ import { useThemeColors } from '@/hooks/useThemeColors';
 import * as serviceCatalog from '@/services/serviceCatalog';
 import * as serviceConnection from '@/services/serviceConnection';
 import type { ActionDefinition, FieldData, ActionDto, ReactionDto, BackendService } from '@/types/areas';
+import { getServerUrl } from '@/services/storage';
 
 export default function ActionConfiguratorScreen() {
   const { t } = useTranslation();
@@ -42,6 +43,7 @@ export default function ActionConfiguratorScreen() {
   const [cardName, setCardName] = useState<string>('');
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const storedUrl = getServerUrl();
 
   const checkServiceConnection = React.useCallback(async () => {
     try {

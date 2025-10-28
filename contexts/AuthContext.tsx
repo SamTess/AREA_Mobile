@@ -15,6 +15,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
   clearError: () => void;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -161,6 +162,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setError(null);
   };
 
+  const deleteAccount = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      if (!user)
+        throw new Error('No user to delete');
+
+      await userService.deleteAccount();
+      setUser(null);
+      await storage.clearAuthData();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Delete account failed';
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -172,6 +192,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     updateUser,
     clearError,
+    deleteAccount,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

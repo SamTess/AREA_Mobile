@@ -17,6 +17,7 @@ import type { BackendService } from '@/types/areas';
 import type { ServiceConnectionStatus } from '@/services/serviceConnection';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useAuth } from '@/contexts/AuthContext';
+import { getServerUrl } from '@/services/storage';
 
 interface ServiceCardProps {
   service: BackendService & { connectionStatus?: ServiceConnectionStatus };
@@ -29,6 +30,7 @@ function ServiceCard({ service, onConnect, onDisconnect }: ServiceCardProps) {
   const colors = useThemeColors();
   const isConnected = !!service.connectionStatus?.isConnected;
   const userName = service.connectionStatus?.userName;
+
   return (
     <Box className="rounded-xl p-4 mb-3 shadow-sm" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder }}>
       <VStack space="sm">
@@ -100,6 +102,7 @@ export default function ConnectedServicesScreen() {
   const { user } = useAuth();
   const [services, setServices] = useState<(BackendService & { connectionStatus?: ServiceConnectionStatus })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const storedUrl = getServerUrl();
 
   const loadServices = React.useCallback(async () => {
     setIsLoading(true);

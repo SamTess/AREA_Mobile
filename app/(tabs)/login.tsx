@@ -270,41 +270,32 @@ export default function LoginScreen() {
             </HStack>
 
             {oauthProviders.length > 0 && (
-              <HStack space="sm" className="justify-center">
+              <Box className="flex-wrap flex-row justify-center" style={{ gap: 12 }}>
                 {oauthProviders.map((provider) => (
                   <Button
                     key={provider.providerKey}
                     size="sm"
                     variant="outline"
                     onPress={() => handleOAuthLogin(provider)}
-                    className="rounded-lg"
-                    style={{ 
+                    className="rounded-xl"
+                    style={{
                       backgroundColor: colors.background,
                       borderColor: colors.border,
-                      width: 60,
-                      height: 60,
-                      padding: 4
+                      width: '20%',
+                      aspectRatio: 1,
+                      padding: 8
                     }}
                   >
-                    <VStack space="xs" className="items-center justify-center">
+                    <VStack space="xs" className="items-center justify-center flex-1">
                       <Image
                         source={{ uri: provider.providerLogoUrl }}
-                        style={{ width: 24, height: 24 }}
+                        style={{ width: 32, height: 32 }}
                         resizeMode="contain"
                       />
-                      <ButtonText 
-                        size="xs" 
-                        className="text-center"
-                        style={{ color: colors.text, fontSize: 8 }}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {provider.providerLabel}
-                      </ButtonText>
                     </VStack>
                   </Button>
                 ))}
-              </HStack>
+              </Box>
             )}
           </VStack>
         </Box>
