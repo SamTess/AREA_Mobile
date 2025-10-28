@@ -10,12 +10,8 @@ import { Stack } from "expo-router";
 import { useColorScheme } from 'nativewind';
 import * as SecureStore from 'expo-secure-store';
 import { useEffect, useState, useMemo } from 'react';
-import { debugApiConfig } from '@/utils/debug';
 
 function AppContent() {
-  useEffect(() => {
-    debugApiConfig().catch(console.error);
-  }, []);
   
   return (
     <AuthProvider>
