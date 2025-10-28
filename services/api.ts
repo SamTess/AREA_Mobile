@@ -1,6 +1,7 @@
 import { API_CONFIG, HTTP_METHODS, getApiUrl } from './api.config';
 import { getCookies, saveCookies, getAccessToken } from './storage';
 import { parseErrorMessage } from './errors';
+import { getCookieHeader } from './cookieManager';
 
 interface QueryParams {
   [key: string]: string | number | boolean | null | undefined;
@@ -33,15 +34,25 @@ async function buildUrl(path: string, params?: QueryParams): Promise<string> {
 async function requestInterceptor(headers: Record<string, string>): Promise<Record<string, string>> {
   const modifiedHeaders = { ...headers };
 
-  const accessToken = await getAccessToken();
-  if (accessToken) {
-    modifiedHeaders.Authorization = `Bearer ${accessToken}`;
+  // Try to get cookies from WebView first (OAuth flow)
+  const webViewCookies = await getCookieHeader();
+  if (webViewCookies) {
+    modifiedHeaders.Cookie = webViewCookies;
+    console.log('🍪 Using WebView cookies for request');
   } else {
-    console.warn('No access token found in storage');
+    // Fallback to Bearer token (local auth)
+    const accessToken = await getAccessToken();
+    if (accessToken) {
+      modifiedHeaders.Authorization = `Bearer ${accessToken}`;
+      console.log('🔑 Using Bearer token for request');
+    } else {
+      console.warn('⚠️  No authentication found (no cookies, no token)');
+    }
   }
 
+  // Keep stored cookies for backward compatibility
   const storedCookies = await getCookies();
-  if (storedCookies) {
+  if (storedCookies && !webViewCookies) {
     modifiedHeaders.Cookie = storedCookies;
   }
 

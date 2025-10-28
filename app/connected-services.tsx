@@ -144,34 +144,18 @@ export default function ConnectedServicesScreen() {
     }, [loadServices])
   );
 
-  const handleConnect = async (service: BackendService) => {
+  const handleConnect = async (service: Service) => {
     try {
-      const provider = serviceConnection.mapServiceKeyToOAuthProvider(service.key);
-      const { getOAuthUrl } = await import('@/services/oauth');
-      const oauthUrl = await getOAuthUrl(provider, true);
+      const provider = mapServiceToProvider(service.key);
       
-      Alert.alert(
-        t('services.connect', 'Connect Service'),
-        t('services.connectMessage', `You will be redirected to ${service.name} to authorize the connection.`),
-        [
-          { text: t('common.cancel', 'Cancel'), style: 'cancel' },
-          {
-            text: t('common.continue', 'Continue'),
-            onPress: async () => {
-              const supported = await Linking.canOpenURL(oauthUrl);
-              if (supported) {
-                await Linking.openURL(oauthUrl);
-                setTimeout(() => loadServices(), 2000);
-              } else {
-                Alert.alert(
-                  t('services.error', 'Error'),
-                  t('services.cantOpen', 'Cannot open OAuth page')
-                );
-              }
-            }
-          }
-        ]
-      );
+      // Utiliser la WebView pour OAuth
+      router.push({
+        pathname: '/oauth/webview-auth',
+        params: { 
+          provider: provider,
+          mode: 'link'
+        }
+      });
     } catch (error) {
       console.error('Failed to connect service:', error);
       Alert.alert(

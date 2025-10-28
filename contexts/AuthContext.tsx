@@ -1,6 +1,7 @@
 import * as authService from '@/services/auth';
 import * as storage from '@/services/storage';
 import * as userService from '@/services/user';
+import { clearApiCookies } from '@/services/cookieManager';
 import { User } from '@/types/auth';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
@@ -16,6 +17,7 @@ interface AuthContextType {
   updateUser: (userData: Partial<User>) => Promise<void>;
   clearError: () => void;
   deleteAccount: () => Promise<void>;
+  refreshAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -120,14 +122,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const logout = async () => {
+    const logout = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       await authService.logout();
       setUser(null);
-      setError(null);
+      await storage.clearAuthData();
+      // Nettoyer aussi les cookies WebView
+      await clearApiCookies();
     } catch (err) {
-      console.error('Logout error:', err);
+      const message = err instanceof Error ? err.message : 'Logout failed';
+      setError(message);
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -181,6 +188,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  /**
+   * Refresh authentication state from backend (for OAuth WebView)
+   */
+  const refreshAuth = async () => {
+    try {
+      setIsLoading(true);
+      const current = await authService.getCurrentUser();
+      if (current) {
+        setUser(current);
+        await storage.saveUserData(JSON.stringify(current));
+      }
+    } catch (err) {
+      console.error('Failed to refresh auth:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -193,6 +218,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     updateUser,
     clearError,
     deleteAccount,
+    refreshAuth,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

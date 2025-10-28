@@ -46,28 +46,14 @@ export default function LoginScreen() {
 
   const handleOAuthLogin = async (provider: OAuthProvider) => {
     try {
-      const oauthUrl = await getOAuthUrl(provider.providerKey);
-      Alert.alert(
-        t('login.oauthTitle', 'OAuth Login'),
-        t('login.oauthMessage', `You will be redirected to ${provider.providerLabel} to authorize.`),
-        [
-          { text: t('common.cancel', 'Cancel'), style: 'cancel' },
-          {
-            text: t('common.continue', 'Continue'),
-            onPress: async () => {
-              const supported = await Linking.canOpenURL(oauthUrl);
-              if (supported) {
-                await Linking.openURL(oauthUrl);
-              } else {
-                Alert.alert(
-                  t('services.error', 'Error'),
-                  t('services.cantOpen', 'Cannot open OAuth page')
-                );
-              }
-            }
-          }
-        ]
-      );
+      // Utiliser la WebView pour OAuth
+      router.push({
+        pathname: '/oauth/webview-auth',
+        params: { 
+          provider: provider.providerKey,
+          mode: 'login'
+        }
+      });
     } catch (error) {
       console.error('OAuth login error:', error);
       Alert.alert(
