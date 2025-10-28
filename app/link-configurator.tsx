@@ -154,7 +154,7 @@ export default function LinkConfiguratorScreen() {
         }}
       >
         <HStack space="sm" className="items-center flex-1">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.back()} testID="back-button">
             <ArrowLeft size={24} color="white" />
           </TouchableOpacity>
           <Heading size="lg" className="text-white font-bold">
@@ -163,7 +163,7 @@ export default function LinkConfiguratorScreen() {
               : t('linkConfigurator.title', 'Configure Link')}
           </Heading>
         </HStack>
-        <TouchableOpacity onPress={handleSave}>
+        <TouchableOpacity onPress={handleSave} testID="save-button">
           <Save size={24} color="white" />
         </TouchableOpacity>
       </View>

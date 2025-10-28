@@ -24,13 +24,13 @@ const config: Config = {
     '!**/*.next15.tsx',
   ],
   coverageReporters: ['text', 'lcov', 'html'],
-  testPathIgnorePatterns: ['/node_modules/', '/Android/', '/.expo/'],
+  testPathIgnorePatterns: ['/node_modules/', '/Android/', '/.expo/', '/AREA_Web/', '/AREA_Back/'],
   coverageThreshold: {
     global: {
-      statements: 0,
-      branches: 0,
-      functions: 0,
-      lines: 0,
+      statements: 70,
+      branches: 70,
+      functions: 70,
+      lines: 70,
     },
   },
 };

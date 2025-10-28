@@ -61,6 +61,9 @@ jest.mock('expo-image', () => require('react-native'));
 // Initialize i18n for tests with default language 'en'
 import '@/i18n';
 
+// Import jest-dom matchers for better assertions
+import '@testing-library/jest-native/extend-expect';
+
 // Suppress specific console.error warnings that are expected in tests
 const originalError = console.error;
 beforeAll(() => {

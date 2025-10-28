@@ -348,4 +348,110 @@ describe('ConnectedServicesScreen', () => {
       expect(screen.getByText('johndoe')).toBeTruthy();
     });
   });
+
+  it('prevents disconnecting primary auth service', async () => {
+    mockGetConnectedServices.mockResolvedValue([
+      {
+        serviceKey: 'github',
+        serviceName: 'GitHub',
+        iconUrl: 'https://example.com/github.png',
+        isConnected: true,
+        connectionType: 'OAUTH',
+        userEmail: 'test@example.com',
+        userName: 'testuser',
+        canDisconnect: true,
+        isPrimaryAuth: true, // This is primary auth
+      },
+    ]);
+
+    render(<ConnectedServicesScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('GitHub')).toBeTruthy();
+    });
+
+    const disconnectButtons = screen.getAllByText('Disconnect');
+    fireEvent.press(disconnectButtons[0]);
+
+    await waitFor(() => {
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'Error',
+        'Cannot disconnect your primary authentication method'
+      );
+    });
+
+    // Should not proceed to disconnect
+    expect(mockDisconnectService).not.toHaveBeenCalled();
+  });
+
+  it('prevents disconnecting service that cannot be disconnected', async () => {
+    mockGetConnectedServices.mockResolvedValue([
+      {
+        serviceKey: 'github',
+        serviceName: 'GitHub',
+        iconUrl: 'https://example.com/github.png',
+        isConnected: true,
+        connectionType: 'OAUTH',
+        userEmail: 'test@example.com',
+        userName: 'testuser',
+        canDisconnect: false, // Cannot disconnect
+        isPrimaryAuth: false,
+      },
+    ]);
+
+    render(<ConnectedServicesScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('GitHub')).toBeTruthy();
+    });
+
+    const disconnectButtons = screen.getAllByText('Disconnect');
+    fireEvent.press(disconnectButtons[0]);
+
+    await waitFor(() => {
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'Error',
+        'This service cannot be disconnected at this time'
+      );
+    });
+
+    // Should not proceed to disconnect
+    expect(mockDisconnectService).not.toHaveBeenCalled();
+  });
+
+  it('handles OAuth URL that cannot be opened', async () => {
+    (Linking.canOpenURL as jest.Mock).mockResolvedValue(false);
+
+    render(<ConnectedServicesScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Discord')).toBeTruthy();
+    });
+
+    const connectButtons = screen.getAllByText('Connect');
+    fireEvent.press(connectButtons[0]);
+
+    const alertMock = Alert.alert as jest.MockedFunction<typeof Alert.alert>;
+    const yesCallback = alertMock.mock.calls[0][2]?.[1]?.onPress;
+    await yesCallback?.();
+
+    await waitFor(() => {
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'Error',
+        'Cannot open OAuth page'
+      );
+    });
+
+    expect(Linking.openURL).not.toHaveBeenCalled();
+  });
+
+  it('renders empty state when no services available', async () => {
+    mockGetServicesCatalog.mockResolvedValue([]);
+
+    render(<ConnectedServicesScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('No services available')).toBeTruthy();
+    });
+  });
 });

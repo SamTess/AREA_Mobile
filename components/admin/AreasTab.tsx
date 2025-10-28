@@ -120,7 +120,7 @@ export default function AreasTab() {
   if (loading) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: colors.backgroundSecondary }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.primary} testID="activity-indicator" />
       </View>
     );
   }

@@ -1,8 +1,7 @@
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NavigationContainer } from '@react-navigation/native';
-import '@testing-library/jest-native/extend-expect';
-import { render, waitFor } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import React from 'react';
 import EditProfileScreen from '../edit-profile';
 
@@ -42,11 +41,13 @@ jest.mock('react-native/Libraries/Alert/Alert', () => ({
 
 function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <GluestackUIProvider mode="light">
-      <AuthProvider>
-        <NavigationContainer>{children}</NavigationContainer>
-      </AuthProvider>
-    </GluestackUIProvider>
+    <NavigationContainer>
+      <GluestackUIProvider mode="light">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </GluestackUIProvider>
+    </NavigationContainer>
   );
 }
 
@@ -55,12 +56,9 @@ describe('EditProfileScreen', () => {
     jest.clearAllMocks();
   });
 
-  it('renders the edit profile screen', async () => {
+  it('renders the edit profile screen', () => {
     const { toJSON } = render(<EditProfileScreen />, { wrapper: Providers });
-
-    await waitFor(() => {
-      expect(toJSON()).toBeTruthy();
-    });
+    expect(toJSON()).toBeTruthy();
   });
 
   it('renders without crashing', () => {
