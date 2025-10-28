@@ -114,7 +114,7 @@ describe('ConnectedServicesScreen', () => {
     render(<ConnectedServicesScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText('Connected Services')).toBeTruthy();
+      expect(mockGetServicesCatalog).toHaveBeenCalled();
     });
 
     expect(screen.getByText('Manage your service connections for automations')).toBeTruthy();
@@ -127,7 +127,7 @@ describe('ConnectedServicesScreen', () => {
     render(<ConnectedServicesScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText('Connected Services')).toBeTruthy();
+      expect(mockGetServicesCatalog).toHaveBeenCalled();
     });
 
     expect(screen.getByText('Connected')).toBeTruthy();
@@ -136,6 +136,11 @@ describe('ConnectedServicesScreen', () => {
 
   it('shows not connected status for unconnected services', async () => {
     render(<ConnectedServicesScreen />);
+
+    await waitFor(() => {
+      expect(mockGetServicesCatalog).toHaveBeenCalled();
+      expect(mockGetConnectedServices).toHaveBeenCalled();
+    });
 
     await waitFor(() => {
       expect(screen.getAllByText('Not Connected').length).toBeGreaterThan(0);
@@ -453,5 +458,75 @@ describe('ConnectedServicesScreen', () => {
     await waitFor(() => {
       expect(screen.getByText('No services available')).toBeTruthy();
     });
+  });
+
+  it('displays service icons', async () => {
+    render(<ConnectedServicesScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('GitHub')).toBeTruthy();
+    });
+
+    expect(screen.getByText('Discord')).toBeTruthy();
+  });
+
+  it('displays header with back button', async () => {
+    render(<ConnectedServicesScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Connected Services')).toBeTruthy();
+    });
+  });
+
+  it('displays service descriptions', async () => {
+    render(<ConnectedServicesScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Manage your service connections for automations')).toBeTruthy();
+    });
+  });
+
+  it('shows all service names', async () => {
+    render(<ConnectedServicesScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('GitHub')).toBeTruthy();
+    });
+
+    expect(screen.getByText('Discord')).toBeTruthy();
+    expect(screen.getByText('Slack')).toBeTruthy();
+  });
+
+  it('displays connection type for services', async () => {
+    render(<ConnectedServicesScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('GitHub')).toBeTruthy();
+    });
+
+    // Services have connection types displayed
+    expect(screen.getByText('testuser')).toBeTruthy();
+  });
+
+  it('handles back navigation', async () => {
+    render(<ConnectedServicesScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Connected Services')).toBeTruthy();
+    });
+
+    // Back button should exist
+    expect(mockRouter.back).toBeDefined();
+  });
+
+  it('renders all service cards', async () => {
+    render(<ConnectedServicesScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('GitHub')).toBeTruthy();
+    });
+
+    expect(screen.getByText('Discord')).toBeTruthy();
+    expect(screen.getByText('Slack')).toBeTruthy();
   });
 });

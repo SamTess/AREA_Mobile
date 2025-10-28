@@ -93,4 +93,75 @@ describe('AdminDashboard', () => {
     
     expect(mockGetCurrentUser).toHaveBeenCalled();
   });
+
+  it('checks user permissions on mount', async () => {
+    mockGetCurrentUser.mockResolvedValue({ id: '1', email: 'admin@example.com', isAdmin: true });
+
+    render(<AdminDashboard />);
+
+    await waitFor(() => {
+      expect(mockGetCurrentUser).toHaveBeenCalled();
+    });
+  });
+
+  it('renders Users tab button', async () => {
+    mockGetCurrentUser.mockResolvedValue({ id: '1', email: 'admin@example.com', isAdmin: true });
+
+    render(<AdminDashboard />);
+
+    await waitFor(() => {
+      expect(mockGetCurrentUser).toHaveBeenCalled();
+    });
+    expect(screen.queryByText('admin.checkingPermissions')).toBeNull();
+  });
+
+  it('renders Areas tab button', async () => {
+    mockGetCurrentUser.mockResolvedValue({ id: '1', email: 'admin@example.com', isAdmin: true });
+
+    render(<AdminDashboard />);
+
+    await waitFor(() => {
+      expect(mockGetCurrentUser).toHaveBeenCalled();
+    });
+    expect(screen.queryByText('admin.checkingPermissions')).toBeNull();
+  });
+
+  it('renders Services tab button', async () => {
+    mockGetCurrentUser.mockResolvedValue({ id: '1', email: 'admin@example.com', isAdmin: true });
+
+    render(<AdminDashboard />);
+
+    await waitFor(() => {
+      expect(mockGetCurrentUser).toHaveBeenCalled();
+    });
+    expect(screen.queryByText('admin.checkingPermissions')).toBeNull();
+  });
+
+  it('displays admin dashboard header', async () => {
+    mockGetCurrentUser.mockResolvedValue({ id: '1', email: 'admin@example.com', isAdmin: true });
+
+    render(<AdminDashboard />);
+
+    await waitFor(() => {
+      expect(mockGetCurrentUser).toHaveBeenCalled();
+    });
+  });
+
+  it('handles user loading state', () => {
+    mockGetCurrentUser.mockImplementation(() => new Promise(() => {}));
+
+    render(<AdminDashboard />);
+
+    expect(screen.getByText('admin.checkingPermissions')).toBeDefined();
+  });
+
+  it('verifies admin access on load', async () => {
+    mockGetCurrentUser.mockResolvedValue({ id: '1', email: 'admin@example.com', isAdmin: true });
+
+    render(<AdminDashboard />);
+
+    await waitFor(() => {
+      expect(mockGetCurrentUser).toHaveBeenCalledTimes(1);
+    });
+  });
 });

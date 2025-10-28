@@ -13,4 +13,21 @@ describe('Index route', () => {
     const { getByText } = render(<Index />);
     expect(getByText('redirect:/(tabs)')).toBeTruthy();
   });
+
+  it('renders without errors', () => {
+    const { toJSON } = render(<Index />);
+    expect(toJSON()).toBeTruthy();
+  });
+
+  it('performs redirect correctly', () => {
+    const { getByText } = render(<Index />);
+    const redirectText = getByText('redirect:/(tabs)');
+    expect(redirectText).toBeDefined();
+    expect(redirectText.props.children).toBe('redirect:/(tabs)');
+  });
+
+  it('renders Redirect component', () => {
+    const { toJSON } = render(<Index />);
+    expect(toJSON()).toMatchSnapshot();
+  });
 });

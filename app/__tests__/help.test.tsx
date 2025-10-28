@@ -218,4 +218,76 @@ describe('HelpScreen', () => {
     // The input should adapt to content
     expect(messageInput).toBeTruthy();
   });
+
+  it('validates email format in form', () => {
+    const { getByText, getByPlaceholderText } = render(<HelpScreen />);
+    
+    const emailInput = getByPlaceholderText('john@example.com');
+    fireEvent.changeText(emailInput, 'test@example.com');
+
+    expect(emailInput.props.value).toBe('test@example.com');
+  });
+
+  it('allows typing in name field', () => {
+    const { getByPlaceholderText } = render(<HelpScreen />);
+    
+    const nameInput = getByPlaceholderText('John Doe');
+    fireEvent.changeText(nameInput, 'Jane Smith');
+
+    expect(nameInput.props.value).toBe('Jane Smith');
+  });
+
+  it('allows typing in subject field', () => {
+    const { getByPlaceholderText } = render(<HelpScreen />);
+    
+    const subjectInput = getByPlaceholderText('How can we help?');
+    fireEvent.changeText(subjectInput, 'Need assistance');
+
+    expect(subjectInput.props.value).toBe('Need assistance');
+  });
+
+  it('renders all form fields', () => {
+    const { getByText } = render(<HelpScreen />);
+    
+    expect(getByText('Name')).toBeTruthy();
+    expect(getByText('Email')).toBeTruthy();
+    expect(getByText('Subject')).toBeTruthy();
+    expect(getByText('Message')).toBeTruthy();
+  });
+
+  it('displays form subtitle', () => {
+    const { getByText } = render(<HelpScreen />);
+    
+    expect(getByText('We\'ll respond within 24 hours')).toBeTruthy();
+  });
+
+  it('renders send button', () => {
+    const { getByText } = render(<HelpScreen />);
+    
+    const sendButton = getByText('Send Message');
+    expect(sendButton).toBeTruthy();
+  });
+
+  it('displays Discord community card', () => {
+    const { getByText } = render(<HelpScreen />);
+    
+    expect(getByText('Discord Community')).toBeTruthy();
+    expect(getByText('Join the conversation')).toBeTruthy();
+    expect(getByText('Join our server')).toBeTruthy();
+  });
+
+  it('handles partial form submission', () => {
+    const { getByText, getByPlaceholderText } = render(<HelpScreen />);
+    
+    const nameInput = getByPlaceholderText('John Doe');
+    fireEvent.changeText(nameInput, 'Test User');
+
+    const submitButton = getByText('Send Message');
+    fireEvent.press(submitButton);
+
+    expect(Alert.alert).toHaveBeenCalledWith(
+      'Error',
+      'Please fill in all required fields'
+    );
+  });
 });

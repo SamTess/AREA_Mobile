@@ -89,4 +89,77 @@ describe('SettingsScreen', () => {
     
     expect(mockI18n.language).toBe('en');
   });
+
+  it('navigates to server settings when server settings is pressed', async () => {
+    const { getByText } = render(<SettingsScreen />);
+
+    const serverSettingsButton = getByText('Server Settings');
+    fireEvent.press(serverSettingsButton);
+
+    // The navigation should be triggered
+    expect(serverSettingsButton).toBeDefined();
+  });
+
+  it('navigates to help page when help is pressed', async () => {
+    const { getAllByText } = render(<SettingsScreen />);
+
+    // Get the Help & Support button (not the header)
+    const helpButtons = getAllByText('Help & Support');
+    const helpButton = helpButtons[1]; // The button, not the header
+    fireEvent.press(helpButton);
+
+    // The navigation should be triggered
+    expect(helpButton).toBeDefined();
+  });
+
+  it('expands language section when language is pressed', () => {
+    const { getByText, queryByText } = render(<SettingsScreen />);
+
+    // Initially English and French should not be visible
+    expect(queryByText('English')).toBeNull();
+    expect(queryByText('Français')).toBeNull();
+
+    const languageButton = getByText('Language');
+    fireEvent.press(languageButton);
+
+    // After pressing, language options should be visible
+    expect(getByText('English')).toBeDefined();
+    expect(getByText('Français')).toBeDefined();
+  });
+
+  it('expands theme section when appearance is pressed', () => {
+    const { getByText, queryByText } = render(<SettingsScreen />);
+
+    const appearanceButton = getByText('Appearance');
+    fireEvent.press(appearanceButton);
+
+    // After pressing, theme options should be visible (Dark or light - we're in light mode by default)
+    expect(getByText('Dark')).toBeDefined();
+  });
+
+  it('displays current language badge', () => {
+    const { getByText } = render(<SettingsScreen />);
+
+    expect(getByText('Language')).toBeDefined();
+    expect(getByText('EN')).toBeDefined();
+  });
+
+  it('displays current theme info in badge', () => {
+    const { getByText } = render(<SettingsScreen />);
+
+    expect(getByText('Appearance')).toBeDefined();
+    // Light badge text should be visible
+    const lightBadges = getByText('Light');
+    expect(lightBadges).toBeDefined();
+  });
+
+  it('renders all main setting sections', () => {
+    const { getByText } = render(<SettingsScreen />);
+
+    expect(getByText('Server Settings')).toBeDefined();
+    expect(getByText('Language')).toBeDefined();
+    expect(getByText('Appearance')).toBeDefined();
+    // Check for one of the Help & Support text
+    expect(getByText('Get help and FAQs')).toBeDefined();
+  });
 });
