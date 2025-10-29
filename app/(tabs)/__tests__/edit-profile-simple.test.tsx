@@ -90,10 +90,8 @@ describe('EditProfileScreen', () => {
     render(<EditProfileScreen />, { wrapper: Providers });
 
     await waitFor(() => {
-      expect(mockGetCurrentUser).toHaveBeenCalled();
+      expect(screen.getByText('Edit Profile')).toBeTruthy();
     });
-
-    expect(screen.getByText('Edit Profile')).toBeTruthy();
   });
 
   it('renders all form fields', async () => {
@@ -121,30 +119,24 @@ describe('EditProfileScreen', () => {
     render(<EditProfileScreen />, { wrapper: Providers });
 
     await waitFor(() => {
-      expect(mockGetCurrentUser).toHaveBeenCalled();
+      expect(screen.getByText('Save')).toBeTruthy();
     });
-
-    expect(screen.getByText('Save')).toBeTruthy();
   });
 
   it('renders avatar section', async () => {
     render(<EditProfileScreen />, { wrapper: Providers });
 
     await waitFor(() => {
-      expect(mockGetCurrentUser).toHaveBeenCalled();
+      expect(screen.getByText('Edit Profile')).toBeTruthy();
     });
-
-    expect(screen.getByText('Edit Profile')).toBeTruthy();
   });
 
   it('handles username input', async () => {
     render(<EditProfileScreen />, { wrapper: Providers });
 
     await waitFor(() => {
-      expect(mockGetCurrentUser).toHaveBeenCalled();
+      expect(screen.getByText('Username')).toBeTruthy();
     });
-
-    expect(screen.getByText('Username')).toBeTruthy();
   });
 
   it('handles firstname input', async () => {

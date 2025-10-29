@@ -243,8 +243,10 @@ describe('UserModal', () => {
     await waitFor(() => {
       const firstNameInput = screen.getByPlaceholderText('admin.modal.firstNamePlaceholder');
       const lastNameInput = screen.getByPlaceholderText('admin.modal.lastNamePlaceholder');
+      const usernameInput = screen.getByPlaceholderText('Enter username');
       fireEvent.changeText(firstNameInput, 'John');
       fireEvent.changeText(lastNameInput, 'Doe');
+      fireEvent.changeText(usernameInput, 'johndoe');
     });
 
     const submitButton = screen.getByTestId('submit-button');
@@ -273,10 +275,12 @@ describe('UserModal', () => {
     await waitFor(() => {
       const firstNameInput = screen.getByPlaceholderText('admin.modal.firstNamePlaceholder');
       const lastNameInput = screen.getByPlaceholderText('admin.modal.lastNamePlaceholder');
+      const usernameInput = screen.getByPlaceholderText('Enter username');
       const emailInput = screen.getByPlaceholderText('admin.modal.emailPlaceholder');
       const passwordInput = screen.getByPlaceholderText('admin.modal.passwordPlaceholder');
       fireEvent.changeText(firstNameInput, 'John');
       fireEvent.changeText(lastNameInput, 'Doe');
+      fireEvent.changeText(usernameInput, 'johndoe');
       fireEvent.changeText(emailInput, 'invalid-email');
       fireEvent.changeText(passwordInput, 'password123');
     });
@@ -307,9 +311,11 @@ describe('UserModal', () => {
     await waitFor(() => {
       const firstNameInput = screen.getByPlaceholderText('admin.modal.firstNamePlaceholder');
       const lastNameInput = screen.getByPlaceholderText('admin.modal.lastNamePlaceholder');
+      const usernameInput = screen.getByPlaceholderText('Enter username');
       const emailInput = screen.getByPlaceholderText('admin.modal.emailPlaceholder');
       fireEvent.changeText(firstNameInput, 'John');
       fireEvent.changeText(lastNameInput, 'Doe');
+      fireEvent.changeText(usernameInput, 'johndoe');
       fireEvent.changeText(emailInput, 'john@example.com');
     });
 
@@ -341,11 +347,13 @@ describe('UserModal', () => {
     await waitFor(() => {
       const firstNameInput = screen.getByPlaceholderText('admin.modal.firstNamePlaceholder');
       const lastNameInput = screen.getByPlaceholderText('admin.modal.lastNamePlaceholder');
+      const usernameInput = screen.getByPlaceholderText('Enter username');
       const emailInput = screen.getByPlaceholderText('admin.modal.emailPlaceholder');
       const passwordInput = screen.getByPlaceholderText('admin.modal.passwordPlaceholder');
 
       fireEvent.changeText(firstNameInput, 'John');
       fireEvent.changeText(lastNameInput, 'Doe');
+      fireEvent.changeText(usernameInput, 'johndoe');
       fireEvent.changeText(emailInput, 'john@example.com');
       fireEvent.changeText(passwordInput, 'password123');
     });
@@ -357,6 +365,7 @@ describe('UserModal', () => {
       expect(mockOnSubmit).toHaveBeenCalledWith({
         firstName: 'John',
         lastName: 'Doe',
+        username: 'johndoe',
         email: 'john@example.com',
         password: 'password123',
         isAdmin: false,
@@ -380,11 +389,13 @@ describe('UserModal', () => {
     await waitFor(() => {
       const firstNameInput = screen.getByPlaceholderText('admin.modal.firstNamePlaceholder');
       const lastNameInput = screen.getByPlaceholderText('admin.modal.lastNamePlaceholder');
+      const usernameInput = screen.getByPlaceholderText('Enter username');
       const emailInput = screen.getByPlaceholderText('admin.modal.emailPlaceholder');
       const passwordInput = screen.getByPlaceholderText('admin.modal.passwordPlaceholder');
 
       fireEvent.changeText(firstNameInput, 'Admin');
       fireEvent.changeText(lastNameInput, 'User');
+      fireEvent.changeText(usernameInput, 'adminuser');
       fireEvent.changeText(emailInput, 'admin@example.com');
       fireEvent.changeText(passwordInput, 'admin123');
     });
@@ -420,11 +431,13 @@ describe('UserModal', () => {
     await waitFor(() => {
       const firstNameInput = screen.getByPlaceholderText('admin.modal.firstNamePlaceholder');
       const lastNameInput = screen.getByPlaceholderText('admin.modal.lastNamePlaceholder');
+      const usernameInput = screen.getByPlaceholderText('Enter username');
       const emailInput = screen.getByPlaceholderText('admin.modal.emailPlaceholder');
       const passwordInput = screen.getByPlaceholderText('admin.modal.passwordPlaceholder');
 
       fireEvent.changeText(firstNameInput, 'John');
       fireEvent.changeText(lastNameInput, 'Doe');
+      fireEvent.changeText(usernameInput, 'johndoe');
       fireEvent.changeText(emailInput, 'john@example.com');
       fireEvent.changeText(passwordInput, 'password123');
     });
@@ -450,6 +463,7 @@ describe('UserModal', () => {
     mockGetUserById.mockResolvedValue({
       id: 1,
       name: 'John Doe',
+      username: 'johndoe',
       email: 'john@example.com',
       role: 'User',
     });

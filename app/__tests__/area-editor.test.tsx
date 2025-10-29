@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import AreaEditorScreen from '../area-editor';
 
 // Mock expo-router
@@ -99,6 +100,15 @@ const mockAlert = jest.spyOn(Alert, 'alert').mockImplementation(() => {
   // Do nothing - let tests handle button presses manually
 });
 
+// Mock providers
+function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <GluestackUIProvider mode="light">
+      {children}
+    </GluestackUIProvider>
+  );
+}
+
 describe('AreaEditorScreen', () => {
   const mockGetAllServices = require('@/services/serviceCatalog').getAllServices;
   const mockCreateAreaWithActions = require('@/services/area').createAreaWithActions;
@@ -142,7 +152,7 @@ describe('AreaEditorScreen', () => {
   });
 
   it('renders area editor with empty state', async () => {
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       screen.getByText('Create Area');
@@ -167,7 +177,7 @@ describe('AreaEditorScreen', () => {
       reactions: [],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(mockGetArea).toHaveBeenCalledWith('area-1');
@@ -180,7 +190,7 @@ describe('AreaEditorScreen', () => {
   });
 
   it('updates area title and description', async () => {
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       screen.getByText('Create Area');
@@ -198,7 +208,7 @@ describe('AreaEditorScreen', () => {
   });
 
   it('navigates to service selector when adding action', async () => {
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('No triggers yet')).toBeTruthy();
@@ -214,7 +224,7 @@ describe('AreaEditorScreen', () => {
   });
 
   it('navigates to service selector when adding reaction', async () => {
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('No actions yet')).toBeTruthy();
@@ -263,7 +273,7 @@ describe('AreaEditorScreen', () => {
       ],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('Create Issue')).toBeTruthy();
@@ -290,7 +300,7 @@ describe('AreaEditorScreen', () => {
       configuredReactions: [],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('Create Area')).toBeTruthy();
@@ -317,7 +327,7 @@ describe('AreaEditorScreen', () => {
   });
 
   it('shows validation error when saving without title', async () => {
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('Create Area')).toBeTruthy();
@@ -354,7 +364,7 @@ describe('AreaEditorScreen', () => {
       configuredReactions: [],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('Create Area')).toBeTruthy();
@@ -381,7 +391,7 @@ describe('AreaEditorScreen', () => {
       id: undefined, // New area
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('Create Area')).toBeTruthy();
@@ -402,7 +412,7 @@ describe('AreaEditorScreen', () => {
 
     mockGetArea.mockRejectedValue(new Error('Load failed'));
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(mockAlert).toHaveBeenCalledWith(
@@ -436,7 +446,7 @@ describe('AreaEditorScreen', () => {
       reactions: [],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('View Area')).toBeTruthy();
@@ -456,7 +466,7 @@ describe('AreaEditorScreen', () => {
       reactions: [],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('View Area')).toBeTruthy();
@@ -470,7 +480,7 @@ describe('AreaEditorScreen', () => {
 
     mockGetAllServices.mockRejectedValue(new Error('Service load failed'));
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('Create Area')).toBeTruthy();
@@ -548,7 +558,7 @@ describe('AreaEditorScreen', () => {
       return Promise.reject(new Error('Not found'));
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(mockGetArea).toHaveBeenCalledWith('area-1');
@@ -569,7 +579,7 @@ describe('AreaEditorScreen', () => {
       reactions: [],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('View Area')).toBeTruthy();
@@ -598,7 +608,7 @@ describe('AreaEditorScreen', () => {
       reactions: [],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('View Area')).toBeTruthy();
@@ -632,7 +642,7 @@ describe('AreaEditorScreen', () => {
       reactions: [],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('View Area')).toBeTruthy();
@@ -685,7 +695,7 @@ describe('AreaEditorScreen', () => {
       configuredReactions: [],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('Create Area')).toBeTruthy();
@@ -710,7 +720,7 @@ describe('AreaEditorScreen', () => {
       configuredReactions: [],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       screen.getByText('Create Area');
@@ -761,7 +771,7 @@ describe('AreaEditorScreen', () => {
       configuredReactions: [],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       expect(screen.getByText('View Area')).toBeTruthy();
@@ -817,7 +827,7 @@ describe('AreaEditorScreen', () => {
       configuredReactions: [],
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     // Check that the action is rendered
     expect(screen.getByText('My Action')).toBeTruthy();
@@ -833,7 +843,7 @@ describe('AreaEditorScreen', () => {
       configuredReactions: [], // No reactions configured
     });
 
-    render(<AreaEditorScreen />);
+    render(<AreaEditorScreen />, { wrapper: Providers });
 
     await waitFor(() => {
       screen.getByText('Create Area');
