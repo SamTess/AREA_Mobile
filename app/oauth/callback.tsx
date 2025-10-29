@@ -34,7 +34,7 @@ export default function OAuthCallbackScreen() {
       setStatus('error');
       setMessage(error_description as string || error as string || 'OAuth authentication failed');
       await clearPKCE();
-      
+
       setTimeout(() => {
         router.replace('/(tabs)/login');
       }, 3000);
@@ -83,7 +83,7 @@ export default function OAuthCallbackScreen() {
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
-      
+
       if (isLinkMode) {
         const token = await storage.getAccessToken();
         if (token) {
@@ -102,18 +102,17 @@ export default function OAuthCallbackScreen() {
 
       if (response.ok) {
         const data = await response.json();
-        
+
         setStatus('success');
         await clearPKCE();
 
         if (isLinkMode) {
-          
           if (data.connected && data.serviceName) {
             setMessage(`${data.serviceName} linked successfully! Redirecting...`);
           } else {
             setMessage('Service linked successfully! Redirecting...');
           }
-          
+
           setTimeout(() => {
             router.replace('/connected-services');
           }, 1500);
@@ -155,7 +154,7 @@ export default function OAuthCallbackScreen() {
         } else if (response.status === 400) {
           errorMessage = 'Invalid request';
         }
-        
+
         throw new Error(errorMessage);
       }
     } catch (error: any) {

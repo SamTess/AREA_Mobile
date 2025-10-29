@@ -143,15 +143,40 @@ export default function ConnectedServicesScreen() {
 
   const handleConnect = async (service: BackendService) => {
     try {
-      const serverUrl = await getServerUrl();
-      const redirectUri = encodeURIComponent('areamobile://oauth-callback');
-      const authUrl = `${serverUrl}/api/oauth/${service.key.toLowerCase()}/authorize?origin=mobile&mode=link&mobile_redirect=${redirectUri}`;
-      const canOpen = await Linking.canOpenURL(authUrl);
-      if (canOpen) {
-        await Linking.openURL(authUrl);
-      } else {
-        throw new Error('Cannot open URL');
-      }
+      const oauthProvider = serviceConnection.mapServiceKeyToOAuthProvider(service.key);
+
+      Alert.alert(
+        t('services.connect', 'Connect Service'),
+        t('services.connectMessage', `You will be redirected to ${service.name} to authorize the connection.`),
+        [
+          { text: t('common.cancel', 'Cancel'), style: 'cancel' },
+          {
+            text: t('common.continue', 'Continue'),
+            onPress: async () => {
+              try {
+                const serverUrl = await getServerUrl();
+                const redirectUri = encodeURIComponent('areamobile://oauth-callback');
+                const authUrl = `${serverUrl}/api/oauth/${oauthProvider}/authorize?origin=mobile&mode=link&mobile_redirect=${redirectUri}`;
+                const canOpen = await Linking.canOpenURL(authUrl);
+                if (canOpen) {
+                  await Linking.openURL(authUrl);
+                  setTimeout(() => {
+                    loadServices();
+                  }, 2000);
+                } else {
+                  throw new Error('Cannot open URL');
+                }
+              } catch (error) {
+                console.error('Failed to connect service:', error);
+                Alert.alert(
+                  t('services.error', 'Error'),
+                  t('services.connectError', 'Failed to connect service')
+                );
+              }
+            }
+          }
+        ]
+      );
     } catch (error) {
       console.error('Failed to connect service:', error);
       Alert.alert(
