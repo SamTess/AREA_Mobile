@@ -19,6 +19,7 @@ export default function UserModal({ visible, onClose, onSubmit, user }: UserModa
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    username: '',
     email: '',
     password: '',
     isAdmin: false,
@@ -31,24 +32,32 @@ export default function UserModal({ visible, onClose, onSubmit, user }: UserModa
       if (user) {
         setFetchingUser(true);
         try {
-          const userData = await getUserById(user.id.toString());
+          const userData: any = await getUserById(user.id.toString());
           let firstName = '';
           let lastName = '';
-          if (userData.name && typeof userData.name === 'string') {
+          if (userData.firstname) {
+            firstName = userData.firstname;
+          } else if (userData.firstName) {
+            firstName = userData.firstName;
+          } else if (userData.name && typeof userData.name === 'string') {
             const nameParts = userData.name.split(' ');
             firstName = nameParts[0] || '';
-            lastName = nameParts.slice(1).join(' ') || '';
           }
-          if ((userData as any).profileData) {
-            firstName = (userData as any).profileData.firstName || firstName;
-            lastName = (userData as any).profileData.lastName || lastName;
+          if (userData.lastname) {
+            lastName = userData.lastname;
+          } else if (userData.lastName) {
+            lastName = userData.lastName;
+          } else if (userData.name && typeof userData.name === 'string') {
+            const nameParts = userData.name.split(' ');
+            lastName = nameParts.slice(1).join(' ') || '';
           }
           setFormData({
             firstName,
             lastName,
+            username: userData.username || '',
             email: userData.email || '',
             password: '',
-            isAdmin: userData.role === 'Admin',
+            isAdmin: userData.role === 'Admin' || userData.isAdmin === true,
           });
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -61,6 +70,7 @@ export default function UserModal({ visible, onClose, onSubmit, user }: UserModa
         setFormData({
           firstName: '',
           lastName: '',
+          username: '',
           email: '',
           password: '',
           isAdmin: false,
@@ -78,6 +88,8 @@ export default function UserModal({ visible, onClose, onSubmit, user }: UserModa
       return Alert.alert(t('admin.modal.validationError'), t('admin.modal.firstNameRequired'));
     if (!formData.lastName.trim())
       return Alert.alert(t('admin.modal.validationError'), t('admin.modal.lastNameRequired'));
+    if (!formData.username.trim())
+      return Alert.alert(t('admin.modal.validationError'), 'Username is required');
     if (!formData.email.trim())
       return Alert.alert(t('admin.modal.validationError'), t('admin.modal.emailRequired'));
     if (!user && !formData.password.trim())
@@ -91,6 +103,7 @@ export default function UserModal({ visible, onClose, onSubmit, user }: UserModa
       const userData: any = {
         firstName: formData.firstName,
         lastName: formData.lastName,
+        username: formData.username,
         email: formData.email,
         isAdmin: formData.isAdmin,
       };
@@ -158,6 +171,20 @@ export default function UserModal({ visible, onClose, onSubmit, user }: UserModa
                   onChangeText={(text) =>
                     setFormData({ ...formData, lastName: text })
                   }
+                  editable={!loading}
+                />
+              </View>
+              <View style={styles.formGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>Username</Text>
+                <TextInput
+                  style={[styles.input, { backgroundColor: colors.backgroundSecondary, color: colors.text, borderColor: colors.border }]}
+                  placeholder="Enter username"
+                  placeholderTextColor={colors.textTertiary}
+                  value={formData.username}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, username: text })
+                  }
+                  autoCapitalize="none"
                   editable={!loading}
                 />
               </View>

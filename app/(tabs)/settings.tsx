@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Server, HelpCircle, Globe, Moon, Sun, Check } from 'lucide-react-native';
+import { Server, HelpCircle, Globe, Moon, Sun, Check, Info } from 'lucide-react-native';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, TouchableOpacity } from 'react-native';
@@ -270,7 +270,7 @@ export default function SettingsScreen() {
             {t('settings.supportSection', 'Help & Support')}
           </Text>
           <Box
-            className="rounded-xl shadow-sm"
+            className="rounded-xl mb-2 shadow-sm"
             style={{
               backgroundColor: colors.card,
               borderWidth: 1,
@@ -282,6 +282,21 @@ export default function SettingsScreen() {
               title={t('settings.help', 'Help & Support')}
               subtitle={t('settings.helpSubtitle', 'Get help and FAQs')}
               onPress={() => router.push('/help' as any)}
+            />
+          </Box>
+          <Box
+            className="rounded-xl shadow-sm"
+            style={{
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
+            }}
+          >
+            <MenuItem
+              icon={Info}
+              title={t('about.title', 'About AREA')}
+              subtitle={t('about.subtitle', 'Learn more about our automation platform')}
+              onPress={() => router.push('/about')}
             />
           </Box>
         </VStack>

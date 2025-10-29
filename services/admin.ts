@@ -1,5 +1,6 @@
 import { apiClient } from './api';
 import { ENV } from './api.config';
+import { getApiUrl } from './api.config';
 import type {
   User,
   Area,
@@ -37,9 +38,9 @@ const mockCardUserData: CardUserDataPoint[] = [
 ];
 
 const mockUsers: User[] = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User' },
-  { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'User' },
+  { id: 1, name: 'John Doe', email: 'john@example.com', username: 'johndoe', role: 'Admin' },
+  { id: 2, name: 'Jane Smith', email: 'jane@example.com', username: 'janesmith', role: 'User' },
+  { id: 3, name: 'Bob Johnson', email: 'bob@example.com', username: 'bobjohnson', role: 'User' },
 ];
 
 const mockAreas: Area[] = [
@@ -250,7 +251,7 @@ export const getAreaStats = async (): Promise<AreaStat[]> => {
  * Note: This function bypasses the apiClient to avoid saving cookies/tokens
  * which would log out the current admin user.
  */
-export const createUser = async (userData: { firstName: string; lastName: string; email: string; password: string; isAdmin: boolean; }): Promise<User> => {
+export const createUser = async (userData: { firstName: string; lastName: string; username: string; email: string; password: string; isAdmin: boolean; }): Promise<User> => {
   if (ENV.USE_MOCK) {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -258,6 +259,7 @@ export const createUser = async (userData: { firstName: string; lastName: string
           id: Date.now(),
           name: `${userData.firstName} ${userData.lastName}`,
           email: userData.email,
+          username: userData.username,
           role: userData.isAdmin ? 'Admin' : 'User',
         };
         resolve(newUser);
@@ -267,7 +269,8 @@ export const createUser = async (userData: { firstName: string; lastName: string
 
   try {
     // dont get credentials from the current admin user to avoid to log out
-    const response = await fetch(`${ENV.API_URL}/api/auth/register`, {
+    const apiUrl = await getApiUrl();
+    const response = await fetch(`${apiUrl}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -278,6 +281,7 @@ export const createUser = async (userData: { firstName: string; lastName: string
         password: userData.password,
         firstName: userData.firstName,
         lastName: userData.lastName,
+        username: userData.username,
         isAdmin: userData.isAdmin,
       }),
     });
@@ -291,6 +295,7 @@ export const createUser = async (userData: { firstName: string; lastName: string
       id: data.id || Date.now(),
       name: `${userData.firstName} ${userData.lastName}`,
       email: userData.email,
+      username: userData.username,
       role: userData.isAdmin ? 'Admin' : 'User',
     };
   } catch (error) {
@@ -307,6 +312,7 @@ export const updateUser = async (
   userData: {
     firstName: string;
     lastName: string;
+    username: string;
     email: string;
     password?: string;
     isAdmin: boolean;
@@ -319,6 +325,7 @@ export const updateUser = async (
           id: parseInt(id),
           name: `${userData.firstName} ${userData.lastName}`,
           email: userData.email,
+          username: userData.username,
           role: userData.isAdmin ? 'Admin' : 'User',
         };
         resolve(updatedUser);
@@ -331,6 +338,7 @@ export const updateUser = async (
       email: userData.email,
       firstname: userData.firstName,
       lastname: userData.lastName,
+      username: userData.username,
       isAdmin: userData.isAdmin,
     };
     if (userData.password)
@@ -346,7 +354,7 @@ export const updateUser = async (
 /**
  * Get user by ID
  */
-export const getUserById = async (id: string): Promise<User> => {
+export const getUserById = async (id: string): Promise<any> => {
   if (ENV.USE_MOCK) {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -361,7 +369,7 @@ export const getUserById = async (id: string): Promise<User> => {
   }
 
   try {
-    const response = await apiClient.get<User>(`/api/users/${id}`);
+    const response = await apiClient.get<any>(`/api/users/${id}`);
     return response;
   } catch (error) {
     console.error('Get user by ID error:', error);
