@@ -55,7 +55,7 @@ export async function clearApiCookies(): Promise<void> {
     const apiUrl = await getApiUrl();
     await CookieManager.clearByName(apiUrl, 'authToken');
     await CookieManager.clearByName(apiUrl, 'refreshToken');
-    console.log('✅ API cookies cleared');
+    console.log('API cookies cleared');
   } catch (error) {
     console.error('Error clearing API cookies:', error);
   }
@@ -67,7 +67,7 @@ export async function clearApiCookies(): Promise<void> {
 export async function clearAllCookies(): Promise<void> {
   try {
     await CookieManager.clearAll();
-    console.log('✅ All cookies cleared');
+    console.log('All cookies cleared');
   } catch (error) {
     console.error('Error clearing all cookies:', error);
   }

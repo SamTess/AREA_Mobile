@@ -19,10 +19,9 @@ export default function OAuthWebViewScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { provider, mode } = params; // mode: 'login' ou 'link'
+  const { provider, mode } = params;
   const { refreshAuth } = useAuth();
   const webViewRef = useRef<WebView>(null);
-  
   const [isLoading, setIsLoading] = useState(true);
   const [currentUrl, setCurrentUrl] = useState('');
   const [authCompleted, setAuthCompleted] = useState(false);
@@ -32,17 +31,12 @@ export default function OAuthWebViewScreen() {
     setCurrentUrl(url);
     setIsLoading(loading);
 
-    // Éviter de traiter plusieurs fois
-    if (authCompleted) return;
-
-    console.log('📍 Navigation:', url);
-
-    // Détecter la page de callback OAuth
+    if (authCompleted)
+      return;
     if (url.includes('/oauth-callback')) {
       const urlParams = new URLSearchParams(url.split('?')[1]);
       const error = urlParams.get('error');
       const errorDescription = urlParams.get('error_description');
-
       if (error) {
         setAuthCompleted(true);
         Alert.alert(
@@ -59,45 +53,26 @@ export default function OAuthWebViewScreen() {
         );
         return;
       }
-
-      // Le code sera échangé par la page web elle-même
-      console.log('✅ OAuth callback page loaded - waiting for token exchange...');
     }
-
-    // Détecter la redirection finale après succès
-    // La page web redirige vers la home ou services après l'échange
     if (!authCompleted && (
-      url.endsWith('/(tabs)') || 
+      url.endsWith('/(tabs)') ||
       url.includes('/connected-services') ||
       url.includes('/oauth-success') ||
-      // Patterns pour détecter les redirections de succès
       (url.includes('success') && !url.includes('oauth-callback'))
     )) {
       setAuthCompleted(true);
-      console.log('🎉 OAuth completed successfully');
 
       try {
-        // Récupérer les cookies de la WebView
         const apiUrl = await getApiUrl();
         const cookies = await CookieManager.get(apiUrl);
-        
-        console.log('🍪 Cookies récupérés:', Object.keys(cookies));
-
-        // Vérifier qu'on a bien les cookies d'authentification
         if (cookies.authToken || cookies.refreshToken) {
-          console.log('✅ Cookies d\'authentification trouvés');
-          
-          // Rafraîchir l'état d'authentification
           if (mode !== 'link') {
             await refreshAuth();
           }
-
-          // Redirection
           setTimeout(() => {
             router.replace(mode === 'link' ? '/connected-services' : '/(tabs)');
           }, 500);
         } else {
-          console.warn('⚠️  Cookies d\'authentification non trouvés');
           Alert.alert(
             t('oauth.error', 'Error'),
             t('oauth.cookieError', 'Failed to retrieve authentication cookies'),
@@ -112,7 +87,7 @@ export default function OAuthWebViewScreen() {
           );
         }
       } catch (error) {
-        console.error('❌ Error handling OAuth success:', error);
+        console.error('Error handling OAuth success:', error);
         Alert.alert(
           t('oauth.error', 'Error'),
           t('oauth.unexpectedError', 'An unexpected error occurred'),
@@ -131,8 +106,6 @@ export default function OAuthWebViewScreen() {
 
   const handleError = (syntheticEvent: any) => {
     const { nativeEvent } = syntheticEvent;
-    console.error('WebView error:', nativeEvent);
-    
     Alert.alert(
       t('oauth.error', 'Error'),
       t('oauth.webviewError', 'Failed to load OAuth page'),
@@ -152,7 +125,6 @@ export default function OAuthWebViewScreen() {
     console.warn('WebView HTTP error:', nativeEvent.statusCode, nativeEvent.url);
   };
 
-  // Construire l'URL OAuth
   const getOAuthUrl = async () => {
     const apiUrl = await getApiUrl();
     return `${apiUrl}/api/oauth/${provider}/authorize?origin=mobile&mode=${mode || 'login'}`;
@@ -200,7 +172,6 @@ export default function OAuthWebViewScreen() {
           )}
         </View>
       )}
-      
       <WebView
         ref={webViewRef}
         source={{ uri: oauthUrl }}

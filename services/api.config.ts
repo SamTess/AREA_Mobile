@@ -5,10 +5,7 @@
 
 import { getServerUrl } from './storage';
 
-/**
- * Default server URL - Use env var first, then fallback to localhost
- */
-const DEFAULT_SERVER_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8080';
+const DEFAULT_SERVER_URL = 'http://127.0.0.1:8080';
 
 /**
  * Get the configured API URL from storage (user's server settings)
@@ -19,16 +16,13 @@ export async function getApiUrl(): Promise<string> {
     if (cachedServerUrl) {
         return cachedServerUrl;
     }
-    
     const storedUrl = await getServerUrl();
-
     let url: string;
     if (storedUrl) {
         url = storedUrl;
     } else {
         url = DEFAULT_SERVER_URL;
     }
-    
     cachedServerUrl = url;
     return url;
 }

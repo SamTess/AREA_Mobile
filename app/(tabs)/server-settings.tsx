@@ -20,9 +20,8 @@ export default function ServerSettingsScreen() {
   const [serverUrl, setServerUrl] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
-  const envUrl = process.env.EXPO_PUBLIC_API_URL;
-  const defaultUrl = envUrl || 'http://127.0.0.1:8080';
+ // localhost par default a l'utilisatuer de le changer dans la config du back
+  const defaultUrl = 'http://127.0.0.1:8080';
 
   useEffect(() => {
     loadServerUrl();
