@@ -293,4 +293,67 @@ describe('AreasTab', () => {
     
     // Navigation would be called (but we're not fully mocking expo-router here)
   });
+
+  it('filters areas by search query', async () => {
+    const { getByPlaceholderText, queryByText } = renderWithProviders();
+
+    await waitFor(() => expect(queryByText('Loading Areas...')).toBeNull());
+
+    const searchInput = getByPlaceholderText('Search areas...');
+    fireEvent.changeText(searchInput, 'Area 1');
+
+    expect(queryByText('Test Area 1')).toBeTruthy();
+    expect(queryByText('Test Area 2')).toBeFalsy();
+  });
+
+  it('filters areas by status - active only', async () => {
+    const { getByText, queryByText } = renderWithProviders();
+
+    await waitFor(() => expect(queryByText('Loading Areas...')).toBeNull());
+
+    // Click filter button to cycle to active
+    const filterButton = getByText('All');
+    fireEvent.press(filterButton);
+
+    expect(queryByText('Test Area 1')).toBeTruthy(); // enabled: true
+    expect(queryByText('Test Area 2')).toBeFalsy(); // enabled: false
+  });
+
+  it('filters areas by status - inactive only', async () => {
+    const { getByText, queryByText } = renderWithProviders();
+
+    await waitFor(() => expect(queryByText('Loading Areas...')).toBeNull());
+
+    // Click filter button twice to cycle to inactive
+    const filterButton = getByText('All');
+    fireEvent.press(filterButton);
+    fireEvent.press(filterButton);
+
+    expect(queryByText('Test Area 1')).toBeFalsy(); // enabled: true
+    expect(queryByText('Test Area 2')).toBeTruthy(); // enabled: false
+  });
+
+  it('handles area press navigation', async () => {
+    const { getByText } = renderWithProviders();
+
+    await waitFor(() => expect(getByText('Test Area 1')).toBeTruthy());
+
+    const areaItem = getByText('Test Area 1');
+    fireEvent.press(areaItem);
+
+    // Navigation should be called
+  });
+
+  it('handles refresh functionality', async () => {
+    const { getByTestId } = renderWithProviders();
+
+    await waitFor(() => expect(getByTestId('areas-flatlist')).toBeTruthy());
+
+    const flatList = getByTestId('areas-flatlist');
+    const refreshControl = flatList.props.refreshControl;
+
+    refreshControl.props.onRefresh();
+
+    // refreshAreas should be called
+  });
 });

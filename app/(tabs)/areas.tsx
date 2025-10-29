@@ -192,6 +192,7 @@ export default function AreasTab() {
         )}
       </Box>
       <FlatList
+        testID="areas-flatlist"
         data={filteredAreas}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
