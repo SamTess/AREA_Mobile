@@ -853,4 +853,249 @@ describe('AreaEditorScreen', () => {
     screen.getByText('No triggers yet');
     screen.getByText('No actions yet');
   });
+
+  it('handles complex area loading with links', async () => {
+    mockUseLocalSearchParams.mockReturnValue({
+      id: 'area-1',
+      mode: 'edit', // Ensure we're in edit mode
+    });
+
+    mockGetArea.mockResolvedValue({
+      id: 'area-1',
+      name: 'Complex Area',
+      description: 'Area with links',
+      enabled: true,
+      actions: [
+        {
+          id: 'action-1',
+          actionDefinitionId: 'def-1',
+          name: 'Action 1',
+          parameters: {},
+          activationConfig: { type: 'webhook' },
+        },
+        {
+          id: 'action-2',
+          actionDefinitionId: 'def-1',
+          name: 'Action 2',
+          parameters: {},
+          activationConfig: { type: 'webhook' },
+        },
+      ],
+      reactions: [
+        {
+          id: 'reaction-1',
+          actionDefinitionId: 'def-2',
+          name: 'Reaction 1',
+          parameters: {},
+          order: 0,
+        },
+      ],
+      links: [
+        {
+          sourceActionName: 'Action 1',
+          targetActionName: 'Reaction 1',
+          linkType: 'chain',
+          order: 0,
+          mapping: { output1: 'input1' },
+          condition: { status: 'success' },
+        },
+      ],
+    });
+
+    mockGetActionDefinitionById.mockImplementation((id: string) => {
+      if (id === 'def-1') {
+        return Promise.resolve({
+          id: 'def-1',
+          name: 'Create Issue',
+          serviceKey: 'github',
+        });
+      }
+      if (id === 'def-2') {
+        return Promise.resolve({
+          id: 'def-2',
+          name: 'Send Message',
+          serviceKey: 'discord',
+        });
+      }
+      return Promise.reject(new Error('Not found'));
+    });
+
+    mockGetServiceByKey.mockImplementation((key: string) => {
+      if (key === 'github') {
+        return Promise.resolve({
+          id: 'service-1',
+          key: 'github',
+          name: 'GitHub',
+        });
+      }
+      if (key === 'discord') {
+        return Promise.resolve({
+          id: 'service-2',
+          key: 'discord',
+          name: 'Discord',
+        });
+      }
+      return Promise.reject(new Error('Not found'));
+    });
+
+    render(<AreaEditorScreen />, { wrapper: Providers });
+
+    await waitFor(() => {
+      expect(mockGetArea).toHaveBeenCalledWith('area-1');
+      expect(mockAreaEditor.initializeWithData).toHaveBeenCalled();
+    });
+
+    // Should load complex area with links - check for "View Area" header
+    expect(screen.getByText('View Area')).toBeTruthy();
+    
+    // Check that the area name is displayed in the input
+    const titleInput = screen.getByPlaceholderText('My automation area');
+    expect(titleInput.props.value).toBe('Complex Area');
+  });
+
+  it('handles delete action functionality', async () => {
+    const mockUseAreaEditor = require('@/contexts/AreaEditorContext').useAreaEditor;
+    mockUseAreaEditor.mockReturnValue({
+      ...mockAreaEditor,
+      configuredActions: [
+        {
+          id: 'action-1',
+          action: {
+            id: 'action-1',
+            name: 'Test Action',
+            description: 'Test action description',
+            parameters: {},
+            actionDefinitionId: 'def-1',
+          },
+          service: { id: '1', key: 'github', name: 'GitHub' },
+          definition: { id: 'def-1', name: 'Test Action' },
+        },
+      ],
+      configuredReactions: [],
+    });
+
+    mockUseLocalSearchParams.mockReturnValue({
+      id: 'area-1',
+    });
+
+    mockGetArea.mockResolvedValue({
+      id: 'area-1',
+      name: 'Test Area',
+      actions: [{
+        id: 'action-1',
+        name: 'Test Action',
+        parameters: {},
+      }],
+      reactions: [],
+      enabled: true,
+    });
+
+    mockAreaEditor.initializeWithData.mockResolvedValue(undefined);
+
+    render(<AreaEditorScreen />, { wrapper: Providers });
+
+    await waitFor(() => {
+      expect(screen.getByText('View Area')).toBeTruthy();
+    });
+
+    // Switch to edit mode
+    const editButton = screen.getAllByRole('button')[1];
+    fireEvent.press(editButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Edit Area')).toBeTruthy();
+    });
+
+    // Find delete action button (trash icon in action card)
+    const deleteActionButton = screen.getByTestId('delete-action-0');
+    fireEvent.press(deleteActionButton);
+
+    // Confirm delete in alert
+    await waitFor(() => {
+      expect(Alert.alert).toHaveBeenCalled();
+    });
+
+    // Simulate pressing delete in alert
+    const alertCalls = (Alert.alert as jest.Mock).mock.calls;
+    const lastCall = alertCalls[alertCalls.length - 1];
+    const deleteAction = lastCall[2][1]; // Second button is delete
+    await deleteAction.onPress();
+
+    await waitFor(() => {
+      expect(mockAreaEditor.removeAction).toHaveBeenCalledWith(0);
+    });
+  });
+
+  it('handles delete reaction functionality', async () => {
+    const mockUseAreaEditor = require('@/contexts/AreaEditorContext').useAreaEditor;
+    mockUseAreaEditor.mockReturnValue({
+      ...mockAreaEditor,
+      configuredActions: [],
+      configuredReactions: [
+        {
+          id: 'reaction-1',
+          reaction: {
+            id: 'reaction-1',
+            name: 'Test Reaction',
+            description: 'Test reaction description',
+            parameters: {},
+            actionDefinitionId: 'def-2',
+          },
+          service: { id: '2', key: 'discord', name: 'Discord' },
+          definition: { id: 'def-2', name: 'Test Reaction' },
+        },
+      ],
+    });
+
+    mockUseLocalSearchParams.mockReturnValue({
+      id: 'area-1',
+    });
+
+    mockGetArea.mockResolvedValue({
+      id: 'area-1',
+      name: 'Test Area',
+      actions: [],
+      reactions: [{
+        id: 'reaction-1',
+        name: 'Test Reaction',
+        parameters: {},
+      }],
+      enabled: true,
+    });
+
+    mockAreaEditor.initializeWithData.mockResolvedValue(undefined);
+
+    render(<AreaEditorScreen />, { wrapper: Providers });
+
+    await waitFor(() => {
+      expect(screen.getByText('View Area')).toBeTruthy();
+    });
+
+    // Switch to edit mode
+    const editButton = screen.getAllByRole('button')[1];
+    fireEvent.press(editButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Edit Area')).toBeTruthy();
+    });
+
+    // Find delete reaction button (trash icon in reaction card)
+    const deleteReactionButton = screen.getByTestId('delete-reaction-0');
+    fireEvent.press(deleteReactionButton);
+
+    // Confirm delete in alert
+    await waitFor(() => {
+      expect(Alert.alert).toHaveBeenCalled();
+    });
+
+    // Simulate pressing delete in alert
+    const alertCalls = (Alert.alert as jest.Mock).mock.calls;
+    const lastCall = alertCalls[alertCalls.length - 1];
+    const deleteAction = lastCall[2][1]; // Second button is delete
+    await deleteAction.onPress();
+
+    await waitFor(() => {
+      expect(mockAreaEditor.removeReaction).toHaveBeenCalledWith(0);
+    });
+  });
 });

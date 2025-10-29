@@ -86,12 +86,24 @@ function ServiceCard({ service, actionDef, actionData, params, type, index, onEd
             {(onEdit || onDelete) && (
               <HStack space="xs">
                 {onEdit && (
-                  <Button size="xs" variant="outline" onPress={onEdit} className="border-blue-300">
+                  <Button 
+                    size="xs" 
+                    variant="outline" 
+                    onPress={onEdit} 
+                    className="border-blue-300"
+                    testID={`edit-${type}-${index}`}
+                  >
                     <ButtonIcon as={Edit} size="sm" style={{ color: colors.info }} />
                   </Button>
                 )}
                 {onDelete && (
-                  <Button size="xs" variant="outline" action="negative" onPress={onDelete}>
+                  <Button 
+                    size="xs" 
+                    variant="outline" 
+                    action="negative" 
+                    onPress={onDelete}
+                    testID={`delete-${type}-${index}`}
+                  >
                     <ButtonIcon as={Trash2} size="sm" />
                   </Button>
                 )}
