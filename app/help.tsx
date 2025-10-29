@@ -1,4 +1,4 @@
-import { Mail, Github, MessageCircle, Send, Clock, Phone, Globe, AlertCircle } from 'lucide-react-native';
+import { Mail, Github, MessageCircle, Send, Clock, Phone, Globe, AlertCircle, ArrowLeft } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHeaderHeight } from '@react-navigation/elements';
+import { useRouter } from 'expo-router';
 
 import { Badge, BadgeText } from '@/components/ui/badge';
 import { Box } from '@/components/ui/box';
@@ -86,6 +87,7 @@ export default function HelpScreen() {
   const { t } = useTranslation();
   const headerHeight = useHeaderHeight();
   const colors = useThemeColors();
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -140,6 +142,18 @@ export default function HelpScreen() {
 
   return (
     <SafeAreaView className="flex-1" edges={['top']} style={{ backgroundColor: colors.background }}>
+      {/* Header with back button */}
+      <Box className="px-6 py-4 border-b" style={{ borderBottomColor: colors.border, backgroundColor: colors.card }}>
+        <HStack space="md" className="items-center">
+          <Pressable onPress={() => router.back()} className="p-2 rounded-full active:bg-background-100">
+            <ArrowLeft size={24} color={colors.text} />
+          </Pressable>
+          <Heading size="xl" style={{ color: colors.text }}>
+            {t('help.title')}
+          </Heading>
+        </HStack>
+      </Box>
+
       <KeyboardAvoidingView
         className="flex-1"
         style={{ backgroundColor: colors.background }}
@@ -155,9 +169,6 @@ export default function HelpScreen() {
         >
           {/* Header */}
           <Box className="px-6 py-6">
-            <Heading size="3xl" className="mb-2 text-center" style={{ color: colors.info }}>
-              {t('help.title')}
-            </Heading>
             <Text size="lg" className="text-center" style={{ color: colors.textSecondary }}>{t('help.subtitle')}</Text>
           </Box>
 
