@@ -15,19 +15,22 @@ Welcome to the AREA Mobile documentation.
 
 - **[TECHNICAL.md](TECHNICAL.md)** - Tech stack, architecture, and code reference
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - Software architecture and design patterns
+- **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)** - Development best practices and coding standards
+- **[API_INTEGRATION.md](API_INTEGRATION.md)** - Backend API integration guide
+- **[I18N_GUIDE.md](I18N_GUIDE.md)** - Internationalization and localization guide
 - **[USE_GLUESTACK_COMPONENTS.md](USE_GLUESTACK_COMPONENTS.md)** - Gluestack UI component usage
 
 ---
 
 ## Contribution
 
-- **[../HOWTOCONTRIBUTE.md](../HOWTOCONTRIBUTE.md)** - How to contribute (commit conventions, code standards)
+- **[HOWTOCONTRIBUTE.md](HOWTOCONTRIBUTE.md)** - How to contribute (commit conventions, code standards)
 
 ---
 
 ## Testing & CI
 
-- **[LOCAL_CI_TESTING.md](LOCAL_CI_TESTING.md)** - Test CI workflows locally
+- **[LOCAL_CI_TESTING.md](LOCAL_CI_TESTING.md)** - Run CI/CD pipelines locally and testing guide
 
 ---
 
@@ -64,8 +67,11 @@ Welcome to the AREA Mobile documentation.
     ├── 📄 INSTALLATION.md          Installation instructions
     ├── 📄 TECHNICAL.md             Technical reference
     ├── 📄 ARCHITECTURE.md          Architecture patterns
+    ├── 📄 DEVELOPMENT_GUIDE.md     Development best practices
+    ├── 📄 API_INTEGRATION.md       API integration guide
+    ├── 📄 I18N_GUIDE.md            Internationalization guide
     ├── 📄 USE_GLUESTACK_COMPONENTS.md
-    ├── 📄 LOCAL_CI_TESTING.md
+    ├── 📄 LOCAL_CI_TESTING.md      Local CI testing guide
     ├── 📄 QUICK_RELEASE_GUIDE.md
     └── 📄 MANUAL_RELEASE_GUIDE.md
 ```
@@ -78,7 +84,11 @@ Welcome to the AREA Mobile documentation.
 2. **Need details?** Check [TECHNICAL.md](TECHNICAL.md)
 3. **Contributing?** See [../HOWTOCONTRIBUTE.md](../HOWTOCONTRIBUTE.md)
 4. **Architecture questions?** Read [ARCHITECTURE.md](ARCHITECTURE.md)
-5. **Found a bug?** Open an issue on GitHub
+5. **Development best practices?** Read [DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)
+6. **API integration?** Read [API_INTEGRATION.md](API_INTEGRATION.md)
+7. **Internationalization?** Read [I18N_GUIDE.md](I18N_GUIDE.md)
+8. **Testing locally?** Read [LOCAL_CI_TESTING.md](LOCAL_CI_TESTING.md)
+9. **Found a bug?** Open an issue on GitHub
 
 ---
 

@@ -252,6 +252,7 @@ export default function UsersTab() {
           <View style={[styles.userCard, { backgroundColor: colors.card }]}>
             <View style={styles.userInfo}>
               <Text style={[styles.userName, { color: colors.text }]}>{item.name}</Text>
+              <Text style={[styles.userUsername, { color: colors.textSecondary }]}>@{item.username}</Text>
               <Text style={[styles.userEmail, { color: colors.textSecondary }]}>{item.email}</Text>
               <View style={styles.roleContainer}>
                 <Text
@@ -414,6 +415,10 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: '600',
+    marginBottom: 4,
+  },
+  userUsername: {
+    fontSize: 14,
     marginBottom: 4,
   },
   userEmail: {

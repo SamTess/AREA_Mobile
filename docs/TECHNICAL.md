@@ -125,35 +125,30 @@ export default function SomePage() {
 
 ---
 
-## Authentication
+## Development Workflow
 
-### Flow
+### Scripts
 
-```
-User → Login Form → AuthContext.login()
-  → AuthService.login()
-  → API POST /auth/login
-  → Save tokens to SecureStore
-  → Update user state
-  → Navigate to home
-```
-
-### Password Rules
-
-- Minimum: **8 characters**
-- Validated client-side AND server-side
-- i18n error messages
-
-### Usage
-
-```typescript
-const { user, isAuthenticated, login, logout } = useAuth();
-
-await login(email, password);
-await logout();
+```bash
+yarn start          # Start Expo dev server
+yarn android        # Run on Android
+yarn ios            # Run on iOS
+yarn web            # Run on Web
+yarn test           # Run tests
+yarn test:watch     # Tests in watch mode
+yarn coverage       # Tests with coverage
+yarn lint           # Check code style
 ```
 
----
+### Environment Variables
+
+```bash
+# .env.local
+EXPO_PUBLIC_API_URL=http://localhost:8080/api
+EXPO_PUBLIC_ENVIRONMENT=development
+EXPO_PUBLIC_USE_MOCK_DATA=false
+EXPO_PUBLIC_SENTRY_DSN=your_sentry_dsn_here
+```
 
 ## Internationalization
 
@@ -341,13 +336,14 @@ yarn lint           # Check code style
 
 ---
 
-## Resources
+## Related Documentation
 
-- [Expo Docs](https://docs.expo.dev/)
-- [React Native](https://reactnative.dev/)
-- [Gluestack-UI](https://gluestack.io/)
-- [NativeWind](https://www.nativewind.dev/)
-- [Expo Router](https://docs.expo.dev/router/introduction/)
+For detailed guides on specific topics:
+
+- **[Development Guide](DEVELOPMENT_GUIDE.md)** - Code standards, testing practices, performance guidelines
+- **[API Integration Guide](API_INTEGRATION.md)** - Backend API integration, authentication, endpoints
+- **[Internationalization Guide](I18N_GUIDE.md)** - Translation management, language switching
+- **[Architecture Guide](ARCHITECTURE.md)** - Global platform architecture
 
 ---
 
