@@ -51,6 +51,7 @@ export default function OAuthCallbackScreen() {
           setMessage(t('oauth.exchanging', 'Exchanging authorization code...'));
           const providerName = (provider as string) || 'google';
           const authMode = (mode as string) || 'login';
+          const returnPath = (params.return as string) || null;
           const apiUrl = await getApiUrl();
           const isLinkMode = authMode === 'link';
           const endpoint = isLinkMode 
@@ -82,7 +83,11 @@ export default function OAuthCallbackScreen() {
             if (isLinkMode) {
               setMessage(t('oauth.linkSuccess', 'Account linked successfully!'));
               setTimeout(() => {
-                router.replace('/connected-services');
+                if (returnPath) {
+                  router.back();
+                } else {
+                  router.replace('/connected-services');
+                }
               }, 1000);
             } else {
               if (data.accessToken && data.refreshToken) {

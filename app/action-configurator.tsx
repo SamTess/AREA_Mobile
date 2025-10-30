@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, Alert, Linking, View, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Save, Link as LinkIcon, CheckCircle, AlertCircle } from 'lucide-react-native';
 import { Box } from '@/components/ui/box';
@@ -16,6 +16,7 @@ import { useAreaEditor } from '@/contexts/AreaEditorContext';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import * as serviceCatalog from '@/services/serviceCatalog';
 import * as serviceConnection from '@/services/serviceConnection';
+import { getServerUrl } from '@/services/storage';
 import type { ActionDefinition, FieldData, ActionDto, ReactionDto, BackendService } from '@/types/areas';
 
 export default function ActionConfiguratorScreen() {
@@ -57,8 +58,6 @@ export default function ActionConfiguratorScreen() {
   const openOAuthFlow = React.useCallback(async () => {
     try {
       const provider = serviceConnection.mapServiceKeyToOAuthProvider(params.serviceKey);
-      const { getOAuthUrl } = await import('@/services/oauth');
-      const oauthUrl = await getOAuthUrl(provider, true);
 
       Alert.alert(
         t('configurator.connectService', 'Connect Service'),
@@ -68,11 +67,22 @@ export default function ActionConfiguratorScreen() {
           {
             text: t('common.continue', 'Continue'),
             onPress: async () => {
-              const supported = await Linking.canOpenURL(oauthUrl);
-              if (supported) {
-                await Linking.openURL(oauthUrl);
-                setTimeout(() => checkServiceConnection(), 2000);
-              } else {
+              try {
+                const serverUrl = await getServerUrl();
+                const redirectUri = encodeURIComponent('areamobile://oauth-callback');
+                const authUrl = `${serverUrl}/api/oauth/${provider}/authorize?origin=mobile&mode=link&mobile_redirect=${redirectUri}`;
+                const supported = await Linking.canOpenURL(authUrl);
+                if (supported) {
+                  await Linking.openURL(authUrl);
+                  setTimeout(() => checkServiceConnection(), 2000);
+                } else {
+                  Alert.alert(
+                    t('configurator.error', 'Error'),
+                    t('configurator.cantOpenOAuth', 'Cannot open OAuth page')
+                  );
+                }
+              } catch (error) {
+                console.error('Failed to open OAuth:', error);
                 Alert.alert(
                   t('configurator.error', 'Error'),
                   t('configurator.cantOpenOAuth', 'Cannot open OAuth page')
@@ -138,6 +148,13 @@ export default function ActionConfiguratorScreen() {
     loadActionDefinition();
     checkServiceConnection();
   }, [loadActionDefinition, checkServiceConnection]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('Action configurator screen focused - checking service connection');
+      checkServiceConnection();
+    }, [checkServiceConnection])
+  );
 
   const handleFieldChange = (name: string, value: unknown) => {
     setParameters(prev => ({

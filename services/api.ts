@@ -35,7 +35,7 @@ async function requestInterceptor(headers: Record<string, string>): Promise<Reco
   const modifiedHeaders = { ...headers };
 
   const webViewCookies = await getCookieHeader();
-  if (webViewCookies) {
+  if (webViewCookies && webViewCookies.trim()) {
     modifiedHeaders.Cookie = webViewCookies;
   } else {
     const accessToken = await getAccessToken();
@@ -46,7 +46,6 @@ async function requestInterceptor(headers: Record<string, string>): Promise<Reco
     }
   }
 
-  // Keep stored cookies for backward compatibility
   const storedCookies = await getCookies();
   if (storedCookies && !webViewCookies) {
     modifiedHeaders.Cookie = storedCookies;
