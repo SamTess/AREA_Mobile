@@ -85,9 +85,12 @@ export default function ServerSettingsScreen() {
       updateCachedServerUrl(serverUrl);
       Alert.alert(
         t('serverSettings.success', 'Success'),
-        t('serverSettings.urlSaved', 'Server URL saved successfully. Please restart the app for changes to take effect.'),
+        t('serverSettings.urlSaved', 'Server URL saved successfully. Redirecting to login...'),
         [
-          { text: t('common.ok', 'OK'), onPress: () => router.back() }
+          {
+            text: t('common.ok', 'OK'),
+            onPress: () => router.push('/(tabs)/login?reloadProviders=true')
+          }
         ]
       );
     } catch (error) {
@@ -117,7 +120,13 @@ export default function ServerSettingsScreen() {
               setServerUrl(defaultUrl);
               Alert.alert(
                 t('serverSettings.success', 'Success'),
-                t('serverSettings.resetSuccess', 'Server URL reset to default')
+                t('serverSettings.resetSuccess', 'Server URL reset to default. Redirecting to login...'),
+                [
+                  { 
+                    text: t('common.ok', 'OK'), 
+                    onPress: () => router.push('/(tabs)/login?reloadProviders=true')
+                  }
+                ]
               );
             } catch (error) {
               console.error('Failed to reset server URL:', error);
