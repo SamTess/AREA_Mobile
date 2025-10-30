@@ -11,7 +11,7 @@ const DEFAULT_SERVER_URL = 'http://127.0.0.1:8080';
  * Get the configured API URL from storage (user's server settings)
  */
 let cachedServerUrl: string | null = null;
-let serverUrlVersion: number = 0; // Version tracking for server URL changes
+let serverUrlVersion: number = 0;
 
 export async function getApiUrl(): Promise<string> {
     if (cachedServerUrl) {
