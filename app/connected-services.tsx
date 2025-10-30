@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, Alert, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Link as LinkIcon, Unlink } from 'lucide-react-native';
 import { Box } from '@/components/ui/box';
@@ -17,6 +17,20 @@ import type { BackendService } from '@/types/areas';
 import type { ServiceConnectionStatus } from '@/services/serviceConnection';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { getServerUrl } from '@/services/storage';
+
+function isError(error: unknown): error is Error {
+  return error instanceof Error;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (isError(error)) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'An unknown error occurred';
+}
 
 interface ServiceCardProps {
   service: BackendService & { connectionStatus?: ServiceConnectionStatus };
@@ -100,7 +114,6 @@ export default function ConnectedServicesScreen() {
   const colors = useThemeColors();
   const [services, setServices] = useState<(BackendService & { connectionStatus?: ServiceConnectionStatus })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const storedUrl = getServerUrl();
 
   const loadServices = React.useCallback(async () => {
     setIsLoading(true);
@@ -109,8 +122,8 @@ export default function ConnectedServicesScreen() {
       let connectedServices: ServiceConnectionStatus[] = [];
       try {
         connectedServices = await serviceConnection.getConnectedServices();
-      } catch (connectionError) {
-        console.warn('Failed to load connection status:', connectionError);
+      } catch (connectionError: unknown) {
+        console.warn('Failed to load connection status:', getErrorMessage(connectionError));
       }
       const servicesWithStatus = catalog.map(service => {
         const connectionStatus = connectedServices.find(cs => cs.serviceKey === service.key);
@@ -120,8 +133,8 @@ export default function ConnectedServicesScreen() {
         };
       });
       setServices(servicesWithStatus);
-    } catch (error) {
-      console.error('Failed to load services:', error);
+    } catch (error: unknown) {
+      console.error('Failed to load services:', getErrorMessage(error));
       Alert.alert(
         t('services.error', 'Error'),
         t('services.loadError', 'Failed to load services')
@@ -135,10 +148,17 @@ export default function ConnectedServicesScreen() {
     loadServices();
   }, [loadServices]);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('Connected services screen focused - reloading services');
+      loadServices();
+    }, [loadServices])
+  );
+
   const handleConnect = async (service: BackendService) => {
     try {
-      const provider = serviceConnection.mapServiceKeyToOAuthProvider(service.key);
-      const oauthUrl = `${storedUrl}/api/oauth/${provider}/authorize`;
+      const oauthProvider = serviceConnection.mapServiceKeyToOAuthProvider(service.key);
+
       Alert.alert(
         t('services.connect', 'Connect Service'),
         t('services.connectMessage', `You will be redirected to ${service.name} to authorize the connection.`),
@@ -147,22 +167,32 @@ export default function ConnectedServicesScreen() {
           {
             text: t('common.continue', 'Continue'),
             onPress: async () => {
-              const supported = await Linking.canOpenURL(oauthUrl);
-              if (supported) {
-                await Linking.openURL(oauthUrl);
-                setTimeout(() => loadServices(), 2000);
-              } else {
+              try {
+                const serverUrl = await getServerUrl();
+                const redirectUri = encodeURIComponent('areamobile://oauth-callback');
+                const authUrl = `${serverUrl}/api/oauth/${oauthProvider}/authorize?origin=mobile&mode=link&mobile_redirect=${redirectUri}`;
+                const canOpen = await Linking.canOpenURL(authUrl);
+                if (canOpen) {
+                  await Linking.openURL(authUrl);
+                  setTimeout(() => {
+                    loadServices();
+                  }, 2000);
+                } else {
+                  throw new Error('Cannot open URL');
+                }
+              } catch (error: unknown) {
+                console.error('Failed to connect service:', getErrorMessage(error));
                 Alert.alert(
                   t('services.error', 'Error'),
-                  t('services.cantOpen', 'Cannot open OAuth page')
+                  t('services.connectError', 'Failed to connect service')
                 );
               }
             }
           }
         ]
       );
-    } catch (error) {
-      console.error('Failed to connect service:', error);
+    } catch (error: unknown) {
+      console.error('Failed to connect service:', getErrorMessage(error));
       Alert.alert(
         t('services.error', 'Error'),
         t('services.connectError', 'Failed to connect service')
@@ -204,8 +234,8 @@ export default function ConnectedServicesScreen() {
                 t('services.disconnected', `${service.name} has been disconnected`)
               );
               await loadServices();
-            } catch (error) {
-              console.error('Failed to disconnect service:', error);
+            } catch (error: unknown) {
+              console.error('Failed to disconnect service:', getErrorMessage(error));
               Alert.alert(
                 t('services.error', 'Error'),
                 t('services.disconnectError', 'Failed to disconnect service')

@@ -12,6 +12,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useEffect, useState, useMemo } from 'react';
 
 function AppContent() {
+  
   return (
     <AuthProvider>
       <AreaProvider>
@@ -27,6 +28,7 @@ function AppContent() {
                 <Stack.Screen name="link-configurator" options={{ title: "Configure Link" }} />
                 <Stack.Screen name="connected-services" options={{ title: "Connected Services" }} />
                 <Stack.Screen name="help" options={{ title: "Help & Support" }} />
+                <Stack.Screen name="oauth-callback" options={{ title: "OAuth Callback" }} />
                 <Stack.Screen name="about" options={{ title: "About AREA" }} />
               </Stack>
             </LinkProvider>

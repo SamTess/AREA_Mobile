@@ -13,7 +13,8 @@
       "infoPlist": {
         "NSCameraUsageDescription": "This app needs access to the camera to take profile photos.",
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select profile photos."
-      }
+      },
+      "bundleIdentifier": "com.anonymous.AREA-MOBILE"
     },
     "extra": {
       "EXPO_PUBLIC_USE_MOCK": "false",
@@ -35,8 +36,10 @@
         "android.permission.READ_MEDIA_IMAGES",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.INTERNET"
-      ]
+        "android.permission.INTERNET",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.anonymous.AREA_MOBILE"
     },
     "web": {
       "output": "static",

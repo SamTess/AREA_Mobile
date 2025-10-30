@@ -8,6 +8,7 @@ jest.mock('expo-router', () => ({
   router: {
     back: jest.fn(),
   },
+  useFocusEffect: jest.fn(),
 }));
 
 // Mock react-i18next

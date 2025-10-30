@@ -1,6 +1,5 @@
 import { apiClient } from './api';
-import { ENV } from './api.config';
-import { getApiUrl } from './api.config';
+import { ENV, getApiUrl } from './api.config';
 import type {
   User,
   Area,
@@ -268,8 +267,9 @@ export const createUser = async (userData: { firstName: string; lastName: string
   }
 
   try {
-    // dont get credentials from the current admin user to avoid to log out
     const apiUrl = await getApiUrl();
+    
+    // dont get credentials from the current admin user to avoid to log out
     const response = await fetch(`${apiUrl}/api/auth/register`, {
       method: 'POST',
       headers: {

@@ -78,7 +78,7 @@ export function AreaProvider({ children }: AreaProviderProps) {
         setIsLoading(false);
       }
     }
-  }, [checkAuthentication, user?.id, handleError]);
+  }, [checkAuthentication, user?.id, handleError, isAuthenticated, user?.email]);
 
   const fetchAreas = useCallback(async () => {
     await loadAreas(false);

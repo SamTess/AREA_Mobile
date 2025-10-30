@@ -1,6 +1,7 @@
 import * as authService from '@/services/auth';
 import * as storage from '@/services/storage';
 import * as userService from '@/services/user';
+import { clearApiCookies } from '@/services/cookieManager';
 import { User } from '@/types/auth';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
@@ -10,11 +11,13 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (identifier: string, password: string) => Promise<void>;
+  loginWithOAuth: (user: User) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string, username: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
   clearError: () => void;
   deleteAccount: () => Promise<void>;
+  refreshAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -74,6 +77,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  /**
+   * Login with OAuth - set user directly from OAuth response
+   */
+  const loginWithOAuth = async (userData: User) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      setUser(userData);
+      await storage.saveUserData(JSON.stringify(userData));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'OAuth login failed';
+      setError(message);
+      console.error('OAuth login error:', err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const register = async (email: string, password: string, firstName: string, lastName: string, username: string) => {
     try {
       setIsLoading(true);
@@ -103,11 +125,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       await authService.logout();
       setUser(null);
-      setError(null);
+      await storage.clearAuthData();
+      await clearApiCookies();
     } catch (err) {
-      console.error('Logout error:', err);
+      const message = err instanceof Error ? err.message : 'Logout failed';
+      setError(message);
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -161,17 +187,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  /**
+   * Refresh authentication state from backend (for OAuth WebView)
+   */
+  const refreshAuth = async () => {
+    try {
+      setIsLoading(true);
+      const current = await authService.getCurrentUser();
+      if (current) {
+        setUser(current);
+        await storage.saveUserData(JSON.stringify(current));
+      }
+    } catch (err) {
+      console.error('Failed to refresh auth:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
     isLoading,
     error,
     login,
+    loginWithOAuth,
     register,
     logout,
     updateUser,
     clearError,
     deleteAccount,
+    refreshAuth,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

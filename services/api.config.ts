@@ -5,9 +5,6 @@
 
 import { getServerUrl } from './storage';
 
-/**
- * Default server URL (same as in server-settings.tsx)
- */
 const DEFAULT_SERVER_URL = 'http://127.0.0.1:8080';
 
 /**
@@ -16,8 +13,9 @@ const DEFAULT_SERVER_URL = 'http://127.0.0.1:8080';
 let cachedServerUrl: string | null = null;
 
 export async function getApiUrl(): Promise<string> {
-    if (cachedServerUrl)
+    if (cachedServerUrl) {
         return cachedServerUrl;
+    }
     const storedUrl = await getServerUrl();
     const url = storedUrl || DEFAULT_SERVER_URL;
     cachedServerUrl = url;
@@ -36,7 +34,7 @@ export function updateCachedServerUrl(url: string | null): void {
  */
 export const ENV = {
     API_URL: DEFAULT_SERVER_URL,
-    USE_MOCK: process.env.EXPO_PUBLIC_USE_MOCK !== 'false',
+    USE_MOCK: process.env.EXPO_PUBLIC_USE_MOCK === 'true',
     MOCK_DELAY: parseInt(process.env.EXPO_PUBLIC_MOCK_DELAY || '1000', 10),
 } as const;
 
