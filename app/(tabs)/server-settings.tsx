@@ -226,9 +226,14 @@ export default function ServerSettingsScreen() {
                       keyboardType="url"
                     />
                   </Box>
-                  <Text className="text-xs" style={{ color: colors.textSecondary }}>
-                    {t('serverSettings.urlHelper', 'Enter the full URL including protocol (http:// or https://)')}
-                  </Text>
+                  <VStack space="xs">
+                    <Text className="text-xs" style={{ color: colors.textSecondary }}>
+                      {t('serverSettings.urlHelper', 'Enter the full URL including protocol (http:// or https://)')}
+                    </Text>
+                    <Text className="text-xs font-semibold" style={{ color: colors.error || '#ef4444' }}>
+                      {t('serverSettings.urlNoTrailingSlash', '⚠ URL must not end with a trailing slash (/)')}
+                    </Text>
+                  </VStack>
                 </VStack>
 
                 <Box
