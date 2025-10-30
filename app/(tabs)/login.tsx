@@ -7,9 +7,9 @@ import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { EyeIcon, EyeOffIcon, LockKeyhole } from 'lucide-react-native';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Image, Linking } from 'react-native';
 import { getOAuthProviders, OAuthProvider } from '@/services/oauth';
@@ -20,6 +20,7 @@ export default function LoginScreen() {
   const { t } = useTranslation();
   const { login, isLoading, clearError } = useAuth();
   const router = useRouter();
+  const params = useLocalSearchParams();
   const colors = useThemeColors();
   const [showPassword, setShowPassword] = useState(false);
   const [identifier, setIdentifier] = useState('');
@@ -28,20 +29,26 @@ export default function LoginScreen() {
   const [passwordError, setPasswordError] = useState('');
   const [oauthProviders, setOauthProviders] = useState<OAuthProvider[]>([]);
 
-  const loadOAuthProviders = useCallback(async () => {
+  useEffect(() => {
+    const shouldReload = params.reloadProviders === 'true';
+
+    if (shouldReload) {
+      loadOAuthProviders();
+      router.replace('/(tabs)/login');
+    } else if (oauthProviders.length === 0) {
+      loadOAuthProviders();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.reloadProviders]);
+
+  const loadOAuthProviders = async () => {
     try {
       const providers = await getOAuthProviders();
       setOauthProviders(providers);
     } catch (error) {
       console.error('Failed to load OAuth providers:', error);
     }
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadOAuthProviders();
-    }, [loadOAuthProviders])
-  );
+  };
 
   const handleShowPassword = () => {
     setShowPassword((prev) => !prev);
