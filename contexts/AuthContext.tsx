@@ -129,7 +129,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await authService.logout();
       setUser(null);
       await storage.clearAuthData();
-      // Nettoyer aussi les cookies WebView
       await clearApiCookies();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Logout failed';

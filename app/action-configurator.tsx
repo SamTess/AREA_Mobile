@@ -17,7 +17,6 @@ import { useThemeColors } from '@/hooks/useThemeColors';
 import * as serviceCatalog from '@/services/serviceCatalog';
 import * as serviceConnection from '@/services/serviceConnection';
 import type { ActionDefinition, FieldData, ActionDto, ReactionDto, BackendService } from '@/types/areas';
-import { getServerUrl } from '@/services/storage';
 
 export default function ActionConfiguratorScreen() {
   const { t } = useTranslation();
@@ -43,7 +42,6 @@ export default function ActionConfiguratorScreen() {
   const [cardName, setCardName] = useState<string>('');
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const storedUrl = getServerUrl();
 
   const checkServiceConnection = React.useCallback(async () => {
     try {
@@ -61,7 +59,7 @@ export default function ActionConfiguratorScreen() {
       const provider = serviceConnection.mapServiceKeyToOAuthProvider(params.serviceKey);
       const { getOAuthUrl } = await import('@/services/oauth');
       const oauthUrl = await getOAuthUrl(provider, true);
-      
+
       Alert.alert(
         t('configurator.connectService', 'Connect Service'),
         t('configurator.connectMessage', `You need to connect your ${params.serviceName} account to use this action.`),
