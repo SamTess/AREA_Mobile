@@ -15,6 +15,25 @@ import { useTranslation } from 'react-i18next';
 import { retrievePKCE, clearPKCE } from '@/utils/pkce';
 import * as storage from '@/services/storage';
 
+interface OAuthExchangeBody {
+  code: string;
+  code_verifier?: string;
+}
+
+function isError(error: unknown): error is Error {
+  return error instanceof Error;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (isError(error)) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'An unknown error occurred';
+}
+
 export default function OAuthCallbackScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -68,7 +87,7 @@ export default function OAuthCallbackScreen() {
           console.warn('Failed to retrieve PKCE - continuing without PKCE:', error);
         }
 
-        const body: any = { code };
+        const body: OAuthExchangeBody = { code: code as string };
         if (codeVerifier) {
           body.code_verifier = codeVerifier;
         }
@@ -152,10 +171,10 @@ export default function OAuthCallbackScreen() {
 
           throw new Error(errorMessage);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('OAuth exchange error:', error);
         setStatus('error');
-        setMessage(error.message || 'Authentication failed');
+        setMessage(getErrorMessage(error) || 'Authentication failed');
         await clearPKCE();
 
         const redirectTarget = (params.mode === 'link') ? '/connected-services' : '/(tabs)/login';

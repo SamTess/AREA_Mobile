@@ -122,7 +122,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-    const logout = async () => {
+  const logout = async () => {
     try {
       setIsLoading(true);
       setError(null);

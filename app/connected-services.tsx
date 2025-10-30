@@ -18,6 +18,20 @@ import type { ServiceConnectionStatus } from '@/services/serviceConnection';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { getServerUrl } from '@/services/storage';
 
+function isError(error: unknown): error is Error {
+  return error instanceof Error;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (isError(error)) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'An unknown error occurred';
+}
+
 interface ServiceCardProps {
   service: BackendService & { connectionStatus?: ServiceConnectionStatus };
   onConnect: (service: BackendService) => void;
@@ -108,8 +122,8 @@ export default function ConnectedServicesScreen() {
       let connectedServices: ServiceConnectionStatus[] = [];
       try {
         connectedServices = await serviceConnection.getConnectedServices();
-      } catch (connectionError: any) {
-        console.warn('Failed to load connection status:', connectionError);
+      } catch (connectionError: unknown) {
+        console.warn('Failed to load connection status:', getErrorMessage(connectionError));
       }
       const servicesWithStatus = catalog.map(service => {
         const connectionStatus = connectedServices.find(cs => cs.serviceKey === service.key);
@@ -119,8 +133,8 @@ export default function ConnectedServicesScreen() {
         };
       });
       setServices(servicesWithStatus);
-    } catch (error) {
-      console.error('Failed to load services:', error);
+    } catch (error: unknown) {
+      console.error('Failed to load services:', getErrorMessage(error));
       Alert.alert(
         t('services.error', 'Error'),
         t('services.loadError', 'Failed to load services')
@@ -166,8 +180,8 @@ export default function ConnectedServicesScreen() {
                 } else {
                   throw new Error('Cannot open URL');
                 }
-              } catch (error) {
-                console.error('Failed to connect service:', error);
+              } catch (error: unknown) {
+                console.error('Failed to connect service:', getErrorMessage(error));
                 Alert.alert(
                   t('services.error', 'Error'),
                   t('services.connectError', 'Failed to connect service')
@@ -177,8 +191,8 @@ export default function ConnectedServicesScreen() {
           }
         ]
       );
-    } catch (error) {
-      console.error('Failed to connect service:', error);
+    } catch (error: unknown) {
+      console.error('Failed to connect service:', getErrorMessage(error));
       Alert.alert(
         t('services.error', 'Error'),
         t('services.connectError', 'Failed to connect service')
@@ -220,8 +234,8 @@ export default function ConnectedServicesScreen() {
                 t('services.disconnected', `${service.name} has been disconnected`)
               );
               await loadServices();
-            } catch (error) {
-              console.error('Failed to disconnect service:', error);
+            } catch (error: unknown) {
+              console.error('Failed to disconnect service:', getErrorMessage(error));
               Alert.alert(
                 t('services.error', 'Error'),
                 t('services.disconnectError', 'Failed to disconnect service')
