@@ -6,7 +6,6 @@ import { VStack } from '@/components/ui/vstack';
 import { Center } from '@/components/ui/center';
 import { useTranslation } from 'react-i18next';
 import { getApiUrl } from '@/services/api.config';
-import * as SecureStore from 'expo-secure-store';
 import { useAuth } from '@/contexts/AuthContext';
 import { authenticatedFetch } from '@/services/authenticatedFetch';
 
@@ -79,8 +78,9 @@ export default function OAuthCallbackScreen() {
           }
 
           if (response.ok) {
-            const data = await response.json();
             if (isLinkMode) {
+              const data = await response.json();
+              console.log('Link mode response:', data);
               setMessage(t('oauth.linkSuccess', 'Account linked successfully!'));
               setTimeout(() => {
                 if (returnPath) {
@@ -90,15 +90,10 @@ export default function OAuthCallbackScreen() {
                 }
               }, 1000);
             } else {
-              if (data.accessToken && data.refreshToken) {
-                await SecureStore.setItemAsync('auth_access_token', data.accessToken);
-                await SecureStore.setItemAsync('auth_refresh_token', data.refreshToken);
-                await new Promise(resolve => setTimeout(resolve, 500));
-                await refreshAuth();
-              } else {
-                console.warn('No tokens in response body');
-              }
+              console.log('OAuth login successful, cookies set by backend');
               setMessage(t('oauth.success', 'Authentication successful!'));
+              await new Promise(resolve => setTimeout(resolve, 500));
+              await refreshAuth();
               setTimeout(() => {
                 router.replace('/(tabs)');
               }, 1000);

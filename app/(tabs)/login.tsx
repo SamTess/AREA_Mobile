@@ -9,7 +9,7 @@ import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { EyeIcon, EyeOffIcon, LockKeyhole } from 'lucide-react-native';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Image, Linking } from 'react-native';
 import { getOAuthProviders, OAuthProvider } from '@/services/oauth';
@@ -28,16 +28,15 @@ export default function LoginScreen() {
   const [identifierError, setIdentifierError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [oauthProviders, setOauthProviders] = useState<OAuthProvider[]>([]);
-  const hasLoadedProviders = useRef(false);
 
   useEffect(() => {
     const shouldReload = params.reloadProviders === 'true';
-    if (shouldReload || !hasLoadedProviders.current) {
+
+    if (shouldReload) {
       loadOAuthProviders();
-      hasLoadedProviders.current = true;
-      if (shouldReload) {
-        router.replace('/(tabs)/login');
-      }
+      router.replace('/(tabs)/login');
+    } else if (oauthProviders.length === 0) {
+      loadOAuthProviders();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.reloadProviders]);

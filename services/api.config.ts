@@ -11,7 +11,6 @@ const DEFAULT_SERVER_URL = 'http://127.0.0.1:8080';
  * Get the configured API URL from storage (user's server settings)
  */
 let cachedServerUrl: string | null = null;
-let serverUrlVersion: number = 0;
 
 export async function getApiUrl(): Promise<string> {
     if (cachedServerUrl) {
@@ -25,19 +24,9 @@ export async function getApiUrl(): Promise<string> {
 
 /**
  * Update the cached server URL (call after changing server settings)
- * This increments the version to signal that components should reload
  */
 export function updateCachedServerUrl(url: string | null): void {
     cachedServerUrl = url;
-    serverUrlVersion++;
-}
-
-/**
- * Get the current server URL version
- * Used to detect when the server URL has changed
- */
-export function getServerUrlVersion(): number {
-    return serverUrlVersion;
 }
 
 /**
