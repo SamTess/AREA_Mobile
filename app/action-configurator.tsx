@@ -17,7 +17,7 @@ import { useAreaEditor } from '@/contexts/AreaEditorContext';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import * as serviceCatalog from '@/services/serviceCatalog';
 import * as serviceConnection from '@/services/serviceConnection';
-import type { ActionDefinition, FieldData, ActionDto, ReactionDto, BackendService } from '@/types/areas';
+import type { ActionDefinition, FieldData, ActionDto, ReactionDto, BackendService, ActivationConfig } from '@/types/areas';
 import { getServerUrl } from '@/services/storage';
 
 export default function ActionConfiguratorScreen() {

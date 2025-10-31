@@ -296,7 +296,7 @@ export default function SettingsScreen() {
               icon={Info}
               title={t('about.title', 'About AREA')}
               subtitle={t('about.subtitle', 'Learn more about our automation platform')}
-              onPress={() => router.push('/about')}
+              onPress={() => router.push('/about' as any)}
             />
           </Box>
         </VStack>

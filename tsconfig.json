@@ -2,6 +2,7 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "types": ["jest", "node"],
     "paths": {
       "@/*": [
         "./*"
@@ -20,6 +21,9 @@
     "test-utils/**/*.d.ts"
   ],
   "exclude": [
-    "app-example/**"
+    "app-example/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**"
   ]
 }
