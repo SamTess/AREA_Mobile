@@ -510,7 +510,7 @@
     },
     "validation": {
       "error": "Erreur de Validation",
-      "minPoll": "L'intervalle d'interrogation minimum est de 60 secondes"
+      "minPoll": "L'intervalle d'interrogation minimum est de 1 secondes"
     },
     "webhook": {
       "events": "Événements Webhook (Optionnel)",

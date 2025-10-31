@@ -509,7 +509,7 @@
     },
     "validation": {
       "error": "Validation Error",
-      "minPoll": "Minimum poll interval is 60 seconds"
+      "minPoll": "Minimum poll interval is 1 seconds"
     },
     "webhook": {
       "events": "Webhook Events (Optional)",

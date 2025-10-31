@@ -52,10 +52,10 @@ export function TriggerConfigCard({
   const validatePollInterval = (value: string) => {
     const num = parseInt(value);
     if (isNaN(num)) return;
-    if (num < 60) {
+    if (num < 1) {
       Alert.alert(
         t('trigger.validation.error', 'Validation Error'),
-        t('trigger.validation.minPoll', 'Minimum poll interval is 60 seconds'),
+        t('trigger.validation.minPoll', 'Minimum poll interval is 1 second'),
         [{ text: t('common.ok', 'OK') }]
       );
       return;
