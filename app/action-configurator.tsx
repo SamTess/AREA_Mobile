@@ -12,12 +12,13 @@ import { Heading } from '@/components/ui/heading';
 import { Input, InputField } from '@/components/ui/input';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { DynamicField } from '@/components/area-editor/DynamicField';
+import { TriggerConfigCard } from '@/components/area-editor/TriggerConfigCard';
 import { useAreaEditor } from '@/contexts/AreaEditorContext';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import * as serviceCatalog from '@/services/serviceCatalog';
 import * as serviceConnection from '@/services/serviceConnection';
+import type { ActionDefinition, FieldData, ActionDto, ReactionDto, BackendService, ActivationConfig } from '@/types/areas';
 import { getServerUrl } from '@/services/storage';
-import type { ActionDefinition, FieldData, ActionDto, ReactionDto, BackendService } from '@/types/areas';
 
 export default function ActionConfiguratorScreen() {
   const { t } = useTranslation();
@@ -34,6 +35,7 @@ export default function ActionConfiguratorScreen() {
     editIndex?: string;
     existingParameters?: string;
     existingCardName?: string;
+    existingActivationConfig?: string;
   }>();
 
   const isEditMode = !!params.editIndex;
@@ -41,6 +43,7 @@ export default function ActionConfiguratorScreen() {
   const [fields, setFields] = useState<FieldData[]>([]);
   const [parameters, setParameters] = useState<Record<string, unknown>>({});
   const [cardName, setCardName] = useState<string>('');
+  const [activationConfig, setActivationConfig] = useState<ActivationConfig>({ type: 'webhook' });
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -58,7 +61,9 @@ export default function ActionConfiguratorScreen() {
   const openOAuthFlow = React.useCallback(async () => {
     try {
       const provider = serviceConnection.mapServiceKeyToOAuthProvider(params.serviceKey);
-
+      const { getOAuthUrl } = await import('@/services/oauth');
+      const oauthUrl = await getOAuthUrl(provider, true);
+      
       Alert.alert(
         t('configurator.connectService', 'Connect Service'),
         t('configurator.connectMessage', `You need to connect your ${params.serviceName} account to use this action.`),
@@ -132,6 +137,15 @@ export default function ActionConfiguratorScreen() {
           setParameters(initialParams);
         }
       }
+      if (isEditMode && params.existingActivationConfig) {
+        try {
+          const existingConfig = JSON.parse(params.existingActivationConfig);
+          setActivationConfig(existingConfig);
+        } catch (error) {
+          console.error('Failed to parse existing activation config:', error);
+          setActivationConfig({ type: 'webhook' });
+        }
+      }
     } catch (error) {
       console.error('Failed to load action definition:', error);
       Alert.alert(
@@ -142,7 +156,7 @@ export default function ActionConfiguratorScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [params.actionDefinitionId, params.existingCardName, params.actionName, params.existingParameters, isEditMode, t]);
+  }, [params.actionDefinitionId, params.existingCardName, params.actionName, params.existingParameters, params.existingActivationConfig, isEditMode, t]);
 
   useEffect(() => {
     loadActionDefinition();
@@ -203,7 +217,7 @@ export default function ActionConfiguratorScreen() {
         name: cardName || params.actionName,
         description: actionDef.description,
         parameters,
-        activationConfig: { type: 'webhook' },
+        activationConfig,
       };
       if (isEditMode && params.editIndex) {
         updateAction(parseInt(params.editIndex), actionData, service, actionDef);
@@ -362,6 +376,14 @@ export default function ActionConfiguratorScreen() {
                 />
               </Input>
             </VStack>
+            {params.type === 'action' && actionDef.isEventCapable && (
+              <TriggerConfigCard
+                config={activationConfig}
+                onChange={setActivationConfig}
+                actionName={cardName || params.actionName}
+              />
+            )}
+
             {fields.length > 0 && (
               <VStack space="sm">
                 <Text className="font-semibold" style={{ color: colors.text }}>

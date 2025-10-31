@@ -531,6 +531,7 @@ export default function AreaEditorScreen() {
         returnTo: '/area-editor',
         existingParameters: JSON.stringify(action.parameters || {}),
         existingCardName: action.name || definition.name,
+        existingActivationConfig: JSON.stringify(action.activationConfig || { type: 'webhook' }),
       }
     });
   };

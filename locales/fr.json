@@ -564,5 +564,36 @@
     "resetButton": "Réinitialiser par défaut",
     "resetSuccess": "URL du serveur réinitialisée par défaut",
     "resetFailed": "Échec de la réinitialisation de l'URL du serveur"
+  },
+  "trigger": {
+    "configuration": "Configuration du Déclenchement",
+    "selectType": "Type de Déclenchement",
+    "type": {
+      "label": "Type",
+      "webhook": "Webhook",
+      "poll": "Interrogation"
+    },
+    "validation": {
+      "error": "Erreur de Validation",
+      "minPoll": "L'intervalle d'interrogation minimum est de 1 secondes"
+    },
+    "webhook": {
+      "events": "Événements Webhook (Optionnel)",
+      "eventsPlaceholder": "ex: push, pull_request",
+      "eventsHelp": "Liste d'événements séparés par des virgules",
+      "secret": "Jeton Secret (Optionnel)",
+      "secretPlaceholder": "Entrez un secret pour la validation",
+      "secretHelp": "Optionnel: Ajoutez un jeton pour la validation du webhook"
+    },
+    "poll": {
+      "interval": "Intervalle de Vérification (secondes)",
+      "help": "Fréquence de vérification des changements (minimum: 60 secondes)",
+      "presets": "Sélection Rapide",
+      "customInfo": "Cliquez sur les badges ci-dessus pour sélectionner un préset, ou entrez une valeur personnalisée directement dans le champ"
+    },
+    "info": {
+      "webhook": "Le déclenchement attendra les webhooks entrants avec les événements spécifiés.",
+      "poll": "Le déclenchement vérifiera périodiquement les changements selon l'intervalle spécifié."
+    }
   }
 }
