@@ -37,6 +37,22 @@ jest.mock('expo-router', () => {
     ...actual,
     useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
     router: { push: jest.fn(), replace: jest.fn(), back: jest.fn() },
+    // Execute the provided effect immediately in tests so components depending
+    // on focus effects (like loading OAuth providers) run during render.
+    useFocusEffect: (effect: any) => {
+      try {
+        // effect is typically a function returned by useCallback
+        const res = typeof effect === 'function' ? effect() : undefined;
+        // If the effect returns a cleanup function, call it (no-op here)
+        if (typeof res === 'function') {
+          // call cleanup synchronously
+          res();
+        }
+      } catch (e) {
+        // swallow errors in the mock to avoid breaking unrelated tests
+      }
+      return undefined;
+    },
   };
 });
 

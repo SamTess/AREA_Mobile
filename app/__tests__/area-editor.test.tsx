@@ -45,14 +45,19 @@ jest.mock('@/contexts/AreaEditorContext', () => ({
   useAreaEditor: jest.fn(() => mockAreaEditor),
 }));
 
+const mockLinks = {
+  links: [],
+  addLink: jest.fn(),
+  updateLink: jest.fn(),
+  removeLink: jest.fn(),
+  removeLinkByIndex: jest.fn(),
+  clearLinks: jest.fn(),
+  initializeLinks: jest.fn(),
+  getLinkBetween: jest.fn(),
+};
+
 jest.mock('@/contexts/LinkContext', () => ({
-  useLinks: () => ({
-    links: [],
-    addLink: jest.fn(),
-    updateLink: jest.fn(),
-    removeLink: jest.fn(),
-    getLinkBetween: jest.fn(),
-  }),
+  useLinks: jest.fn(() => mockLinks),
 }));
 
 // Mock hooks

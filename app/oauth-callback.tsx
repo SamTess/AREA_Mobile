@@ -6,8 +6,8 @@ import { VStack } from '@/components/ui/vstack';
 import { Center } from '@/components/ui/center';
 import { useTranslation } from 'react-i18next';
 import { getApiUrl } from '@/services/api.config';
-import * as SecureStore from 'expo-secure-store';
 import { useAuth } from '@/contexts/AuthContext';
+import { authenticatedFetch } from '@/services/authenticatedFetch';
 
 
 export default function OAuthCallbackScreen() {
@@ -50,34 +50,54 @@ export default function OAuthCallbackScreen() {
           setMessage(t('oauth.exchanging', 'Exchanging authorization code...'));
           const providerName = (provider as string) || 'google';
           const authMode = (mode as string) || 'login';
+          const returnPath = (params.return as string) || null;
           const apiUrl = await getApiUrl();
-          const response = await fetch(`${apiUrl}/api/oauth/${providerName}/exchange`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({ code: code }),
-          });
+          const isLinkMode = authMode === 'link';
+          const endpoint = isLinkMode 
+            ? `/api/oauth-link/${providerName}/exchange`
+            : `/api/oauth/${providerName}/exchange`;
+          let response: Response;
+          if (isLinkMode) {
+            response = await authenticatedFetch(endpoint, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ code: code }),
+              useBearer: true,
+            });
+          } else {
+            response = await fetch(`${apiUrl}${endpoint}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              credentials: 'include',
+              body: JSON.stringify({ code: code }),
+            });
+          }
 
           if (response.ok) {
-            const data = await response.json();
-            if (data.accessToken && data.refreshToken) {
-              await SecureStore.setItemAsync('auth_access_token', data.accessToken);
-              await SecureStore.setItemAsync('auth_refresh_token', data.refreshToken);
+            if (isLinkMode) {
+              const data = await response.json();
+              console.log('Link mode response:', data);
+              setMessage(t('oauth.linkSuccess', 'Account linked successfully!'));
+              setTimeout(() => {
+                if (returnPath) {
+                  router.back();
+                } else {
+                  router.replace('/connected-services');
+                }
+              }, 1000);
+            } else {
+              console.log('OAuth login successful, cookies set by backend');
+              setMessage(t('oauth.success', 'Authentication successful!'));
               await new Promise(resolve => setTimeout(resolve, 500));
               await refreshAuth();
-            } else {
-              console.warn('No tokens in response body');
-            }
-            setMessage(t('oauth.success', 'Authentication successful!'));
-            setTimeout(() => {
-              if (authMode === 'link') {
-                router.replace('/connected-services');
-              } else {
+              setTimeout(() => {
                 router.replace('/(tabs)');
-              }
-            }, 1000);
+              }, 1000);
+            }
           } else {
             const errorText = await response.text();
             console.error('Exchange failed - Status:', response.status);

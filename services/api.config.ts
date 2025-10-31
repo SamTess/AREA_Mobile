@@ -17,12 +17,7 @@ export async function getApiUrl(): Promise<string> {
         return cachedServerUrl;
     }
     const storedUrl = await getServerUrl();
-    let url: string;
-    if (storedUrl) {
-        url = storedUrl;
-    } else {
-        url = DEFAULT_SERVER_URL;
-    }
+    const url = storedUrl || DEFAULT_SERVER_URL;
     cachedServerUrl = url;
     return url;
 }

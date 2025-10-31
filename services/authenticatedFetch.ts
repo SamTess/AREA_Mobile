@@ -13,6 +13,16 @@ export interface FetchOptions extends RequestInit {
 }
 
 /**
+ * Add Bearer token to request headers if available
+ */
+async function addBearerToken(headers: Record<string, string>): Promise<void> {
+  const token = await storage.getAccessToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+}
+
+/**
  * Authenticated fetch that uses cookies from WebView
  */
 export async function authenticatedFetch(
@@ -38,16 +48,10 @@ export async function authenticatedFetch(
     if (cookieHeader) {
       requestHeaders['Cookie'] = cookieHeader;
     } else if (useBearer) {
-      const token = await storage.getAccessToken();
-      if (token) {
-        requestHeaders['Authorization'] = `Bearer ${token}`;
-      }
+      await addBearerToken(requestHeaders);
     }
   } else if (useBearer) {
-    const token = await storage.getAccessToken();
-    if (token) {
-      requestHeaders['Authorization'] = `Bearer ${token}`;
-    }
+    await addBearerToken(requestHeaders);
   }
 
   return fetch(url, {
@@ -82,7 +86,7 @@ export async function authGet(endpoint: string, options: FetchOptions = {}) {
 /**
  * POST request with authentication
  */
-export async function authPost(endpoint: string, body?: any, options: FetchOptions = {}) {
+export async function authPost(endpoint: string, body?: unknown, options: FetchOptions = {}) {
   return authenticatedFetch(endpoint, {
     ...options,
     method: 'POST',
@@ -93,7 +97,7 @@ export async function authPost(endpoint: string, body?: any, options: FetchOptio
 /**
  * PUT request with authentication
  */
-export async function authPut(endpoint: string, body?: any, options: FetchOptions = {}) {
+export async function authPut(endpoint: string, body?: unknown, options: FetchOptions = {}) {
   return authenticatedFetch(endpoint, {
     ...options,
     method: 'PUT',
@@ -114,7 +118,7 @@ export async function authDelete(endpoint: string, options: FetchOptions = {}) {
 /**
  * PATCH request with authentication
  */
-export async function authPatch(endpoint: string, body?: any, options: FetchOptions = {}) {
+export async function authPatch(endpoint: string, body?: unknown, options: FetchOptions = {}) {
   return authenticatedFetch(endpoint, {
     ...options,
     method: 'PATCH',

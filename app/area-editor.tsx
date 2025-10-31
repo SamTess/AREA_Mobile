@@ -48,6 +48,8 @@ function ServiceCard({ service, actionDef, actionData, params, type, index, onEd
   const paramCount = Object.keys(params || {}).length;
   const hasParams = paramCount > 0;
   const serviceIcon = service.iconLightUrl || service.iconDarkUrl;
+  const [imageError, setImageError] = React.useState(false);
+  
   return (
     <TouchableOpacity onPress={onEdit} activeOpacity={0.7} disabled={!onEdit}>
       <Box
@@ -61,11 +63,12 @@ function ServiceCard({ service, actionDef, actionData, params, type, index, onEd
           <HStack className="items-center justify-between">
             <HStack space="sm" className="items-center flex-1">
               <Box className="w-10 h-10 rounded-lg items-center justify-center overflow-hidden" style={{ backgroundColor: colors.info + '20' }}>
-                {serviceIcon ? (
+                {serviceIcon && !imageError ? (
                   <Image
                     source={{ uri: serviceIcon }}
                     style={{ width: 24, height: 24 }}
                     resizeMode="contain"
+                    onError={() => setImageError(true)}
                   />
                 ) : (
                   <Zap size={20} color={colors.info} />
@@ -134,7 +137,7 @@ export default function AreaEditorScreen() {
     initializeWithData
   } = useAreaEditor();
 
-  const { links, removeLinkByIndex } = useLinks();
+  const { links, removeLinkByIndex, initializeLinks, clearLinks } = useLinks();
   const [areaName, setAreaName] = useState('');
   const [areaDescription, setAreaDescription] = useState('');
   const [enabled, setEnabled] = useState(true);
@@ -176,6 +179,71 @@ export default function AreaEditorScreen() {
           }
         }
         initializeWithData(loadedActions, loadedReactions);
+
+        if (area.links && area.links.length > 0) {
+          const loadedLinks: import('@/contexts/LinkContext').LinkConfig[] = [];
+          for (const link of area.links) {
+            let sourceIndex = -1;
+            let sourceType: 'action' | 'reaction' = 'action';
+            const sourceActionIndex = loadedActions.findIndex(a =>
+              a.action.name === link.sourceActionName ||
+              a.definition.name === link.sourceActionName
+            );
+            if (sourceActionIndex !== -1) {
+              sourceIndex = sourceActionIndex;
+              sourceType = 'action';
+            } else {
+              const sourceReactionIndex = loadedReactions.findIndex(r =>
+                r.reaction.name === link.sourceActionName ||
+                r.definition.name === link.sourceActionName
+              );
+              if (sourceReactionIndex !== -1) {
+                sourceIndex = sourceReactionIndex;
+                sourceType = 'reaction';
+              }
+            }
+
+            let targetIndex = -1;
+            let targetType: 'action' | 'reaction' = 'reaction';
+            const targetActionIndex = loadedActions.findIndex(a =>
+              a.action.name === link.targetActionName ||
+              a.definition.name === link.targetActionName
+            );
+            if (targetActionIndex !== -1) {
+              targetIndex = targetActionIndex;
+              targetType = 'action';
+            } else {
+              const targetReactionIndex = loadedReactions.findIndex(r =>
+                r.reaction.name === link.targetActionName ||
+                r.definition.name === link.targetActionName
+              );
+              if (targetReactionIndex !== -1) {
+                targetIndex = targetReactionIndex;
+                targetType = 'reaction';
+              }
+            }
+
+            if (sourceIndex !== -1 && targetIndex !== -1) {
+              console.log(':', { sourceIndex, targetIndex, sourceType, targetType });
+              loadedLinks.push({
+                sourceIndex,
+                targetIndex,
+                sourceType,
+                targetType,
+                linkType: link.linkType || 'chain',
+                order: link.order || 0,
+                mapping: link.mapping as Record<string, string>,
+                condition: link.condition,
+              });
+            } else {
+              console.log('Skipping link - source or target not found:', { sourceIndex, targetIndex });
+            }
+          }
+          initializeLinks(loadedLinks);
+        } else {
+          console.log('No links found in area');
+        }
+
         setDataLoaded(true);
       }
     } catch {
@@ -187,16 +255,17 @@ export default function AreaEditorScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [dataLoaded, initializeWithData, t]);
+  }, [dataLoaded, initializeWithData, initializeLinks, t]);
 
   useEffect(() => {
     if (isEditMode && areaId && !dataLoaded) {
       loadAreaData(areaId);
     } else if (!isEditMode && !dataLoaded) {
       clearAll();
+      clearLinks();
       setDataLoaded(true);
     }
-  }, [isEditMode, areaId, dataLoaded, loadAreaData, clearAll]);
+  }, [isEditMode, areaId, dataLoaded, loadAreaData, clearAll, clearLinks]);
 
   const handleSave = async () => {
     if (!areaName.trim()) {
@@ -777,23 +846,23 @@ export default function AreaEditorScreen() {
               <VStack space="md">
                 <HStack className="items-center justify-between">
                   <HStack space="sm" className="items-center">
-                    <Box className="w-8 h-8 bg-blue-100 rounded-full items-center justify-center">
-                      <LinkIcon size={16} color="#2563EB" />
+                    <Box className="w-8 h-8 rounded-full items-center justify-center" style={{ backgroundColor: colors.info + '20' }}>
+                      <LinkIcon size={16} color={colors.info} />
                     </Box>
                     <VStack>
-                      <Text className="text-gray-900 font-bold text-lg">
+                      <Text className="font-bold text-lg" style={{ color: colors.text }}>
                         {t('editor.section.links', 'Links')}
                       </Text>
-                      <Text className="text-gray-500 text-xs">
+                      <Text className="text-xs" style={{ color: colors.textSecondary }}>
                         {t('editor.section.linksDesc', 'Connect cards together')}
                       </Text>
                     </VStack>
-                    <Badge size="sm" variant="solid" className="bg-blue-600">
+                    <Badge size="sm" variant="solid" style={{ backgroundColor: colors.info }}>
                       <BadgeText className="text-white">{links.length}</BadgeText>
                     </Badge>
                   </HStack>
                   {!isViewMode && (
-                    <Button size="sm" onPress={handleCreateLink} className="bg-blue-600">
+                    <Button size="sm" onPress={handleCreateLink} style={{ backgroundColor: colors.info }}>
                       <ButtonIcon as={Plus} size="sm" color="white" />
                     </Button>
                   )}
@@ -802,14 +871,14 @@ export default function AreaEditorScreen() {
                 {links.length === 0 ? (
                   !isViewMode && (
                     <TouchableOpacity onPress={handleCreateLink} activeOpacity={0.7}>
-                      <Box className="bg-blue-50 rounded-lg p-6 items-center border-2 border-blue-200 border-dashed">
-                        <Box className="w-12 h-12 bg-blue-100 rounded-full items-center justify-center mb-3">
-                          <LinkIcon size={24} color="#2563EB" />
+                      <Box className="rounded-lg p-6 items-center border-2 border-dashed" style={{ backgroundColor: colors.info + '10', borderColor: colors.info + '40' }}>
+                        <Box className="w-12 h-12 rounded-full items-center justify-center mb-3" style={{ backgroundColor: colors.info + '20' }}>
+                          <LinkIcon size={24} color={colors.info} />
                         </Box>
-                        <Text className="text-blue-700 text-center font-semibold mb-1">
+                        <Text className="text-center font-semibold mb-1" style={{ color: colors.info }}>
                           {t('editor.empty.links', 'No links yet')}
                         </Text>
-                        <Text className="text-blue-600 text-center text-sm">
+                        <Text className="text-center text-sm" style={{ color: colors.textSecondary }}>
                           {t('editor.empty.linksDesc', 'Tap to connect your cards')}
                         </Text>
                       </Box>
@@ -839,10 +908,10 @@ export default function AreaEditorScreen() {
                     }
 
                     return (
-                      <Box key={index} className="bg-white rounded-lg p-4 mb-3 border border-blue-200 shadow-sm">
+                      <Box key={index} className="rounded-lg p-4 mb-3 border shadow-sm" style={{ backgroundColor: colors.card, borderColor: colors.info }}>
                         <VStack space="md">
                           <HStack className="items-center justify-between">
-                            <Badge size="sm" variant="solid" className="bg-blue-600">
+                            <Badge size="sm" variant="solid" style={{ backgroundColor: colors.info }}>
                               <BadgeText className="text-xs font-semibold text-white">
                                 {link.linkType.toUpperCase()}
                               </BadgeText>
@@ -870,7 +939,7 @@ export default function AreaEditorScreen() {
                                   }}
                                   className="border-blue-300"
                                 >
-                                  <ButtonIcon as={Edit} size="sm" className="text-blue-600" />
+                                  <ButtonIcon as={Edit} size="sm" style={{ color: colors.info }} />
                                 </Button>
                                 <Button
                                   size="xs"
@@ -897,15 +966,15 @@ export default function AreaEditorScreen() {
                             )}
                           </HStack>
                           <VStack space="xs">
-                            <Text className="text-gray-600 text-xs">
-                              {t('editor.links.from', 'From')}: <Text className="font-semibold text-gray-900">{sourceName}</Text>
+                            <Text className="text-xs" style={{ color: colors.textSecondary }}>
+                              {t('editor.links.from', 'From')}: <Text className="font-semibold" style={{ color: colors.text }}>{sourceName}</Text>
                             </Text>
-                            <Text className="text-gray-600 text-xs pl-4">
-                              → {t('editor.links.to', 'To')}: <Text className="font-semibold text-gray-900">{targetName}</Text>
+                            <Text className="text-xs pl-4" style={{ color: colors.textSecondary }}>
+                              → {t('editor.links.to', 'To')}: <Text className="font-semibold" style={{ color: colors.text }}>{targetName}</Text>
                             </Text>
                           </VStack>
                           {link.order > 0 && (
-                            <Text className="text-gray-500 text-xs">
+                            <Text className="text-xs" style={{ color: colors.textSecondary }}>
                               {t('editor.links.order', 'Order')}: {link.order}
                             </Text>
                           )}
