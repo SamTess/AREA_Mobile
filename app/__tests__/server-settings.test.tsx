@@ -7,6 +7,7 @@ import ServerSettingsScreen from '../(tabs)/server-settings';
 jest.mock('expo-router', () => ({
   router: {
     back: jest.fn(),
+    push: jest.fn(),
   },
 }));
 
@@ -204,18 +205,21 @@ describe('ServerSettingsScreen', () => {
     fireEvent.changeText(input, url);
     fireEvent.press(saveBtn);
 
-    await waitFor(() => {
-      expect(mockSaveServerUrl).toHaveBeenCalledWith(url);
-      expect(mockUpdateCachedServerUrl).toHaveBeenCalledWith(url);
-      // Success alert displayed
-      expect(mockAlert).toHaveBeenCalledWith(
-        'Success',
-        'Server URL saved successfully. Please restart the app for changes to take effect.',
-        expect.any(Array)
-      );
-      // onPress of OK should have been called by our alert mock
-      expect(mockRouter.back).toHaveBeenCalled();
-    });
+    await waitFor(
+      () => {
+        expect(mockSaveServerUrl).toHaveBeenCalledWith(url);
+        expect(mockUpdateCachedServerUrl).toHaveBeenCalledWith(url);
+        // Success alert displayed
+        expect(mockAlert).toHaveBeenCalledWith(
+          'Success',
+          'Server URL saved successfully. Redirecting to login...',
+          expect.any(Array)
+        );
+        // onPress of OK should have been called by our alert mock
+        expect(mockRouter.push).toHaveBeenCalledWith('/(tabs)/login?reloadProviders=true');
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('shows error alert if saving URL fails', async () => {

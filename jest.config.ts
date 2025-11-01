@@ -3,6 +3,7 @@ import type { Config } from 'jest';
 const config: Config = {
   preset: 'jest-expo',
   testEnvironment: 'jsdom',
+  testTimeout: 10000,
   transformIgnorePatterns: [
     'node_modules/(?!(jest-)?react-native|react-clone-referenced-element|@react-native|@react-navigation|@react-native-community|expo(nent)?|@expo(nent)?/.*|react-native-.*|@expo/.*|@unimodules/.*|unimodules-.*|sentry-expo|nativewind|@gluestack-ui/.*|@gluestack-style/.*)'
   ],

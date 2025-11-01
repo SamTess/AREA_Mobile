@@ -444,7 +444,7 @@ describe('ConnectedServicesScreen', () => {
     await waitFor(() => {
       expect(Alert.alert).toHaveBeenCalledWith(
         'Error',
-        'Cannot open OAuth page'
+        'Failed to connect service'
       );
     });
 
