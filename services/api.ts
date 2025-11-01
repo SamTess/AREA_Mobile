@@ -1,6 +1,7 @@
 import { API_CONFIG, HTTP_METHODS, getApiUrl } from './api.config';
-import { getCookies, saveCookies } from './storage';
+import { getCookies, saveCookies, getAccessToken } from './storage';
 import { parseErrorMessage } from './errors';
+import { getCookieHeader } from './cookieManager';
 
 interface QueryParams {
   [key: string]: string | number | boolean | null | undefined;
@@ -31,16 +32,26 @@ async function buildUrl(path: string, params?: QueryParams): Promise<string> {
 }
 
 async function requestInterceptor(headers: Record<string, string>): Promise<Record<string, string>> {
-  const storedCookies = await getCookies();
+  const modifiedHeaders = { ...headers };
 
-  if (storedCookies) {
-    return {
-      ...headers,
-      Cookie: storedCookies,
-    };
+  const webViewCookies = await getCookieHeader();
+  if (webViewCookies && webViewCookies.trim()) {
+    modifiedHeaders.Cookie = webViewCookies;
+  } else {
+    const accessToken = await getAccessToken();
+    if (accessToken) {
+      modifiedHeaders.Authorization = `Bearer ${accessToken}`;
+    } else {
+      console.warn('No authentication found (no cookies, no token)');
+    }
   }
 
-  return headers;
+  const storedCookies = await getCookies();
+  if (storedCookies && !webViewCookies) {
+    modifiedHeaders.Cookie = storedCookies;
+  }
+
+  return modifiedHeaders;
 }
 
 async function responseInterceptor(response: Response): Promise<void> {

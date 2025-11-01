@@ -7,18 +7,20 @@ import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { EyeIcon, EyeOffIcon, LockKeyhole } from 'lucide-react-native';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Linking, Image } from 'react-native';
-import { getOAuthProviders, getOAuthUrl, OAuthProvider } from '@/services/oauth';
+import { ActivityIndicator, Alert, Image, Linking } from 'react-native';
+import { getOAuthProviders, OAuthProvider } from '@/services/oauth';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { getApiUrl } from '@/services/api.config';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
   const { login, isLoading, clearError } = useAuth();
   const router = useRouter();
+  const params = useLocalSearchParams();
   const colors = useThemeColors();
   const [showPassword, setShowPassword] = useState(false);
   const [identifier, setIdentifier] = useState('');
@@ -28,8 +30,16 @@ export default function LoginScreen() {
   const [oauthProviders, setOauthProviders] = useState<OAuthProvider[]>([]);
 
   useEffect(() => {
-    loadOAuthProviders();
-  }, []);
+    const shouldReload = params.reloadProviders === 'true';
+
+    if (shouldReload) {
+      loadOAuthProviders();
+      router.replace('/(tabs)/login');
+    } else if (oauthProviders.length === 0) {
+      loadOAuthProviders();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.reloadProviders]);
 
   const loadOAuthProviders = async () => {
     try {
@@ -46,28 +56,15 @@ export default function LoginScreen() {
 
   const handleOAuthLogin = async (provider: OAuthProvider) => {
     try {
-      const oauthUrl = await getOAuthUrl(provider.providerKey);
-      Alert.alert(
-        t('login.oauthTitle', 'OAuth Login'),
-        t('login.oauthMessage', `You will be redirected to ${provider.providerLabel} to authorize.`),
-        [
-          { text: t('common.cancel', 'Cancel'), style: 'cancel' },
-          {
-            text: t('common.continue', 'Continue'),
-            onPress: async () => {
-              const supported = await Linking.canOpenURL(oauthUrl);
-              if (supported) {
-                await Linking.openURL(oauthUrl);
-              } else {
-                Alert.alert(
-                  t('services.error', 'Error'),
-                  t('services.cantOpen', 'Cannot open OAuth page')
-                );
-              }
-            }
-          }
-        ]
-      );
+      const apiUrl = await getApiUrl();
+      const redirectUri = encodeURIComponent('areamobile://oauth-callback');
+      const authUrl = `${apiUrl}/api/oauth/${provider.providerKey.toLowerCase()}/authorize?origin=mobile&mode=login&mobile_redirect=${redirectUri}`;
+      const canOpen = await Linking.canOpenURL(authUrl);
+      if (canOpen) {
+        await Linking.openURL(authUrl);
+      } else {
+        throw new Error('Cannot open URL');
+      }
     } catch (error) {
       console.error('OAuth login error:', error);
       Alert.alert(
@@ -154,9 +151,9 @@ export default function LoginScreen() {
                 size="lg"
                 isInvalid={!!identifierError}
                 className="rounded-lg"
-                style={{ 
-                  backgroundColor: colors.background, 
-                  borderColor: identifierError ? colors.error : colors.border 
+                style={{
+                  backgroundColor: colors.background,
+                  borderColor: identifierError ? colors.error : colors.border
                 }}
               >
                 <InputField
@@ -194,9 +191,9 @@ export default function LoginScreen() {
                 size="lg"
                 isInvalid={!!passwordError}
                 className="rounded-lg"
-                style={{ 
-                  backgroundColor: colors.background, 
-                  borderColor: passwordError ? colors.error : colors.border 
+                style={{
+                  backgroundColor: colors.background,
+                  borderColor: passwordError ? colors.error : colors.border
                 }}
               >
                 <InputField
@@ -213,8 +210,8 @@ export default function LoginScreen() {
                   placeholderTextColor={colors.textTertiary}
                 />
                 <InputSlot className="pr-3" onPress={handleShowPassword}>
-                  <InputIcon 
-                    as={showPassword ? EyeIcon : EyeOffIcon} 
+                  <InputIcon
+                    as={showPassword ? EyeIcon : EyeOffIcon}
                     style={{ color: colors.textSecondary }}
                   />
                 </InputSlot>
@@ -251,8 +248,8 @@ export default function LoginScreen() {
 
             {/* Lien mot de passe oublié */}
             <Box className="items-center mt-2">
-              <Text 
-                size="sm" 
+              <Text
+                size="sm"
                 style={{ color: colors.info }}
                 onPress={() => router.push('/(tabs)/forgot-password')}
               >
@@ -304,9 +301,9 @@ export default function LoginScreen() {
         <Box className="items-center mt-4">
           <Text size="sm" style={{ color: colors.textSecondary }}>
             {t('login.noAccount')}{' '}
-            <Text 
-              size="sm" 
-              bold 
+            <Text
+              size="sm"
+              bold
               style={{ color: colors.info }}
               onPress={() => router.push('/(tabs)/register')}
             >

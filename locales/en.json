@@ -566,6 +566,37 @@
     "resetMessage": "Are you sure you want to reset to the default server URL?",
     "resetButton": "Reset to Default",
     "resetSuccess": "Server URL reset to default",
-    "resetFailed": "Failed to reset server URL"
+        "resetFailed": "Failed to reset server URL"
+  },
+  "trigger": {
+    "configuration": "Trigger Configuration",
+    "selectType": "Trigger Type",
+    "type": {
+      "label": "Type",
+      "webhook": "Webhook",
+      "poll": "Polling"
+    },
+    "validation": {
+      "error": "Validation Error",
+      "minPoll": "Minimum poll interval is 1 seconds"
+    },
+    "webhook": {
+      "events": "Webhook Events (Optional)",
+      "eventsPlaceholder": "e.g., push, pull_request",
+      "eventsHelp": "Comma-separated list of events to trigger on",
+      "secret": "Secret Token (Optional)",
+      "secretPlaceholder": "Enter secret for validation",
+      "secretHelp": "Optional: Add a token for webhook validation"
+    },
+    "poll": {
+      "interval": "Check Interval (seconds)",
+      "help": "How often to check for changes (minimum: 60 seconds)",
+      "presets": "Quick Select",
+      "customInfo": "Tap badges above to select preset, or enter a custom value directly in the field"
+    },
+    "info": {
+      "webhook": "The trigger will wait for incoming webhooks with the specified events.",
+      "poll": "The trigger will periodically check for changes at the specified interval."
+    }
   }
 }

@@ -20,8 +20,7 @@ export default function ServerSettingsScreen() {
   const [serverUrl, setServerUrl] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
-  // localhost par default a l'utilisatuer de le changer dans la config du back
+ // localhost par default a l'utilisatuer de le changer dans la config du back
   const defaultUrl = 'http://127.0.0.1:8080';
 
   useEffect(() => {
@@ -86,9 +85,12 @@ export default function ServerSettingsScreen() {
       updateCachedServerUrl(serverUrl);
       Alert.alert(
         t('serverSettings.success', 'Success'),
-        t('serverSettings.urlSaved', 'Server URL saved successfully. Please restart the app for changes to take effect.'),
+        t('serverSettings.urlSaved', 'Server URL saved successfully. Redirecting to login...'),
         [
-          { text: t('common.ok', 'OK'), onPress: () => router.back() }
+          {
+            text: t('common.ok', 'OK'),
+            onPress: () => router.push('/(tabs)/login?reloadProviders=true')
+          }
         ]
       );
     } catch (error) {
@@ -118,7 +120,13 @@ export default function ServerSettingsScreen() {
               setServerUrl(defaultUrl);
               Alert.alert(
                 t('serverSettings.success', 'Success'),
-                t('serverSettings.resetSuccess', 'Server URL reset to default')
+                t('serverSettings.resetSuccess', 'Server URL reset to default. Redirecting to login...'),
+                [
+                  { 
+                    text: t('common.ok', 'OK'), 
+                    onPress: () => router.push('/(tabs)/login?reloadProviders=true')
+                  }
+                ]
               );
             } catch (error) {
               console.error('Failed to reset server URL:', error);
@@ -222,9 +230,14 @@ export default function ServerSettingsScreen() {
                       testID="server-url-input"
                     />
                   </Box>
-                  <Text className="text-xs" style={{ color: colors.textSecondary }}>
-                    {t('serverSettings.urlHelper', 'Enter the full URL including protocol (http:// or https://)')}
-                  </Text>
+                  <VStack space="xs">
+                    <Text className="text-xs" style={{ color: colors.textSecondary }}>
+                      {t('serverSettings.urlHelper', 'Enter the full URL including protocol (http:// or https://)')}
+                    </Text>
+                    <Text className="text-xs font-semibold" style={{ color: colors.error || '#ef4444' }}>
+                      {t('serverSettings.urlNoTrailingSlash', '⚠ URL must not end with a trailing slash (/)')}
+                    </Text>
+                  </VStack>
                 </VStack>
 
                 <Box

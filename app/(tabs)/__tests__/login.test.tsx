@@ -1,6 +1,6 @@
 import { AuthProvider } from '@/contexts/AuthContext';
 import '@testing-library/jest-native/extend-expect';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
 import LoginScreen from '../login';
 
@@ -9,6 +9,11 @@ jest.mock('expo-router', () => ({
     useRouter: () => ({
         push: jest.fn(),
         replace: jest.fn(),
+    }),
+    useLocalSearchParams: () => ({}),
+    useFocusEffect: jest.fn((callback) => {
+        // Execute the callback immediately in tests
+        callback();
     }),
 }));
 
@@ -140,10 +145,12 @@ describe('LoginScreen', () => {
         // Wait for the divider text to be rendered
         expect(await screen.findByText(/Or continue with/)).toBeTruthy();
 
-        // Check that OAuth buttons are present (they are buttons without text, just icons)
-        const buttons = screen.getAllByRole('button');
-        // We should have at least 4 buttons: Sign In + 3 OAuth buttons
-        expect(buttons.length).toBeGreaterThanOrEqual(4);
+        // Wait for OAuth buttons to be rendered
+        await waitFor(async () => {
+            const buttons = await screen.findAllByRole('button');
+            // We should have at least 4 buttons: Sign In + 3 OAuth buttons
+            expect(buttons.length).toBeGreaterThanOrEqual(4);
+        });
     });
 
     it('handles GitHub OAuth login', async () => {
@@ -152,11 +159,14 @@ describe('LoginScreen', () => {
         // Wait for the component to be ready
         await screen.findByText('Login');
 
-        // Get all buttons
-        const buttons = screen.getAllByRole('button');
-        // The OAuth buttons are after the main buttons
-        expect(buttons.length).toBeGreaterThan(3);
+        // Wait for OAuth buttons to be rendered
+        await waitFor(async () => {
+            const buttons = await screen.findAllByRole('button');
+            // The OAuth buttons are after the main buttons
+            expect(buttons.length).toBeGreaterThan(3);
+        });
 
+        const buttons = await screen.findAllByRole('button');
         // Just verify we can find and interact with OAuth buttons
         // (clicking them triggers Alert which is mocked, but we won't test the Alert call)
         const oauthButtons = buttons.slice(-3);
@@ -169,9 +179,11 @@ describe('LoginScreen', () => {
         // Wait for the component to be ready
         await screen.findByText('Login');
 
-        // Get all buttons
-        const buttons = screen.getAllByRole('button');
-        expect(buttons.length).toBeGreaterThan(3);
+        // Wait for OAuth buttons to be rendered
+        await waitFor(async () => {
+            const buttons = await screen.findAllByRole('button');
+            expect(buttons.length).toBeGreaterThan(3);
+        });
     });
 
     it('handles Microsoft OAuth login', async () => {
@@ -180,9 +192,11 @@ describe('LoginScreen', () => {
         // Wait for the component to be ready
         await screen.findByText('Login');
 
-        // Get all buttons
-        const buttons = screen.getAllByRole('button');
-        expect(buttons.length).toBeGreaterThan(3);
+        // Wait for OAuth buttons to be rendered
+        await waitFor(async () => {
+            const buttons = await screen.findAllByRole('button');
+            expect(buttons.length).toBeGreaterThan(3);
+        });
     });
 
     it('navigates to forgot password screen', async () => {

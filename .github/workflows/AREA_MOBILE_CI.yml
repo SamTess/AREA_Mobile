@@ -186,12 +186,12 @@ jobs:
           restore-keys: |
             deps-${{ runner.os }}-${{ env.NODE_VERSION }}-
 
-      - name: Build Expo web application
-        run: npx expo export --platform web
+      - name: Build Expo Android application
+        run: npx expo export --platform android
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: expo-web-build
+          name: expo-android-build
           path: dist/
           retention-days: 1

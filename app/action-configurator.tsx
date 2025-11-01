@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, Alert, Linking, View, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Save, Link as LinkIcon, CheckCircle, AlertCircle } from 'lucide-react-native';
 import { Box } from '@/components/ui/box';
@@ -12,11 +12,12 @@ import { Heading } from '@/components/ui/heading';
 import { Input, InputField } from '@/components/ui/input';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { DynamicField } from '@/components/area-editor/DynamicField';
+import { TriggerConfigCard } from '@/components/area-editor/TriggerConfigCard';
 import { useAreaEditor } from '@/contexts/AreaEditorContext';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import * as serviceCatalog from '@/services/serviceCatalog';
 import * as serviceConnection from '@/services/serviceConnection';
-import type { ActionDefinition, FieldData, ActionDto, ReactionDto, BackendService } from '@/types/areas';
+import type { ActionDefinition, FieldData, ActionDto, ReactionDto, BackendService, ActivationConfig } from '@/types/areas';
 import { getServerUrl } from '@/services/storage';
 
 export default function ActionConfiguratorScreen() {
@@ -34,6 +35,7 @@ export default function ActionConfiguratorScreen() {
     editIndex?: string;
     existingParameters?: string;
     existingCardName?: string;
+    existingActivationConfig?: string;
   }>();
 
   const isEditMode = !!params.editIndex;
@@ -41,9 +43,9 @@ export default function ActionConfiguratorScreen() {
   const [fields, setFields] = useState<FieldData[]>([]);
   const [parameters, setParameters] = useState<Record<string, unknown>>({});
   const [cardName, setCardName] = useState<string>('');
+  const [activationConfig, setActivationConfig] = useState<ActivationConfig>({ type: 'webhook' });
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const storedUrl = getServerUrl();
 
   const checkServiceConnection = React.useCallback(async () => {
     try {
@@ -59,7 +61,9 @@ export default function ActionConfiguratorScreen() {
   const openOAuthFlow = React.useCallback(async () => {
     try {
       const provider = serviceConnection.mapServiceKeyToOAuthProvider(params.serviceKey);
-      const oauthUrl = `${storedUrl}/api/oauth/${provider}/authorize`;
+      const { getOAuthUrl } = await import('@/services/oauth');
+      const oauthUrl = await getOAuthUrl(provider, true);
+      
       Alert.alert(
         t('configurator.connectService', 'Connect Service'),
         t('configurator.connectMessage', `You need to connect your ${params.serviceName} account to use this action.`),
@@ -68,11 +72,22 @@ export default function ActionConfiguratorScreen() {
           {
             text: t('common.continue', 'Continue'),
             onPress: async () => {
-              const supported = await Linking.canOpenURL(oauthUrl);
-              if (supported) {
-                await Linking.openURL(oauthUrl);
-                setTimeout(() => checkServiceConnection(), 2000);
-              } else {
+              try {
+                const serverUrl = await getServerUrl();
+                const redirectUri = encodeURIComponent('areamobile://oauth-callback');
+                const authUrl = `${serverUrl}/api/oauth/${provider}/authorize?origin=mobile&mode=link&mobile_redirect=${redirectUri}`;
+                const supported = await Linking.canOpenURL(authUrl);
+                if (supported) {
+                  await Linking.openURL(authUrl);
+                  setTimeout(() => checkServiceConnection(), 2000);
+                } else {
+                  Alert.alert(
+                    t('configurator.error', 'Error'),
+                    t('configurator.cantOpenOAuth', 'Cannot open OAuth page')
+                  );
+                }
+              } catch (error) {
+                console.error('Failed to open OAuth:', error);
                 Alert.alert(
                   t('configurator.error', 'Error'),
                   t('configurator.cantOpenOAuth', 'Cannot open OAuth page')
@@ -122,6 +137,15 @@ export default function ActionConfiguratorScreen() {
           setParameters(initialParams);
         }
       }
+      if (isEditMode && params.existingActivationConfig) {
+        try {
+          const existingConfig = JSON.parse(params.existingActivationConfig);
+          setActivationConfig(existingConfig);
+        } catch (error) {
+          console.error('Failed to parse existing activation config:', error);
+          setActivationConfig({ type: 'webhook' });
+        }
+      }
     } catch (error) {
       console.error('Failed to load action definition:', error);
       Alert.alert(
@@ -132,12 +156,19 @@ export default function ActionConfiguratorScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [params.actionDefinitionId, params.existingCardName, params.actionName, params.existingParameters, isEditMode]);
+  }, [params.actionDefinitionId, params.existingCardName, params.actionName, params.existingParameters, params.existingActivationConfig, isEditMode, t]);
 
   useEffect(() => {
     loadActionDefinition();
     checkServiceConnection();
   }, [loadActionDefinition, checkServiceConnection]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('Action configurator screen focused - checking service connection');
+      checkServiceConnection();
+    }, [checkServiceConnection])
+  );
 
   const handleFieldChange = (name: string, value: unknown) => {
     setParameters(prev => ({
@@ -186,7 +217,7 @@ export default function ActionConfiguratorScreen() {
         name: cardName || params.actionName,
         description: actionDef.description,
         parameters,
-        activationConfig: { type: 'webhook' },
+        activationConfig,
       };
       if (isEditMode && params.editIndex) {
         updateAction(parseInt(params.editIndex), actionData, service, actionDef);
@@ -347,6 +378,14 @@ export default function ActionConfiguratorScreen() {
                 />
               </Input>
             </VStack>
+            {params.type === 'action' && actionDef.isEventCapable && (
+              <TriggerConfigCard
+                config={activationConfig}
+                onChange={setActivationConfig}
+                actionName={cardName || params.actionName}
+              />
+            )}
+
             {fields.length > 0 && (
               <VStack space="sm">
                 <Text className="font-semibold" style={{ color: colors.text }} testID="parameters-section">

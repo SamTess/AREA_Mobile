@@ -21,6 +21,9 @@
     "test-utils/**/*.d.ts"
   ],
   "exclude": [
-    "app-example/**"
+    "app-example/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**"
   ]
 }
