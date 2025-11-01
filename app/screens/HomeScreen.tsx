@@ -35,15 +35,15 @@ export default function HomeScreen() {
   }, [refreshAreas, t]);
 
   const handleAreaPress = (areaId: string) => {
-    router.push(`/area-editor?id=${areaId}`);
+    router.push(`/area-editor?id=${areaId}` as any);
   };
 
   const handleCreateNew = () => {
-    router.push('/area-editor');
+    router.push('/area-editor' as any);
   };
 
   const handleSeeAllAreas = () => {
-    router.push('/(tabs)/areas');
+    router.push('/(tabs)/areas' as any);
   };
 
   const handleDeleteArea = async (areaId: string) => {

@@ -56,4 +56,25 @@ describe('AreaHeader', () => {
     );
     expect(onChangeDescription).toHaveBeenCalledWith('Details');
   });
+
+  it('renders back button when onBack is provided', () => {
+    const onBack = jest.fn();
+    const { getByTestId } = render(
+      <AreaHeader
+        {...defaultProps}
+        onBack={onBack}
+      />
+    );
+
+    fireEvent.press(getByTestId('back-button'));
+    expect(onBack).toHaveBeenCalled();
+  });
+
+  it('does not render back button when onBack is not provided', () => {
+    const { queryByTestId } = render(
+      <AreaHeader {...defaultProps} />
+    );
+
+    expect(queryByTestId('back-button')).toBeNull();
+  });
 });

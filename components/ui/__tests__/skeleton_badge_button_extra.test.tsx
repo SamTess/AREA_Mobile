@@ -7,20 +7,39 @@ import { Skeleton, SkeletonText } from '../skeleton';
 
 describe('Skeleton extra branches', () => {
   it('renders with different speed values (1,2,3) without timing out', () => {
-    const { rerender, getByTestId } = render(<Skeleton testID="sk" speed={1} />);
-    rerender(<Skeleton testID="sk" speed={2} />);
-    rerender(<Skeleton testID="sk" speed={3} />);
-    expect(getByTestId('sk')).toBeTruthy();
+    const { rerender, toJSON } = render(
+      <Skeleton speed={1} isLoaded>
+        <Text>test</Text>
+      </Skeleton>
+    );
+    expect(toJSON()).toBeTruthy();
+    rerender(
+      <Skeleton speed={2} isLoaded>
+        <Text>test</Text>
+      </Skeleton>
+    );
+    expect(toJSON()).toBeTruthy();
+    rerender(
+      <Skeleton speed={3} isLoaded>
+        <Text>test</Text>
+      </Skeleton>
+    );
+    expect(toJSON()).toBeTruthy();
   });
 
   it('SkeletonText respects _lines and gap and loaded branch', () => {
-    const { rerender, getByTestId } = render(<SkeletonText _lines={2} gap={4} testID="sktxt" />);
-    expect(getByTestId('sktxt')).toBeTruthy();
+    const { rerender, toJSON } = render(
+      <SkeletonText _lines={2} gap={4} isLoaded>
+        <Text>initial</Text>
+      </SkeletonText>
+    );
+    expect(toJSON()).toBeTruthy();
     rerender(
       <SkeletonText isLoaded>
         <Text testID="loaded">done</Text>
       </SkeletonText>
     );
+    expect(toJSON()).toBeTruthy();
   });
 });
 

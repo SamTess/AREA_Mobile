@@ -1,209 +1,214 @@
 import { AuthProvider } from '@/contexts/AuthContext';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import '@testing-library/jest-native/extend-expect';
+
+
+
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
+import { Alert } from 'react-native';
 import RegisterScreen from '../register';
 
 // Mock expo-router
 jest.mock('expo-router', () => ({
-    useRouter: () => ({
-        push: jest.fn(),
-        replace: jest.fn(),
-    }),
+    useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
 }));
 
-// Mock expo-secure-store
+// Mock auth service
+const mockRegister = jest.fn();
+const mockGetCurrentUser = jest.fn(() => Promise.resolve(null));
+jest.mock('@/services/auth', () => ({
+    register: (payload: any) => mockRegister(payload),
+    getCurrentUser: () => mockGetCurrentUser(),
+}));
+
+// Mock secure store
 jest.mock('expo-secure-store', () => ({
     getItemAsync: jest.fn(),
     setItemAsync: jest.fn(),
     deleteItemAsync: jest.fn(),
 }));
 
-// Mock Alert
-jest.mock('react-native/Libraries/Alert/Alert', () => ({
-    alert: jest.fn(),
-}));
+// Ensure Alert.alert is present and mocked
+(Alert as any).alert = jest.fn();
 
 // Helper to wrap with AuthProvider
 const renderWithAuth = (component: React.ReactElement) => {
     return render(<AuthProvider>{component}</AuthProvider>);
 };
 
+// Mock the AuthContext hook to avoid provider bootstrap side-effects
+jest.mock('@/contexts/AuthContext', () => {
+    return {
+        useAuth: () => ({
+            register: (email: string, password: string, firstName: string, lastName: string, username: string) => mockRegister({ email, password, firstName, lastName, username }),
+            isLoading: false,
+            clearError: jest.fn(),
+        }),
+        AuthProvider: ({ children }: any) => children,
+    };
+});
+
 describe('RegisterScreen', () => {
-    it('renders the registration form correctly', () => {
-        renderWithAuth(<RegisterScreen />);
-
-        // Tests use English by default (default i18n language)
-        (expect(screen.getAllByText('Sign Up')[0]) as any).toBeTruthy();
-        (expect(screen.getByText('Create your account to get started')) as any).toBeTruthy();
-        (expect(screen.getByPlaceholderText('John')) as any).toBeTruthy();
-        (expect(screen.getByPlaceholderText('Doe')) as any).toBeTruthy();
-        (expect(screen.getByPlaceholderText('example@email.com')) as any).toBeTruthy();
-        (expect(screen.getAllByPlaceholderText('••••••••')[0]) as any).toBeTruthy();
-        (expect(screen.getAllByPlaceholderText('••••••••')[1]) as any).toBeTruthy();
+    beforeEach(() => {
+            mockRegister.mockReset();
+            mockGetCurrentUser.mockReset();
+            mockGetCurrentUser.mockImplementation(() => Promise.resolve(null));
+            mockRegister.mockImplementation(() => Promise.resolve({ user: { id: '1', email: 'john@example.com' } }));
     });
 
-    it('allows typing in first name field', () => {
+    it('renders the registration form and placeholders', async () => {
         renderWithAuth(<RegisterScreen />);
 
-        const firstNameInput = screen.getByPlaceholderText('John');
-        fireEvent.changeText(firstNameInput, 'John');
+    // Wait for the header to appear
+    expect(await screen.findByRole('header')).toBeTruthy();
 
-        (expect(firstNameInput.props.value) as any).toBe('John');
+        expect(screen.getByPlaceholderText('John')).toBeTruthy();
+        expect(screen.getByPlaceholderText('Doe')).toBeTruthy();
+        expect(screen.getByPlaceholderText('example@email.com')).toBeTruthy();
+        expect(screen.getAllByPlaceholderText('••••••••').length).toBeGreaterThanOrEqual(2);
     });
 
-    it('allows typing in last name field', () => {
+    it('allows typing and shows validation when fields are empty', async () => {
         renderWithAuth(<RegisterScreen />);
 
-        const lastNameInput = screen.getByPlaceholderText('Doe');
-        fireEvent.changeText(lastNameInput, 'Doe');
+    const signUpButton = await screen.findByTestId('register-submit');
+    fireEvent.press(signUpButton);
 
-        (expect(lastNameInput.props.value) as any).toBe('Doe');
-    });
-
-    it('allows typing in email field', () => {
-        renderWithAuth(<RegisterScreen />);
-
-        const emailInput = screen.getByPlaceholderText('example@email.com');
-        fireEvent.changeText(emailInput, 'test@example.com');
-
-        expect(emailInput.props.value).toBe('test@example.com');
-    });
-
-    it('allows typing in password fields', () => {
-        renderWithAuth(<RegisterScreen />);
-
-        const passwordInputs = screen.getAllByPlaceholderText('••••••••');
-
-        fireEvent.changeText(passwordInputs[0], 'password123');
-        fireEvent.changeText(passwordInputs[1], 'password123');
-
-        expect(passwordInputs[0].props.value).toBe('password123');
-        expect(passwordInputs[1].props.value).toBe('password123');
-    });
-
-    it('displays helper texts for all fields', () => {
-        renderWithAuth(<RegisterScreen />);
-
-        (expect(screen.getByText('Enter your first name')) as any).toBeTruthy();
-        (expect(screen.getByText('Enter your last name')) as any).toBeTruthy();
-        (expect(screen.getByText('Enter your email address')) as any).toBeTruthy();
-        (expect(screen.getByText('At least 8 characters')) as any).toBeTruthy();
-        (expect(screen.getByText('Confirm your password')) as any).toBeTruthy();
-    });
-
-    it('shows sign in link text', () => {
-        renderWithAuth(<RegisterScreen />);
-
-        expect(screen.getByText(/Already have an account/)).toBeTruthy();
-        expect(screen.getByText(/Sign in/)).toBeTruthy();
-    });
-
-    it('shows validation errors when all fields are empty', async () => {
-        renderWithAuth(<RegisterScreen />);
-
-        const signUpButtons = screen.getAllByText('Sign Up');
-        const signUpButton = signUpButtons[signUpButtons.length - 1];
-
-        // Just verify button is pressable
-        fireEvent.press(signUpButton);
-        expect(signUpButton).toBeTruthy();
-    });
-
-    it('shows email validation error for invalid email', async () => {
-        renderWithAuth(<RegisterScreen />);
-
-        const emailInput = screen.getByPlaceholderText('example@email.com');
-        fireEvent.changeText(emailInput, 'invalid-email');
-
-        const signUpButtons = screen.getAllByText('Sign Up');
-        const signUpButton = signUpButtons[signUpButtons.length - 1];
-        fireEvent.press(signUpButton);
-
-        // Just verify the button works
-        expect(signUpButton).toBeTruthy();
+        // After pressing without filling, errors should be shown (we check for any error text)
+        expect(await screen.findByText(/Enter your first name|Email is required/i)).toBeTruthy();
     });
 
     it('shows password mismatch error', async () => {
         renderWithAuth(<RegisterScreen />);
 
-        const firstNameInput = screen.getByPlaceholderText('John');
-        const lastNameInput = screen.getByPlaceholderText('Doe');
-        const emailInput = screen.getByPlaceholderText('example@email.com');
+        const firstName = screen.getByPlaceholderText('John');
+        const lastName = screen.getByPlaceholderText('Doe');
+        const email = screen.getByPlaceholderText('example@email.com');
         const passwordInputs = screen.getAllByPlaceholderText('••••••••');
 
-        fireEvent.changeText(firstNameInput, 'John');
-        fireEvent.changeText(lastNameInput, 'Doe');
-        fireEvent.changeText(emailInput, 'test@example.com');
+        fireEvent.changeText(firstName, 'John');
+        fireEvent.changeText(lastName, 'Doe');
+        fireEvent.changeText(email, 'test@example.com');
         fireEvent.changeText(passwordInputs[0], 'password123');
-        fireEvent.changeText(passwordInputs[1], 'differentpassword');
+        fireEvent.changeText(passwordInputs[1], 'different');
+        const usernameInput = screen.getByPlaceholderText('Choose a username');
+        fireEvent.changeText(usernameInput, 'johndoe');
 
-        const signUpButtons = screen.getAllByText('Sign Up');
-        const signUpButton = signUpButtons[signUpButtons.length - 1];
-        fireEvent.press(signUpButton);
+    const signUpButton = await screen.findByTestId('register-submit');
+    fireEvent.press(signUpButton);
 
-        // Just verify the inputs have values
-        (expect(firstNameInput.props.value) as any).toBe('John');
-        (expect(lastNameInput.props.value) as any).toBe('Doe');
-        (expect(emailInput.props.value) as any).toBe('test@example.com');
+    // i18n is not initialized in tests; the component shows the literal error text
+    expect(await screen.findByText(/Passwords do not match/i)).toBeTruthy();
     });
 
-    it('shows password too short error', async () => {
+    it('submits the form successfully when valid', async () => {
+        mockRegister.mockResolvedValueOnce({ ok: true });
+
+        renderWithAuth(<RegisterScreen />);
+
+        const firstName = screen.getByPlaceholderText('John');
+        const lastName = screen.getByPlaceholderText('Doe');
+        const email = screen.getByPlaceholderText('example@email.com');
+        const passwordInputs = screen.getAllByPlaceholderText('••••••••');
+        const username = screen.getByPlaceholderText('Choose a username');
+
+        fireEvent.changeText(firstName, 'John');
+        fireEvent.changeText(lastName, 'Doe');
+        fireEvent.changeText(username, 'johndoe');
+        fireEvent.changeText(email, 'john@example.com');
+        fireEvent.changeText(passwordInputs[0], 'password123');
+        fireEvent.changeText(passwordInputs[1], 'password123');
+
+        const signUpButton = await screen.findByTestId('register-submit');
+    fireEvent.press(signUpButton);
+
+        await waitFor(() => expect(mockRegister).toHaveBeenCalled());
+        expect(mockRegister).toHaveBeenCalledWith(expect.objectContaining({
+            firstName: 'John',
+            lastName: 'Doe',
+            username: 'johndoe',
+            email: 'john@example.com',
+        }));
+    });
+
+    it('shows error for missing first name', async () => {
+        renderWithAuth(<RegisterScreen />);
+
+        const signUpButton = await screen.findByTestId('register-submit');
+        fireEvent.press(signUpButton);
+
+        expect(await screen.findByText(/First name is required/i)).toBeTruthy();
+    });
+
+    it('shows error for short username', async () => {
+        renderWithAuth(<RegisterScreen />);
+
+        const username = screen.getByPlaceholderText('Choose a username');
+        fireEvent.changeText(username, 'ab');  // Too short (< 3 chars)
+
+        const signUpButton = await screen.findByTestId('register-submit');
+        fireEvent.press(signUpButton);
+
+        expect(await screen.findByText(/must be at least 3 characters/i)).toBeTruthy();
+    });
+
+    it('shows error for invalid email', async () => {
+        renderWithAuth(<RegisterScreen />);
+
+        const email = screen.getByPlaceholderText('example@email.com');
+        fireEvent.changeText(email, 'not-an-email');
+
+        const signUpButton = await screen.findByTestId('register-submit');
+        fireEvent.press(signUpButton);
+
+        expect(await screen.findByText(/Please enter a valid email/i)).toBeTruthy();
+    });
+
+    it('shows error for short password', async () => {
         renderWithAuth(<RegisterScreen />);
 
         const passwordInputs = screen.getAllByPlaceholderText('••••••••');
-        fireEvent.changeText(passwordInputs[0], '123');
+        fireEvent.changeText(passwordInputs[0], 'short');  // Less than 8 chars
 
-        const signUpButtons = screen.getAllByText('Sign Up');
-        const signUpButton = signUpButtons[signUpButtons.length - 1];
+        const signUpButton = await screen.findByTestId('register-submit');
         fireEvent.press(signUpButton);
 
-        // Just verify the password was set
-        expect(passwordInputs[0].props.value).toBe('123');
+        expect(await screen.findByText(/Password must be at least 8 characters/i)).toBeTruthy();
     });
 
-    it('clears errors when user types in fields', async () => {
+    it('shows error for username too long', async () => {
         renderWithAuth(<RegisterScreen />);
 
-        const emailInput = screen.getByPlaceholderText('example@email.com');
+        const username = screen.getByPlaceholderText('Choose a username');
+        fireEvent.changeText(username, 'a'.repeat(51));  // More than 50 chars
 
-        const signUpButtons = screen.getAllByText('Sign Up');
-        const signUpButton = signUpButtons[signUpButtons.length - 1];
+        const signUpButton = await screen.findByTestId('register-submit');
         fireEvent.press(signUpButton);
 
-        // Type in the field
-        fireEvent.changeText(emailInput, 'test@example.com');
-
-        // Verify the input has the new value
-        expect(emailInput.props.value).toBe('test@example.com');
+        expect(await screen.findByText(/must not exceed 50 characters/i)).toBeTruthy();
     });
 
-    it('toggles password visibility for password field', () => {
+    it('shows error for first name too short', async () => {
         renderWithAuth(<RegisterScreen />);
 
-        const passwordInputs = screen.getAllByPlaceholderText('••••••••');
-        const passwordInput = passwordInputs[0];
+        const firstName = screen.getByPlaceholderText('John');
+        fireEvent.changeText(firstName, 'A');  // Only 1 char
 
-        // Initially, the field should be of type password
-        expect(passwordInput.props.secureTextEntry).toBe(true);
+        const signUpButton = await screen.findByTestId('register-submit');
+        fireEvent.press(signUpButton);
+
+        expect(await screen.findByText(/must be at least 2 characters/i)).toBeTruthy();
     });
 
-    it('toggles password visibility for confirm password field', () => {
+    it('shows error for last name too short', async () => {
         renderWithAuth(<RegisterScreen />);
 
-        const passwordInputs = screen.getAllByPlaceholderText('••••••••');
-        const confirmPasswordInput = passwordInputs[1];
+        const lastName = screen.getByPlaceholderText('Doe');
+        fireEvent.changeText(lastName, 'B');  // Only 1 char
 
-        // Initially, the field should be of type password
-        expect(confirmPasswordInput.props.secureTextEntry).toBe(true);
-    });
+        const signUpButton = await screen.findByTestId('register-submit');
+        fireEvent.press(signUpButton);
 
-    it('navigates to login screen when sign in is clicked', async () => {
-        renderWithAuth(<RegisterScreen />);
-
-        const signInLink = screen.getByText(/Sign in/);
-        expect(signInLink).toBeTruthy();
-
-        // Just verify the link is pressable
-        fireEvent.press(signInLink);
+        expect(await screen.findByText(/must be at least 2 characters/i)).toBeTruthy();
     });
 });

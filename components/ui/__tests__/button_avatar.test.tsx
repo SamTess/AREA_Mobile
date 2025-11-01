@@ -16,6 +16,32 @@ describe('Button suite', () => {
     expect(getByText('Click me')).toBeTruthy();
   });
 
+  it('renders Button with different actions', () => {
+    const actions = ['primary', 'secondary', 'positive', 'negative', 'default'] as const;
+    
+    actions.forEach(action => {
+      const { getByText } = render(
+        <Button action={action} accessibilityLabel={`btn-${action}`}>
+          <ButtonText>{action} button</ButtonText>
+        </Button>
+      );
+      expect(getByText(`${action} button`)).toBeTruthy();
+    });
+  });
+
+  it('renders Button with different variants', () => {
+    const variants = ['link', 'outline', 'solid'] as const;
+    
+    variants.forEach(variant => {
+      const { getByText } = render(
+        <Button variant={variant} accessibilityLabel={`btn-${variant}`}>
+          <ButtonText>{variant} button</ButtonText>
+        </Button>
+      );
+      expect(getByText(`${variant} button`)).toBeTruthy();
+    });
+  });
+
   it('ButtonIcon uses numeric size branch', () => {
     const { getByTestId } = render(
       <Button>

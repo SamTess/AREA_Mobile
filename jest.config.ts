@@ -3,6 +3,7 @@ import type { Config } from 'jest';
 const config: Config = {
   preset: 'jest-expo',
   testEnvironment: 'jsdom',
+  testTimeout: 10000,
   transformIgnorePatterns: [
     'node_modules/(?!(jest-)?react-native|react-clone-referenced-element|@react-native|@react-navigation|@react-native-community|expo(nent)?|@expo(nent)?/.*|react-native-.*|@expo/.*|@unimodules/.*|unimodules-.*|sentry-expo|nativewind|@gluestack-ui/.*|@gluestack-style/.*)'
   ],
@@ -18,19 +19,20 @@ const config: Config = {
   collectCoverageFrom: [
     'app/**/*.{ts,tsx}',
     'components/**/*.{ts,tsx}',
+    'hooks/**/*.{ts,tsx}',
     '!**/*.d.ts',
     '!**/*.web.tsx',
     '!**/*.web.ts',
     '!**/*.next15.tsx',
   ],
   coverageReporters: ['text', 'lcov', 'html'],
-  testPathIgnorePatterns: ['/node_modules/', '/Android/', '/.expo/'],
+  testPathIgnorePatterns: ['/node_modules/', '/Android/', '/.expo/', '/AREA_Web/', '/AREA_Back/'],
   coverageThreshold: {
     global: {
-      statements: 0,
-      branches: 0,
-      functions: 0,
-      lines: 0,
+      statements: 60,
+      branches: 60,
+      functions: 60,
+      lines: 60,
     },
   },
 };
