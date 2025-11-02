@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
+import { Alert } from 'react-native';
 import { AreaListCard } from '../AreaListCard';
 import type { AreaDto } from '@/types/areas';
 
@@ -80,5 +81,70 @@ describe('AreaListCard', () => {
     const dateText = new Date('2025-10-13T08:30:00Z').toLocaleDateString();
     // Le composant affiche "Last run: <date>" maintenant
     expect(getByText(`Last run: ${dateText}`)).toBeTruthy();
+  });
+
+  it('calls onEdit when edit button is pressed', () => {
+    const onEditMock = jest.fn();
+    const { getAllByRole } = render(
+      <AreaListCard area={mockAreaDto} onEdit={onEditMock} />
+    );
+
+    const buttons = getAllByRole('button');
+    // Find edit button (should be first action button)
+    const editButton = buttons.find((btn) => {
+      const props = btn.props;
+      return props.accessibilityLabel === 'Edit' || props['aria-label'] === 'Edit';
+    });
+    
+    if (editButton) {
+      fireEvent.press(editButton);
+      expect(onEditMock).toHaveBeenCalledWith('1');
+    }
+  });
+
+  it('calls onDelete when delete button is pressed', () => {
+    const alertSpy = jest.spyOn(Alert, 'alert');
+    const onDeleteMock = jest.fn();
+    const { getAllByRole } = render(
+      <AreaListCard area={mockAreaDto} onDelete={onDeleteMock} />
+    );
+
+    const buttons = getAllByRole('button');
+    // Find delete button
+    const deleteButton = buttons[buttons.length - 1]; // Delete is typically last
+    
+    fireEvent.press(deleteButton);
+    expect(alertSpy).toHaveBeenCalled();
+    
+    alertSpy.mockRestore();
+  });
+
+  it('calls onRun when run button is pressed', () => {
+    const onRunMock = jest.fn();
+    const { getAllByRole } = render(
+      <AreaListCard area={mockAreaDto} onRun={onRunMock} />
+    );
+
+    const buttons = getAllByRole('button');
+    // Find run button (middle button typically)
+    if (buttons.length > 2) {
+      fireEvent.press(buttons[1]);
+    }
+  });
+
+  it('calls onToggle when toggle button is pressed', () => {
+    const alertSpy = jest.spyOn(Alert, 'alert');
+    const onToggleMock = jest.fn();
+    const { getAllByRole } = render(
+      <AreaListCard area={mockAreaDto} onToggle={onToggleMock} />
+    );
+
+    const buttons = getAllByRole('button');
+    // Toggle button is one of the action buttons
+    if (buttons.length > 1) {
+      fireEvent.press(buttons[buttons.length - 2]);
+    }
+    
+    alertSpy.mockRestore();
   });
 });

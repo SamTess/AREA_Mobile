@@ -56,11 +56,6 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     }
   }, [isLoaded, speed, animatedValue]);
 
-  const backgroundColor = animatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [getToken('gray-200'), getToken('background-100')],
-  });
-
   const variantClasses = {
     rounded: 'rounded-md',
     sharp: '',
@@ -70,6 +65,11 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   if (isLoaded && children) {
     return <View>{children}</View>;
   }
+
+  const backgroundColor = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [getToken('gray-200'), getToken('background-100')],
+  });
 
   return (
     <Animated.View
@@ -123,11 +123,6 @@ export const SkeletonText: React.FC<SkeletonTextProps> = ({
     }
   }, [isLoaded, speed, animatedValue]);
 
-  const backgroundColor = animatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [getToken('gray-200'), getToken('background-100')],
-  });
-
   const gapClasses = {
     1: 'gap-1',
     2: 'gap-2',
@@ -138,6 +133,11 @@ export const SkeletonText: React.FC<SkeletonTextProps> = ({
   if (isLoaded && children) {
     return <View>{children}</View>;
   }
+
+  const backgroundColor = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [getToken('gray-200'), getToken('background-100')],
+  });
 
   return (
     <View className={`${gapClasses[gap as keyof typeof gapClasses]} ${className}`} style={style} {...props}>

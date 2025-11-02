@@ -137,7 +137,7 @@ export default function UserModal({ visible, onClose, onSubmit, user }: UserModa
             <Text style={[styles.modalTitle, { color: colors.text }]}>
               {user ? t('admin.modal.editTitle') : t('admin.modal.addTitle')}
             </Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton} testID="close-button">
               <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
@@ -230,6 +230,7 @@ export default function UserModal({ visible, onClose, onSubmit, user }: UserModa
                     disabled={loading}
                     trackColor={{ false: colors.border, true: colors.info }}
                     thumbColor={formData.isAdmin ? '#FFFFFF' : '#F4F3F4'}
+                    accessibilityRole="switch"
                   />
                 </View>
                 <Text style={[styles.helperText, { color: colors.textSecondary }]}>
@@ -244,6 +245,7 @@ export default function UserModal({ visible, onClose, onSubmit, user }: UserModa
               style={[styles.button, styles.cancelButton, { backgroundColor: colors.backgroundSecondary }]}
               onPress={onClose}
               disabled={loading || fetchingUser}
+              testID="cancel-button"
             >
               <Text style={[styles.cancelButtonText, { color: colors.textSecondary }]}>{t('admin.modal.cancelButton')}</Text>
             </TouchableOpacity>
@@ -256,6 +258,7 @@ export default function UserModal({ visible, onClose, onSubmit, user }: UserModa
               ]}
               onPress={handleSubmit}
               disabled={loading || fetchingUser}
+              testID="submit-button"
             >
               <Text style={styles.submitButtonText}>
                 {loading ? t('admin.modal.savingButton') : user ? t('admin.modal.updateButton') : t('admin.modal.addButton')}

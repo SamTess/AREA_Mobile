@@ -149,9 +149,9 @@ export default function ActionConfiguratorScreen() {
     } catch (error) {
       console.error('Failed to load action definition:', error);
       Alert.alert(
-        t('configurator.error.loadFailed', 'Load Failed'),
-        t('configurator.error.loadFailedMessage', 'Failed to load action configuration'),
-        [{ text: t('common.ok', 'OK'), onPress: () => router.back() }]
+        'Load Failed',
+        'Failed to load action configuration',
+        [{ text: 'OK', onPress: () => router.back() }]
       );
     } finally {
       setIsLoading(false);
@@ -253,7 +253,7 @@ export default function ActionConfiguratorScreen() {
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center" style={{ backgroundColor: colors.backgroundSecondary }}>
-        <Text style={{ color: colors.textSecondary }}>
+        <Text style={{ color: colors.textSecondary }} testID="loading-text">
           {t('configurator.loading', 'Loading...')}
         </Text>
       </SafeAreaView>
@@ -280,7 +280,7 @@ export default function ActionConfiguratorScreen() {
         }}
       >
         <HStack space="sm" className="items-center flex-1">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.back()} testID="back-button">
             <ArrowLeft size={24} color="white" />
           </TouchableOpacity>
           <VStack className="flex-1">
@@ -289,12 +289,12 @@ export default function ActionConfiguratorScreen() {
                 ? t('configurator.titleEdit', 'Edit')
                 : t('configurator.title', 'Configure')} {params.type === 'action' ? t('configurator.action', 'Action') : t('configurator.reaction', 'Reaction')}
             </Heading>
-            <Text className="text-xs" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            <Text className="text-xs" style={{ color: 'rgba(255, 255, 255, 0.8)' }} testID="service-action-title">
               {params.serviceName} › {params.actionName}
             </Text>
           </VStack>
         </HStack>
-        <TouchableOpacity onPress={handleSave}>
+        <TouchableOpacity onPress={handleSave} testID="save-button">
           <Save size={24} color="white" />
         </TouchableOpacity>
       </View>
@@ -309,6 +309,7 @@ export default function ActionConfiguratorScreen() {
                   backgroundColor: colors.info + '20',
                   borderColor: colors.info,
                 }}
+                testID="action-description"
               >
                 <Text className="text-sm" style={{ color: colors.text }}>
                   {actionDef.description}
@@ -333,14 +334,14 @@ export default function ActionConfiguratorScreen() {
                       {isConnected ? (
                         <>
                           <CheckCircle size={16} color={colors.success} />
-                          <Text className="text-sm" style={{ color: colors.success }}>
+                          <Text className="text-sm" style={{ color: colors.success }} testID="connected-status">
                             {t('configurator.connected', 'Connected to')} {params.serviceName}
                           </Text>
                         </>
                       ) : (
                         <>
                           <AlertCircle size={16} color={colors.warning} />
-                          <Text className="text-sm" style={{ color: colors.warning }}>
+                          <Text className="text-sm" style={{ color: colors.warning }} testID="not-connected-status">
                             {t('configurator.notConnected', 'Not connected to')} {params.serviceName}
                           </Text>
                         </>
@@ -353,6 +354,7 @@ export default function ActionConfiguratorScreen() {
                       variant="solid"
                       onPress={openOAuthFlow}
                       style={{ backgroundColor: colors.info }}
+                      testID="connect-button"
                     >
                       <ButtonIcon as={LinkIcon} size="sm" />
                       <ButtonText className="text-white">{t('configurator.connect', 'Connect')}</ButtonText>
@@ -386,7 +388,7 @@ export default function ActionConfiguratorScreen() {
 
             {fields.length > 0 && (
               <VStack space="sm">
-                <Text className="font-semibold" style={{ color: colors.text }}>
+                <Text className="font-semibold" style={{ color: colors.text }} testID="parameters-section">
                   {t('configurator.section.parameters', 'Parameters')}
                 </Text>
                 {fields.map((field) => (
@@ -407,6 +409,7 @@ export default function ActionConfiguratorScreen() {
                   backgroundColor: colors.card,
                   borderColor: colors.border,
                 }}
+                testID="no-parameters-message"
               >
                 <Text className="text-center" style={{ color: colors.textSecondary }}>
                   {t('configurator.noParameters', 'No parameters required for this action')}

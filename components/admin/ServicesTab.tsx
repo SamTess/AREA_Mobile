@@ -35,14 +35,14 @@ export default function ServicesTab() {
 
   if (loading) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: colors.backgroundSecondary }]}>
+      <View style={[styles.loadingContainer, { backgroundColor: colors.backgroundSecondary }]} testID="services-loading-container">
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
+    <View style={[styles.container, { backgroundColor: colors.backgroundSecondary }]} testID="services-tab-container">
       <View style={[styles.filterContainer, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         <TextInput
           style={[styles.searchInput, { backgroundColor: colors.backgroundSecondary, color: colors.text }]}
@@ -50,6 +50,7 @@ export default function ServicesTab() {
           placeholderTextColor={colors.textTertiary}
           value={searchQuery}
           onChangeText={setSearchQuery}
+          testID="services-search-input"
         />
       </View>
 
@@ -57,24 +58,26 @@ export default function ServicesTab() {
         data={filteredServices}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={[styles.serviceCard, { backgroundColor: colors.card }]}>
+          <View style={[styles.serviceCard, { backgroundColor: colors.card }]} testID={`service-card-${item.id}`}>
             <View style={styles.serviceHeader}>
               <Image
                 source={{ uri: item.logo }}
                 style={styles.serviceLogo}
                 defaultSource={require('@/assets/images/icon.png')}
+                testID={`service-logo-${item.id}`}
               />
               <View style={styles.serviceInfo}>
-                <Text style={[styles.serviceName, { color: colors.text }]}>{item.name}</Text>
+                <Text style={[styles.serviceName, { color: colors.text }]} testID={`service-name-${item.id}`}>{item.name}</Text>
               </View>
             </View>
           </View>
         )}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyText, { color: colors.textTertiary }]}>No services found</Text>
+            <Text style={[styles.emptyText, { color: colors.textTertiary }]} testID="services-empty-text">No services found</Text>
           </View>
         }
+        testID="services-flatlist"
       />
     </View>
   );

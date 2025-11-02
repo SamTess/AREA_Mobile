@@ -317,7 +317,7 @@ export default function RegisterScreen() {
                                         autoCapitalize="none"
                                         autoCorrect={false}
                                     />
-                                    <InputSlot className="pr-3" onPress={handleShowPassword}>
+                                    <InputSlot className="pr-3" onPress={handleShowPassword} testID="toggle-password">
                                         <InputIcon
                                             as={showPassword ? EyeIcon : EyeOffIcon}
                                             style={{ color: colors.textSecondary }}
@@ -358,7 +358,7 @@ export default function RegisterScreen() {
                                         autoCapitalize="none"
                                         autoCorrect={false}
                                     />
-                                    <InputSlot className="pr-3" onPress={handleShowConfirmPassword}>
+                                    <InputSlot className="pr-3" onPress={handleShowConfirmPassword} testID="toggle-confirm-password">
                                         <InputIcon
                                             as={showConfirmPassword ? EyeIcon : EyeOffIcon}
 
@@ -382,6 +382,7 @@ export default function RegisterScreen() {
                                 size="lg"
                                 onPress={handleRegister}
                                 isDisabled={isLoading}
+                                testID="register-submit"
                                 className="mt-6 rounded-lg shadow-md" style={{ backgroundColor: colors.info }}
                             >
                                 {isLoading ? (
