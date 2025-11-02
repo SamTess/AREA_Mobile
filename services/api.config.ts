@@ -49,6 +49,7 @@ export const API_ENDPOINTS = {
     ME: '/api/auth/me',
     UPDATE_PROFILE: '/api/users',
     UPLOAD_AVATAR: '/api/users/avatar',
+    FORGOT_PASSWORD: '/api/auth/forgot-password',
 } as const;
 
 /**
