@@ -137,8 +137,7 @@ export async function forgotPassword(email: string): Promise<void> {
     }
 
     try {
-        // Not supported by current backend per spec
-        throw new Error('Forgot password is not supported by the current backend.');
+        await post<{ message: string }>(API_CONFIG.ENDPOINTS.FORGOT_PASSWORD, { email });
     } catch (error) {
         console.error('Forgot password error:', error);
         throw error;
