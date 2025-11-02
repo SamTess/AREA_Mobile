@@ -1,21 +1,8 @@
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import { act } from 'react-test-renderer';
 import { Skeleton, SkeletonText } from '../skeleton';
-
-// Mock useDesignTokens
-jest.mock('../hooks/useDesignTokens', () => ({
-  useDesignTokens: () => ({
-    getToken: (token: string) => {
-      const tokens: Record<string, string> = {
-        'gray-200': '#e5e7eb',
-        'background-100': '#f2f1f1',
-      };
-      return tokens[token] || '#000000';
-    },
-  }),
-}));
 
 describe('Skeleton', () => {
   beforeEach(() => {
@@ -27,13 +14,11 @@ describe('Skeleton', () => {
     });
     jest.useRealTimers();
   });
-  
-  it('renders when loaded with children', () => {
-    const { toJSON } = render(
-      <Skeleton isLoaded testID="skeleton">
-        <Text>content</Text>
-      </Skeleton>
-    );
+  it('renders animated placeholder when not loaded', () => {
+    const { toJSON } = render(<Skeleton testID="skeleton" />);
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
     expect(toJSON()).toBeTruthy();
   });
 
@@ -46,16 +31,22 @@ describe('Skeleton', () => {
     expect(screen.getByText('loaded')).toBeTruthy();
   });
 
-  it('supports variants with loaded state', () => {
-    const { toJSON } = render(
-      <Skeleton variant="rounded" testID="v" isLoaded>
-        <Text>content</Text>
-      </Skeleton>
-    );
+  it('supports variants', () => {
+    const { getByTestId, rerender } = render(<Skeleton variant="rounded" testID="v" />);
     act(() => {
-      jest.advanceTimersByTime(100);
+      jest.advanceTimersByTime(1000);
     });
-    expect(toJSON()).toBeTruthy();
+    expect(getByTestId('v')).toBeTruthy();
+    rerender(<Skeleton variant="circular" testID="v" />);
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    expect(getByTestId('v')).toBeTruthy();
+    rerender(<Skeleton variant="sharp" testID="v" />);
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    expect(getByTestId('v')).toBeTruthy();
   });
 });
 
@@ -69,13 +60,11 @@ describe('SkeletonText', () => {
     });
     jest.useRealTimers();
   });
-  
-  it('renders when loaded with children', () => {
-    const { toJSON } = render(
-      <SkeletonText isLoaded testID="skeleton-text">
-        <Text>content</Text>
-      </SkeletonText>
-    );
+  it('renders multiple lines when not loaded', () => {
+    const { toJSON } = render(<SkeletonText _lines={4} />);
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
     expect(toJSON()).toBeTruthy();
   });
 

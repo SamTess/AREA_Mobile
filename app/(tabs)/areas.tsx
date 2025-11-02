@@ -66,18 +66,18 @@ export default function AreasTab() {
   const handleAreaPress = (areaId: string) => {
     if (alreadyPressedRef.current) return;
     alreadyPressedRef.current = true;
-    router.push(`/area-editor?id=${areaId}` as any);
+    router.push(`/area-editor?id=${areaId}`);
     setTimeout(() => {
       alreadyPressedRef.current = false;
     }, 1000);
   };
 
   const handleCreateArea = () => {
-    router.push('/area-editor' as any);
+    router.push('/area-editor');
   };
 
   const handleEditArea = (areaId: string) => {
-    router.push(`/area-editor?id=${areaId}` as any);
+    router.push(`/area-editor?id=${areaId}`);
   };
 
   const handleDeleteArea = async (areaId: string) => {
@@ -192,7 +192,6 @@ export default function AreasTab() {
         )}
       </Box>
       <FlatList
-        testID="areas-flatlist"
         data={filteredAreas}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (

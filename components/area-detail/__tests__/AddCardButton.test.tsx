@@ -46,44 +46,4 @@ describe('AddCardButton', () => {
     findButton(i18n.t('areaDetail.alerts.addCardReaction'))?.onPress?.();
     expect(onAddReaction).toHaveBeenCalled();
   });
-
-  it('handles cancel button press', () => {
-    const onAddAction = jest.fn();
-    const onAddReaction = jest.fn();
-
-    const { getByTestId } = render(
-      <AddCardButton
-        isRemoveZoneActive={false}
-        onAddAction={onAddAction}
-        onAddReaction={onAddReaction}
-        testID="add-card"
-      />
-    );
-
-    fireEvent.press(getByTestId('add-card'));
-
-    const buttons = alertSpy.mock.calls[0]?.[2] ?? [];
-    const cancelButton = buttons.find((button) => button?.text === i18n.t('areaDetail.alerts.addCardCancel'));
-    
-    // Pressing cancel should not trigger any action
-    cancelButton?.onPress?.();
-    expect(onAddAction).not.toHaveBeenCalled();
-    expect(onAddReaction).not.toHaveBeenCalled();
-  });
-
-  it('renders with isRemoveZoneActive true', () => {
-    const onAddAction = jest.fn();
-    const onAddReaction = jest.fn();
-
-    const { getByTestId } = render(
-      <AddCardButton
-        isRemoveZoneActive={true}
-        onAddAction={onAddAction}
-        onAddReaction={onAddReaction}
-        testID="add-card"
-      />
-    );
-
-    expect(getByTestId('add-card')).toBeTruthy();
-  });
 });

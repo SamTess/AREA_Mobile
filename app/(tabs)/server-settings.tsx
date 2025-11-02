@@ -169,8 +169,6 @@ export default function ServerSettingsScreen() {
             className="bg-white"
             onPress={handleSave}
             isDisabled={isSaving}
-            accessibilityLabel="save-button"
-            testID="save-button"
           >
             <ButtonIcon as={Save} style={{ color: colors.info }} size="sm" />
           </Button>
@@ -226,8 +224,6 @@ export default function ServerSettingsScreen() {
                       autoCapitalize="none"
                       autoCorrect={false}
                       keyboardType="url"
-                      accessibilityLabel="server-url-input"
-                      testID="server-url-input"
                     />
                   </Box>
                   <VStack space="xs">
