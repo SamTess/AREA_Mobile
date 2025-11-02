@@ -29,7 +29,6 @@ export function DynamicField({ field, value, onChange }: DynamicFieldProps) {
               onChangeText={(text) => onChange(field.name, text)}
               keyboardType={field.type === 'email' ? 'email-address' : 'default'}
               placeholderTextColor="#9CA3AF"
-              testID={`input-field-${field.name}`}
             />
           </Box>
         );
@@ -47,7 +46,6 @@ export function DynamicField({ field, value, onChange }: DynamicFieldProps) {
               }}
               keyboardType="numeric"
               placeholderTextColor="#9CA3AF"
-              testID={`input-field-${field.name}`}
             />
           </Box>
         );
@@ -61,7 +59,6 @@ export function DynamicField({ field, value, onChange }: DynamicFieldProps) {
               value={value as string || ''}
               onChangeText={(text) => onChange(field.name, text)}
               placeholderTextColor="#9CA3AF"
-              testID={`input-field-${field.name}`}
             />
           </Box>
         );
@@ -75,7 +72,6 @@ export function DynamicField({ field, value, onChange }: DynamicFieldProps) {
               value={value as string || ''}
               onChangeText={(text) => onChange(field.name, text)}
               placeholderTextColor="#9CA3AF"
-              testID={`input-field-${field.name}`}
             />
           </Box>
         );
@@ -89,7 +85,6 @@ export function DynamicField({ field, value, onChange }: DynamicFieldProps) {
               value={value as string || ''}
               onChangeText={(text) => onChange(field.name, text)}
               placeholderTextColor="#9CA3AF"
-              testID={`input-field-${field.name}`}
             />
           </Box>
         );
@@ -105,7 +100,6 @@ export function DynamicField({ field, value, onChange }: DynamicFieldProps) {
               multiline={field.type === 'array'}
               numberOfLines={field.type === 'array' ? 3 : 1}
               placeholderTextColor="#9CA3AF"
-              testID={`input-field-${field.name}`}
             />
           </Box>
         );

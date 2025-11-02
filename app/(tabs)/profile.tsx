@@ -223,7 +223,7 @@ export default function ProfileScreen() {
                   icon={ShieldCheck}
                   title={t('profile.adminDashboard')}
                   subtitle={t('profile.adminDashboardSubtitle')}
-                  onPress={() => router.push('/(tabs)/admin-dashboard' as any)}
+                  onPress={() => router.push('/(tabs)/admin-dashboard')}
                 />
               </Box>
             </>
@@ -243,7 +243,7 @@ export default function ProfileScreen() {
               icon={Edit}
               title={t('profile.editProfile', 'Edit Profile')}
               subtitle={t('profile.editProfileSubtitle', 'Update your personal information')}
-              onPress={() => router.push('/(tabs)/edit-profile' as any)}
+              onPress={() => router.push('/(tabs)/edit-profile')}
             />
           </Box>
 
@@ -262,7 +262,7 @@ export default function ProfileScreen() {
               icon={LinkIcon}
               title={t('profile.connectedServices', 'Connected Services')}
               subtitle={t('profile.connectedServicesSubtitle', 'Manage service connections')}
-              onPress={() => router.push('/connected-services' as any)}
+              onPress={() => router.push('/connected-services')}
             />
           </Box>
 

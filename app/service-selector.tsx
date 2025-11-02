@@ -230,7 +230,7 @@ export default function ServiceSelectorScreen() {
   const handleConfirm = () => {
     if (selectedService && selectedAction) {
       router.push({
-        pathname: '/action-configurator' as any,
+        pathname: '/action-configurator',
         params: {
           type: selectionType,
           serviceId: selectedService.id,

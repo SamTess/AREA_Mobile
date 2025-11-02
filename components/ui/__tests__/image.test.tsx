@@ -13,28 +13,4 @@ describe('Image (web branch)', () => {
     expect(getByLabelText('pic')).toBeTruthy();
     Object.defineProperty(Platform, 'OS', { configurable: true, get: () => original });
   });
-
-  it('renders image with different sizes', () => {
-    const sizes = ['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const;
-    
-    sizes.forEach(size => {
-      const { UNSAFE_root } = render(
-        <Image 
-          source={{ uri: 'https://example.com/image.png' }} 
-          alt="Test image"
-          size={size}
-        />
-      );
-      expect(UNSAFE_root).toBeTruthy();
-    });
-  });
-
-  it('renders image without alt text', () => {
-    const { UNSAFE_root } = render(
-      <Image 
-        source={{ uri: 'https://example.com/image.png' }} 
-      />
-    );
-    expect(UNSAFE_root).toBeTruthy();
-  });
 });

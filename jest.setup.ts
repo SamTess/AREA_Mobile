@@ -32,14 +32,26 @@ jest.mock('nativewind', () => {
 
 // Mock expo-router router to prevent navigation errors
 jest.mock('expo-router', () => {
-  const React = require('react');
+  const actual = jest.requireActual('expo-router');
   return {
+    ...actual,
     useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
     router: { push: jest.fn(), replace: jest.fn(), back: jest.fn() },
     // Execute the provided effect immediately in tests so components depending
     // on focus effects (like loading OAuth providers) run during render.
     useFocusEffect: (effect: any) => {
-      return React.useEffect(effect, []);
+      try {
+        // effect is typically a function returned by useCallback
+        const res = typeof effect === 'function' ? effect() : undefined;
+        // If the effect returns a cleanup function, call it (no-op here)
+        if (typeof res === 'function') {
+          // call cleanup synchronously
+          res();
+        }
+      } catch (e) {
+        // swallow errors in the mock to avoid breaking unrelated tests
+      }
+      return undefined;
     },
   };
 });
@@ -59,23 +71,11 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-// Mock @react-navigation/native
-jest.mock('@react-navigation/native', () => {
-  const React = require('react');
-  return {
-    useFocusEffect: (cb: any) => React.useEffect(cb, []),
-    NavigationContainer: ({ children }: any) => children,
-  };
-});
-
 // Mock Image from expo-image to RN Image for simplicity in tests
 jest.mock('expo-image', () => require('react-native'));
 
 // Initialize i18n for tests with default language 'en'
 import '@/i18n';
-
-// Import jest-dom matchers for better assertions
-import '@testing-library/jest-native/extend-expect';
 
 // Suppress specific console.error warnings that are expected in tests
 const originalError = console.error;

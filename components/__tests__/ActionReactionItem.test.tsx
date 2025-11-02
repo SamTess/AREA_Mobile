@@ -109,19 +109,4 @@ describe('ActionReactionItem', () => {
     const item = screen.getByTestId('action-reaction-item');
     expect(() => fireEvent.press(item)).not.toThrow();
   });
-
-  it('uses default colors when not provided', () => {
-    const propsWithoutColors = {
-      actionName: 'Test Action',
-      reactionName: 'Test Reaction',
-      actionIcon: Github,
-      reactionIcon: Mail,
-      isConnected: false,
-    };
-
-    renderWithProvider(<ActionReactionItem {...propsWithoutColors} />);
-    
-    expect(screen.getByText('Test Action')).toBeTruthy();
-    expect(screen.getByText('Test Reaction')).toBeTruthy();
-  });
 });

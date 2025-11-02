@@ -113,6 +113,7 @@ export default function UsersTab() {
         const errorMessage = error instanceof Error ? error.message : t('admin.users.saveFailed');
         Alert.alert(errorMessage);
       }
+      throw error;
     }
   };
   const filteredUsers = users.filter(
@@ -242,7 +243,6 @@ export default function UsersTab() {
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <FlatList
-        testID="users-flatlist"
         data={filteredUsers}
         keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={renderHeader}
@@ -272,14 +272,12 @@ export default function UsersTab() {
             </View>
             <View style={styles.actions}>
               <TouchableOpacity
-                testID={`edit-user-${item.id}`}
                 onPress={() => handleEditUser(item)}
                 style={styles.actionButton}
               >
                 <Ionicons name="create-outline" size={20} color={colors.info} />
               </TouchableOpacity>
               <TouchableOpacity
-                testID={`delete-user-${item.id}`}
                 onPress={() => handleDeleteUser(item)}
                 style={styles.actionButton}
               >

@@ -403,7 +403,7 @@ export default function EditProfileScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background-0">
         <Box className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color={getToken('primary-500')} testID="ActivityIndicator" />
+          <ActivityIndicator size="large" color={getToken('primary-500')} />
           <Text className="text-typography-600 mt-4">
             {t('editProfile.loading', 'Loading profile...')}
           </Text>
@@ -428,7 +428,7 @@ export default function EditProfileScreen() {
     <SafeAreaView className="flex-1 bg-background-0">
       <Box className="px-6 py-4" style={{ backgroundColor: colors.info }}>
         <HStack space="md" align="center">
-          <Pressable onPress={handleBackPress} testID="back-button">
+          <Pressable onPress={handleBackPress}>
             <Icon as={ArrowLeft} size="xl" className="text-white" />
           </Pressable>
           <Heading size="xl" className="text-white flex-1">
@@ -482,7 +482,7 @@ export default function EditProfileScreen() {
             <Avatar size="2xl">
               <AvatarFallbackText>{getUserInitials()}</AvatarFallbackText>
               {avatar && (
-                <AvatarImage source={{ uri: avatar }} testID="avatar-image" />
+                <AvatarImage source={{ uri: avatar }} />
               )}
               <AvatarBadge />
             </Avatar>
@@ -496,7 +496,6 @@ export default function EditProfileScreen() {
                 shadowRadius: 4,
                 elevation: 6,
               }}
-              testID="camera-button"
             >
               <Camera size={20} color={getToken('primary-500')} />
             </Pressable>

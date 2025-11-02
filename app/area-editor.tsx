@@ -86,24 +86,12 @@ function ServiceCard({ service, actionDef, actionData, params, type, index, onEd
             {(onEdit || onDelete) && (
               <HStack space="xs">
                 {onEdit && (
-                  <Button 
-                    size="xs" 
-                    variant="outline" 
-                    onPress={onEdit} 
-                    className="border-blue-300"
-                    testID={`edit-${type}-${index}`}
-                  >
+                  <Button size="xs" variant="outline" onPress={onEdit} className="border-blue-300">
                     <ButtonIcon as={Edit} size="sm" style={{ color: colors.info }} />
                   </Button>
                 )}
                 {onDelete && (
-                  <Button 
-                    size="xs" 
-                    variant="outline" 
-                    action="negative" 
-                    onPress={onDelete}
-                    testID={`delete-${type}-${index}`}
-                  >
+                  <Button size="xs" variant="outline" action="negative" onPress={onDelete}>
                     <ButtonIcon as={Trash2} size="sm" />
                   </Button>
                 )}
@@ -483,14 +471,14 @@ export default function AreaEditorScreen() {
 
   const handleAddAction = () => {
     router.push({
-      pathname: '/service-selector' as any,
+      pathname: '/service-selector',
       params: { type: 'action' }
     });
   };
 
   const handleAddReaction = () => {
     router.push({
-      pathname: '/service-selector' as any,
+      pathname: '/service-selector',
       params: { type: 'reaction' }
     });
   };
@@ -531,7 +519,7 @@ export default function AreaEditorScreen() {
 
     const { action, service, definition } = configuredAction;
     router.push({
-      pathname: '/action-configurator' as any,
+      pathname: '/action-configurator',
       params: {
         type: 'action',
         serviceId: service.id,
@@ -555,7 +543,7 @@ export default function AreaEditorScreen() {
 
     const { reaction, service, definition } = configuredReaction;
     router.push({
-      pathname: '/action-configurator' as any,
+      pathname: '/action-configurator',
       params: {
         type: 'reaction',
         serviceId: service.id,
@@ -580,7 +568,7 @@ export default function AreaEditorScreen() {
       );
       return;
     }
-    router.push('/link-configurator' as any);
+    router.push('/link-configurator');
   };
 
   if (isLoading) {
@@ -935,7 +923,7 @@ export default function AreaEditorScreen() {
                                   variant="outline"
                                   onPress={() => {
                                     router.push({
-                                      pathname: '/link-configurator' as any,
+                                      pathname: '/link-configurator',
                                       params: {
                                         sourceIndex: link.sourceIndex.toString(),
                                         targetIndex: link.targetIndex.toString(),

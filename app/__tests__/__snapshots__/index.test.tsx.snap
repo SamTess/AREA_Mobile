@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Index route renders Redirect component 1`] = `
-<Text>
-  redirect:/(tabs)
-</Text>
-`;

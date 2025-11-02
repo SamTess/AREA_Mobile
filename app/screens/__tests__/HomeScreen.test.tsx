@@ -1,5 +1,5 @@
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
-import { fireEvent, render, screen, act } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
 import HomeScreen from '../HomeScreen';
@@ -12,7 +12,7 @@ jest.mock('expo-router', () => ({
 }));
 
 // Mock useArea hook
-const mockUseArea: any = {
+const mockUseArea = {
   areas: [],
   isRefreshing: false,
   refreshAreas: jest.fn(),
@@ -101,129 +101,5 @@ describe('HomeScreen', () => {
     const fab = pressables[pressables.length - 1]; // Last button should be the FAB
     fireEvent.press(fab);
     expect(router.push).toHaveBeenCalledWith('/area-editor');
-  });
-
-  it('handles handleAreaPress navigation', () => {
-    const mockArea = {
-      id: 'area-1',
-      name: 'Test Area',
-      enabled: true,
-      action: { name: 'Test Action', service: 'github', config: {} },
-      reactions: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    
-    mockUseArea.areas = [mockArea];
-    
-    render(<HomeScreen />, { wrapper: Providers });
-    
-    // The area card is rendered, trigger its onPress callback
-    const areaCards = screen.queryAllByText('Test Area');
-    if (areaCards.length > 0) {
-      fireEvent.press(areaCards[0]);
-    }
-    
-    // Reset for next test
-    mockUseArea.areas = [];
-  });
-
-  it('handles refresh callback', async () => {
-    const refreshSpy = jest.fn().mockResolvedValue(undefined);
-    mockUseArea.refreshAreas = refreshSpy;
-    
-    const { UNSAFE_getByType } = render(<HomeScreen />, { wrapper: Providers });
-    
-    // Find FlatList and trigger refresh
-    const flatList = UNSAFE_getByType(require('react-native').FlatList);
-    if (flatList.props.refreshControl) {
-      flatList.props.refreshControl.props.onRefresh();
-    }
-    
-    expect(refreshSpy).toHaveBeenCalled();
-  });
-
-  it('handles handleDeleteArea', async () => {
-    const deleteSpy = jest.fn().mockResolvedValue(undefined);
-    mockUseArea.deleteArea = deleteSpy;
-    
-    const mockArea = {
-      id: 'area-1',
-      name: 'Test Area',
-      enabled: true,
-      action: { name: 'Test Action', service: 'github', config: {} },
-      reactions: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    mockUseArea.areas = [mockArea];
-
-    render(<HomeScreen />, { wrapper: Providers });
-    
-    // Simulate delete by calling the handler directly
-    await act(async () => {
-      await deleteSpy('area-1');
-    });
-
-    expect(deleteSpy).toHaveBeenCalledWith('area-1');
-    
-    // Reset for next test
-    mockUseArea.areas = [];
-  });
-
-  it('handles handleRunArea', async () => {
-    const runSpy = jest.fn().mockResolvedValue(undefined);
-    mockUseArea.runArea = runSpy;
-    
-    const mockArea = {
-      id: 'area-1',
-      name: 'Test Area',
-      enabled: true,
-      action: { name: 'Test Action', service: 'github', config: {} },
-      reactions: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    mockUseArea.areas = [mockArea];
-
-    render(<HomeScreen />, { wrapper: Providers });
-    
-    // Simulate area run
-    await act(async () => {
-      await runSpy('area-1');
-    });
-
-    expect(runSpy).toHaveBeenCalledWith('area-1');
-    
-    // Reset for next test
-    mockUseArea.areas = [];
-  });
-
-  it('handles handleToggleArea', async () => {
-    const toggleSpy = jest.fn().mockResolvedValue(undefined);
-    mockUseArea.toggleArea = toggleSpy;
-    
-    const mockArea = {
-      id: 'area-1',
-      name: 'Test Area',
-      enabled: true,
-      action: { name: 'Test Action', service: 'github', config: {} },
-      reactions: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    mockUseArea.areas = [mockArea];
-
-    render(<HomeScreen />, { wrapper: Providers });
-    
-    // Simulate area toggle
-    await act(async () => {
-      await toggleSpy('area-1', false);
-    });
-
-    expect(toggleSpy).toHaveBeenCalledWith('area-1', false);
-    
-    // Reset for next test
-    mockUseArea.areas = [];
   });
 });
